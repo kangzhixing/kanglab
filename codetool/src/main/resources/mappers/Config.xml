@@ -1,0 +1,176 @@
+<!DOCTYPE mapper PUBLIC " -//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kang.codetool.dao.IConfigsDao">
+    <resultMap id="BaseResultMap" type="com.kang.codetool.model.Configs">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="type" property="type" jdbcType="INTEGER" />
+        <result column="key" property="key" jdbcType="VARCHAR" />
+        <result column="value" property="value" jdbcType="VARCHAR" />
+        <result column="describe" property="describe" jdbcType="VARCHAR" />
+        <result column="valid_flag" property="validFlag" jdbcType="INTEGER" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, type, key, value, describe, valid_flag, create_time, update_time
+    </sql>
+    <sql id="Where_Column_List">
+        <if test="id != null">
+            AND id = #{id,jdbcType=BIGINT}
+        </if>
+        <if test="type != null">
+            AND type = #{type,jdbcType=INTEGER}
+        </if>
+        <if test="key != null">
+            AND key = #{key,jdbcType=VARCHAR}
+        </if>
+        <if test="value != null">
+            AND value = #{value,jdbcType=VARCHAR}
+        </if>
+        <if test="describe != null">
+            AND describe = #{describe,jdbcType=VARCHAR}
+        </if>
+        <if test="validFlag != null">
+            AND valid_flag = #{validFlag,jdbcType=INTEGER}
+        </if>
+        <if test="createTime != null">
+            AND create_time = #{createTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="updateTime != null">
+            AND update_time = #{updateTime,jdbcType=TIMESTAMP}
+        </if>
+    </sql>
+    <select id="selectById" parameterType="Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_configs
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_configs
+    </select>
+    <select id="selectByPage" parameterType="com.kang.codetool.model.Configs" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_configs
+        <trim prefix="where" prefixOverrides="and | or">
+            <include refid = "Where_Column_List"></include>
+        </trim>
+        LIMIT #{length} OFFSET #{start}
+    </select>
+    <select id="selectByWhere" parameterType="com.kang.codetool.model.Configs" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_configs
+        <trim prefix="where" prefixOverrides="and | or">
+            <include refid = "Where_Column_List"></include>
+        </trim>
+        order by value
+    </select>
+    <select id="count" parameterType="com.kang.codetool.model.Configs" resultType="Integer">
+        select count(1)
+        from t_configs
+        <trim prefix="where" prefixOverrides="and | or">
+            <include refid = "Where_Column_List"></include>
+        </trim>
+    </select>
+    <delete id="deleteById" parameterType="Long">
+        delete from t_configs
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.kang.codetool.model.Configs" useGeneratedKeys="true" keyProperty="id">
+        insert into t_configs(
+        type, key, value, describe, valid_flag, create_time, update_time
+        ) values (
+        #{type,jdbcType=INTEGER},
+        #{key,jdbcType=VARCHAR},
+        #{value,jdbcType=VARCHAR},
+        #{describe,jdbcType=VARCHAR},
+        #{validFlag,jdbcType=INTEGER},
+        #{createTime,jdbcType=TIMESTAMP},
+        #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" parameterType="com.kang.codetool.model.Configs" useGeneratedKeys="true" keyProperty="id">
+        insert into t_configs
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type != null">
+                type,
+            </if>
+            <if test="key != null">
+                key,
+            </if>
+            <if test="value != null">
+                value,
+            </if>
+            <if test="describe != null">
+                describe,
+            </if>
+            <if test="validFlag != null">
+                valid_flag,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="key != null">
+                #{key,jdbcType=VARCHAR},
+            </if>
+            <if test="value != null">
+                #{value,jdbcType=VARCHAR},
+            </if>
+            <if test="describe != null">
+                #{describe,jdbcType=VARCHAR},
+            </if>
+            <if test="validFlag != null">
+                #{validFlag,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateById" parameterType="com.kang.codetool.model.Configs">
+        update t_configs
+        set type = #{type,jdbcType=INTEGER}, key = #{key,jdbcType=VARCHAR}, value = #{value,jdbcType=VARCHAR}, describe = #{describe,jdbcType=VARCHAR},
+        valid_flag = #{validFlag,jdbcType=INTEGER}, create_time = #{createTime,jdbcType=TIMESTAMP}, update_time = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByIdSelective" parameterType="com.kang.codetool.model.Configs">
+        update t_configs
+        <set>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="key != null">
+                key = #{key,jdbcType=VARCHAR},
+            </if>
+            <if test="value != null">
+                value = #{value,jdbcType=VARCHAR},
+            </if>
+            <if test="describe != null">
+                describe = #{describe,jdbcType=VARCHAR},
+            </if>
+            <if test="validFlag != null">
+                valid_flag = #{validFlag,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

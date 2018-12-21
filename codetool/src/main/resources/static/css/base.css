@@ -1,0 +1,481 @@
+﻿body {
+    margin: 0;
+    font-family: "Microsoft YaHei ",'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+}
+
+select {
+    padding: 3px;
+}
+
+input[type=text] {
+    padding: 3px 5px;
+}
+
+.mask {
+    z-index: 90;
+    background-color: #cfcfcf;
+    filter: alpha(opacity=80); /*支持 IE 浏览器*/
+    -moz-opacity: 0.80; /*支持 FireFox 浏览器*/
+    opacity: 0.80; /*支持 Chrome, Opera, Safari 等浏览器*/
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.pinput {
+    margin: 0;
+    padding: 3px 5px;
+    font-size: 13px;
+    border: 1px solid darkgray;
+}
+
+.divTop {
+    z-index: 100;
+    background: #fff;
+    width: 100%;
+    position: fixed;
+    border-bottom: 1px solid #eeeeee;
+    height: 65px;
+    top: 0px;
+    font-family: "Microsoft YaHei ",'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 400;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.divInput {
+    box-shadow: 0 0 10px grey;
+    display: block;
+    padding: 10px 20px;
+    border: 1px solid lightgrey\9;
+}
+
+.divCondition {
+    margin: 10px 0;
+}
+
+#divTopPage {
+    position: relative;
+    top:-65px;
+    max-width: 1000px;
+    width: 90%;
+    margin: auto auto;
+    height: 65px;
+    transition: 0.3s;
+}
+
+.topPart {
+    height: 45px;
+    padding: 10px 0;
+}
+
+.divTitleText {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 400;
+    color: #757575;
+}
+
+.divPage .divTitleText {
+    font-size: 25px;
+}
+
+#divIndex {
+    cursor: pointer;
+    color: #757575;
+    font-size: 30px;
+    font-weight: 400;
+    display: inline-block;
+}
+
+#btnMenu {
+    width: 25px;
+    height: 36px;
+    position: relative;
+    top: 6px;
+    float: right;
+    filter: alpha(opacity=30); /*支持 IE 浏览器*/
+    -moz-opacity: 0.30; /*支持 FireFox 浏览器*/
+    opacity: 0.30; /*支持 Chrome, Opera, Safari 等浏览器*/
+}
+
+#btnGetSearchPart {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    top: 13px;
+    left: -13px;
+    float: right;
+}
+
+#btnSearchPages {
+    width: 20px;
+    height: 20px;
+}
+
+#divTopSearch {
+    height: 100%;
+    display: block;
+    border: 1px solid grey;
+    width: 100%;
+}
+
+#txtTopSearch {
+    padding: 0;
+    width: 100%;
+    border: none;
+    height: 100%;
+    outline: none;
+    font-size: 25px;
+    transition: 0.5s;
+    z-index: 10;
+}
+
+@media screen and (min-width: 720px) {
+    .divSearchResult {
+        max-width: 180px;
+        width: 30%;
+        height: 100px;
+        line-height: 100px;
+        margin: 50px 30px 0 30px;
+        background: #f5f5f5;
+        display: inline-block;
+        box-shadow: 0 0 10px grey;
+    }
+
+        .divSearchResult:hover {
+            background: #eeeeee;
+            box-shadow: 0 0 30px grey;
+        }
+}
+
+/* 设置了浏览器宽度不小于720px时 */
+@media screen and (max-width: 720px) {
+    .divSearchResult {
+        display: block;
+        background: #eeeeee;
+        max-width: 100%;
+        height: 70px;
+        line-height: 70px;
+        margin: 20px auto;
+        box-shadow: 2px 2px 2px grey;
+    }
+
+        .divSearchResult:hover {
+            background: #d5d5d5;
+        }
+}
+
+.divSearchResult {
+    max-width: 180px\9;
+    width: 30%\9;
+    height: 100px\9;
+    line-height: 100px\9;
+    margin: 50px 30px 0 30px\9;
+    background: #dddddd\9;
+    display: inline-block\9;
+    transition: 0.2s;
+    text-align: center;
+    cursor: pointer;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+    .divSearchResult:hover {
+        background: #d5d5d5\9;
+    }
+
+#div404 {
+    text-align: center;
+    margin: 150px auto;
+}
+
+    #div404 label {
+        font-weight: 900;
+        color: lightgrey;
+        font-size: 160px;
+    }
+
+.divRenderBody {
+    margin-top: 65px;
+    padding-top: 15px;
+    height: 100%;
+}
+
+.divPage {
+    max-width: 1000px;
+    width: 90%;
+    margin: 0 auto;
+    font-family: "Microsoft YaHei";
+}
+
+.divContent {
+    font-size: 12px;
+    box-shadow: 0 0 10px grey;
+    border:1px solid lightgrey\9;
+    padding: 20px;
+}
+
+.dn {
+    display: none;
+}
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+.cp {
+    cursor: pointer;
+}
+
+.rd5 {
+    border-radius: 5px; /* 所有角都使用半径为5px的圆角，此属性为CSS3标准属性 */
+    -moz-border-radius: 5px; /* Mozilla浏览器的私有属性 */
+    -webkit-border-radius: 5px; /* Webkit浏览器的私有属性 */
+}
+
+.rd5l {
+    border-radius: 5px 0 0 5px; /* 所有角都使用半径为5px的圆角，此属性为CSS3标准属性 */
+    -moz-border-radius: 5px 0 0 5px; /* Mozilla浏览器的私有属性 */
+    -webkit-border-radius: 5px 0 0 5px; /* Webkit浏览器的私有属性 */
+}
+
+.rd5r {
+    border-radius: 0 5px 5px 0; /* 所有角都使用半径为5px的圆角，此属性为CSS3标准属性 */
+    -moz-border-radius: 0 5px 5px 0; /* Mozilla浏览器的私有属性 */
+    -webkit-border-radius: 0 5px 5px 0; /* Webkit浏览器的私有属性 */
+}
+
+.rd10 {
+    border-radius: 10px; /* 所有角都使用半径为5px的圆角，此属性为CSS3标准属性 */
+    -moz-border-radius: 10px; /* Mozilla浏览器的私有属性 */
+    -webkit-border-radius: 10px; /* Webkit浏览器的私有属性 */
+}
+
+.rd15 {
+    border-radius: 15px; /* 所有角都使用半径为5px的圆角，此属性为CSS3标准属性 */
+    -moz-border-radius: 15px; /* Mozilla浏览器的私有属性 */
+    -webkit-border-radius: 15px; /* Webkit浏览器的私有属性 */
+}
+
+.mr5 {
+    margin-right: 5px;
+}
+
+.mr10 {
+    margin-right: 10px;
+}
+
+.mr15 {
+    margin-right: 15px;
+}
+
+.mr20 {
+    margin-right: 20px;
+}
+
+.mr50 {
+    margin-right: 50px;
+}
+
+.mr60 {
+    margin-right: 60px;
+}
+
+.mr70 {
+    margin-right: 70px;
+}
+
+.mr80 {
+    margin-right: 80px;
+}
+
+.mr100 {
+    margin-right: 100px;
+}
+
+.mt5 {
+    margin-top: 5px;
+}
+
+.mt10 {
+    margin-top: 10px;
+}
+
+.mt15 {
+    margin-top: 15px;
+}
+
+.mt20 {
+    margin-top: 20px;
+}
+
+.mt50 {
+    margin-top: 50px;
+}
+
+.mb50 {
+    margin-bottom: 50px;
+}
+
+.w20 {
+    width: 20px;
+}
+
+.w25 {
+    width: 25px;
+}
+
+.w30 {
+    width: 30px;
+}
+
+.w40 {
+    width: 40px;
+}
+
+.w50 {
+    width: 50px;
+}
+
+.w100 {
+    width: 100px;
+}
+
+.w110 {
+    width: 110px;
+}
+
+.w120 {
+    width: 120px;
+}
+
+.w130 {
+    width: 130px;
+}
+
+.w140 {
+    width: 140px;
+}
+
+.w150 {
+    width: 150px;
+}
+
+.w200 {
+    width: 200px;
+}
+
+.w300 {
+    width: 300px;
+}
+
+.w400 {
+    width: 400px;
+}
+
+.w500 {
+    width: 500px;
+}
+
+.w600 {
+    width: 600px;
+}
+
+.w700 {
+    width: 700px;
+}
+
+.w800 {
+    width: 800px;
+}
+
+.h20 {
+    height: 20px;
+}
+
+.h22 {
+    height: 22px;
+}
+
+.h25 {
+    height: 25px;
+}
+
+.jk-button {
+    transition: 0.2s;
+    cursor: pointer;
+    height: 35px;
+    width: 75px;
+    border: none;
+    background-color: #616161;
+    color: #fff;
+    font-weight: 400;
+    font-size: 16px;
+    font-family: "Microsoft YaHei";
+    outline: none;
+    word-break: keep-all;
+    margin-top: 10px;
+}
+
+.jk-button-disabled {
+    transition: 0.2s;
+    cursor: pointer;
+    height: 35px;
+    width: 75px;
+    border: 1px dashed #BDBDBD;
+    background-color: #fff;
+    color: #616161;
+    font-weight: 400;
+    font-size: 16px;
+    font-family: "Microsoft YaHei";
+    outline: none;
+    word-break: keep-all;
+    margin-top: 10px;
+}
+
+.jk-button:hover {
+    background-color: #BDBDBD;
+}
+
+.goTop {
+    width: 35px;
+    height: 35px;
+    bottom: 20px;
+    right: 20px;
+    position: fixed;
+    background-color: #cccccc;
+    padding: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 0 30px white;
+}
+
+    .goTop:hover {
+        box-shadow: 0 0 15px grey;
+        background-color: grey;
+    }
+
+.goTop_t {
+    font-size: 0;
+    line-height: 0;
+    border-width: 18px;
+    border-color: whitesmoke;
+    border-top-width: 0;
+    border-style: dashed;
+    border-bottom-style: solid;
+    border-left-color: transparent;
+    border-right-color: transparent;
+}
+
+.goTop_c {
+    margin: auto;
+    width: 15px;
+    height: 15px;
+    background-color: whitesmoke;
+}

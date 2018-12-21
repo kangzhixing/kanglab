@@ -1,0 +1,74 @@
+<#import "../main.html" as page>
+    <@page.main current="/testPage" title="时间戳转换">
+
+    <style type="text/css">
+        td {
+            font-size: 16px;
+        }
+
+        input {
+            outline: none;
+            height: 25px;
+        }
+
+        button {
+            width: 100px;
+            position: relative;
+            top: -5px;
+        }
+
+    </style>
+    <div class="divPage">
+        <div class="divTitleText"></div>
+        <div>
+            <table>
+                <tr>
+                    <td style="width:70px">时间戳</td>
+                    <td style="width:155px"><input type="text" class="w130" id="txtTimestamp"/></td>
+                    <td>
+                        <button class="jk-button mr10" style="width: 100px;" id="btnTimestamp">转成时间</button>
+                    </td>
+                    <td><input type="text" class="w130" id="txtToTime"/></td>
+                </tr>
+                <tr>
+                    <td>时间</td>
+                    <td><input type="text" class="w130" id="txtTime"/></td>
+                    <td>
+                        <button class="jk-button mr10" style="width: 100px;" id="btnTime">转成时间戳</button>
+                    </td>
+                    <td><input type="text" class="w130" id="txtToTimestamp"/></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        $(function(){
+            $("#txtTimestamp").val(new Date().getTime());
+            $("#txtTime").val(formatTimestamp(new Date().getTime()));
+        });
+
+        $("#btnTimestamp").bind("click", function () {
+            var txtTimestamp = $("#txtTimestamp").val();
+            if (!txtTimestamp) {
+                return;
+            }
+            $("#txtToTime").val(formatTimestamp(txtTimestamp));
+        });
+
+        function formatTimestamp(timestamp){
+            var timestamp = new Date(Number(timestamp));
+            return timestamp.toLocaleDateString().replace(/\//g, "-") + " " + timestamp.toTimeString().substr(0, 8);
+        }
+
+        $("#btnTime").bind("click", function () {
+            var txtTime = $("#txtTime").val();
+            if (!txtTime) {
+                return;
+            }
+            $("#txtToTimestamp").val(new Date(txtTime).getTime());
+        });
+
+
+    </script>
+</@page.main>

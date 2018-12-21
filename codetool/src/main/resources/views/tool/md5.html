@@ -1,0 +1,36 @@
+<#import "../main.html" as page>
+    <@page.main current="/testPage" title="MD5编码">
+
+    <div class="divPage">
+        <div class="divTitleText"></div>
+        <div class="divCondition">
+            <table style="margin-top: 10px;width:100%">
+                <tr>
+                    <td width="80px">原字符串：</td>
+                    <td>
+                        <input type="text" id="txtOriStr" style="max-width: 586px;width:90%" placeholder=""/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <pre id="divResult" class="divContent" style="display: none">
+    </pre>
+    </div>
+    <script type="text/javascript">
+        $("#txtOriStr").bind("keyup", function () {
+            var str = $("#txtOriStr").val();
+            if (str.trim() != '') {
+                $("#divResult").fadeIn(200);
+                $("#divResult").text(hex_md5(str));
+            } else {
+                $("#divResult").fadeOut(200);
+            }
+        });
+
+        $("#divResult").bind("mouseover", function () {
+            SelectText($(this));
+        });
+
+    </script>
+
+</@page.main>

@@ -1,0 +1,23 @@
+<#import "../main.html" as page>
+    <@page.main current="/searchPage" title="功能列表">
+
+    <div id="divPages" class="divPage"></div>
+    <script type="text/javascript">
+        $(function () {
+            var keyword = Request("keyword");
+            var isall = Request("isall");
+
+            $.getJSON("/getPageByKeyword", {
+                keyword: keyword == "" ? "" : keyword,
+                isall: isall == "" ? 0 : isall
+            }, function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    $("#divPages").append("<div class=\"divSearchResult rd10\" onclick=\"location.href = '" + data[i].url + "';\">" + data[i].text + "</div>");
+                }
+//
+            });
+
+        });
+    </script>
+
+</@page.main>

@@ -1,0 +1,92 @@
+<#import "../main.html" as page>
+    <@page.main current="/testPage" title="GUID字符串">
+
+
+    <style type="text/css">
+        .divContent {
+            box-shadow: 0 0 10px grey;
+            padding: 20px;
+        }
+
+        .cbx {
+            z-index: -1;
+            width: 20px;
+            height: 20px;
+            position: relative;
+            top: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            text-align: center;
+            /*background-image: url(images/checkbox_01.gif);*/
+            /*background-repeat: no-repeat;*/
+            /*background-position: 0 0;*/
+        }
+    </style>
+    <div class="divPage">
+        <div class="divTitleText"></div>
+        <div class="divCondition">
+            <div>
+                <button id="btnGenerat" class="jk-button">生成</button>
+            </div>
+            <p class="mt20">
+            <span class="mr20">
+                数量: <input type="text" id="txtCnt" class="w25" value="1" maxlength="3" />
+            </span>
+                <span class="mr20"><label class="cp">是否包含"-": <input type="checkbox" id="cboHyphen" class="cbx" /></label></span>
+                <span><label class="cp">大写: <input type="checkbox" id="cboCapitals" class="cbx" /></label></span>
+            </p>
+        </div>
+        <pre id="divResult" class="divContent">
+    </pre>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            NewGuid();
+        });
+
+        $("#btnGenerat").bind("click", function () {
+            NewGuid();
+        });
+
+        function NewGuid() {
+            if (!IsNumber($("#txtCnt").val())) {
+                $("#txtCnt").focus();
+                return;
+            }
+            if ($("#txtCnt").val().trim() == "") {
+                $("#txtCnt").val(1);
+            }
+            var isHyphen = $("#cboHyphen").is(":checked");
+            var isCapitals = $("#cboCapitals").is(":checked");
+
+            var html = "";
+            for (var i = 0; i < parseInt($("#txtCnt").val()); i++) {
+                var guid = newGuid();
+                var result = isHyphen ? guid : guid.replaceAll("-", "");
+                html += (isCapitals ? result.toUpperCase() : result.toLowerCase()) + "\n";
+            }
+            $("#divResult").html(html);
+        }
+
+        $("#txtCnt").keypress(function (e) {
+            if (!IsNumber(e.key)) {
+                return false;
+            }
+        });
+
+        $("#divResult").bind("mouseover", function () {
+            SelectText($(this));
+        });
+        //).hover(function () {
+        //    SelectText($(this).attr("id"));
+        //}, function () {
+        //    if ($("#divResult").createTextRange) {//IE浏览器
+        //        document.selection.empty();
+        //    } else if (window.getSelection) {//非IE浏览器
+        //        window.getSelection().removeAllRanges();
+        //    }
+
+        //});
+
+    </script>
+</@page.main>
