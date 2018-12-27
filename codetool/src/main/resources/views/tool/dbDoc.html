@@ -98,7 +98,7 @@
                 <tbody></tbody>
             </table>
         </div>
-        <form method="post" id="fmExport" style="display: none" action="/Tool/Export2File">
+        <form method="post" id="fmExport" style="display: none" action="/tool/Export2File">
             <input name="sql"/>
             <input name="Connection"/>
             <input name="fileName"/>
@@ -126,7 +126,7 @@
             $.ajax({
                 async: true,
                 type: "POST",
-                url: "/pushRc/pushAll",
+                url: "/db/getDbFile",
                 cache: false,
                 timeout: 60 * 60 * 1000,
                 dataType: "json",

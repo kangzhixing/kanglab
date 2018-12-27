@@ -1,13 +1,13 @@
 package com.kang.codetool.common;
 
-import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.util.ClassUtil;
-import db.KlDatabase;
-import db.KlDatabaseType;
-import db.KlFieldDescription;
+import com.kang.codetool.aop.anntion.ViewPage;
+import com.kang.framework.db.KlDatabase;
+import com.kang.framework.db.KlDatabaseType;
+import com.kang.framework.db.KlFieldDescription;
 import org.springframework.web.bind.annotation.RequestMapping;
-import other.KlConvert;
-import other.KlString;
+import com.kang.framework.KlConvert;
+import com.kang.framework.KlString;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -16,12 +16,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Common {
-
-    public static String[] getViewPage() {
-
-
-        return null;
-    }
 
     public static Map<String, Method> getAllPageMethod() {
 
@@ -237,7 +231,7 @@ public class Common {
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
             KlFieldDescription model = new KlFieldDescription();
-            model.setName(KlString.replaceUnderline(map.get("name").toString()));
+            model.setName(map.get("name").toString());
             model.setDbType(map.get("dbtype").toString());
             model.setLength(KlConvert.tryToInteger(map.get("length")));
             model.setIsNullable(KlConvert.tryToBoolean(map.get("isnullable").toString()));
@@ -283,7 +277,7 @@ public class Common {
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
             KlFieldDescription model = new KlFieldDescription();
-            model.setName(KlString.replaceUnderline(map.get("name").toString()));
+            model.setName(map.get("name").toString());
             model.setDbType(map.get("dbtype").toString());
             model.setLength(KlConvert.tryToInteger(map.get("length")));
             model.setIsNullable(KlConvert.tryToBoolean("1".equals(map.get("isnullable").toString())));
@@ -312,7 +306,7 @@ public class Common {
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
             KlFieldDescription model = new KlFieldDescription();
-            model.setName(KlString.replaceUnderline(map.get("name").toString()));
+            model.setName(map.get("name").toString());
             model.setDbType(map.get("dbtype").toString());
             model.setLength(KlConvert.tryToInteger(map.get("length")));
             model.setIsNullable(KlConvert.tryToBoolean("yes".equals(map.get("isnullable").toString().toLowerCase())));

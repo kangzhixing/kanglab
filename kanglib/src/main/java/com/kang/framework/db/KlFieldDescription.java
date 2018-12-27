@@ -1,4 +1,6 @@
-package db;
+package com.kang.framework.db;
+
+import com.kang.framework.KlString;
 
 public class KlFieldDescription
     {
@@ -100,7 +102,7 @@ public class KlFieldDescription
         }
 
         public String getSimpleName() {
-            return simpleName;
+            return KlString.replaceUnderline(name);
         }
 
         public void setSimpleName(String simpleName) {

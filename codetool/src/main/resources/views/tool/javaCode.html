@@ -1,0 +1,252 @@
+<#import "../main.html" as page>
+    <@page.main current="/javaCode" title="JAVA代码生成器">
+
+    <style type="text/css">
+        .eleHide {
+            display: none;
+        }
+
+        .divContent {
+            box-shadow: 0 0 10px grey;
+            padding: 20px;
+        }
+    </style>
+    <div id="pageMSSQL" class="divPage">
+        <div class="divTitleText"></div>
+        <div class="divCondition">
+            <div>
+                <button id="btnConnect" class="jk-button mr10">连接</button>
+                <button id="btnGenerat" class="jk-button-disabled mr10" disabled="disabled">生成</button>
+                <button id="btnExport" class="jk-button-disabled mr10" disabled="disabled">下载</button>
+                <button id="btnExportAll" class="jk-button-disabled" style="width:110px" disabled="disabled">下载全部表
+                </button>
+            </div>
+            <table style="margin-top: 10px;width:100%">
+                <tr>
+                    <td width="90px">数据库类型：</td>
+                    <td>
+                        <input type="radio" name="dbType" id="cboSqlServer" checked="checked" value="SqlServer"/>
+                        <label for="cboSqlServer">Sql Server</label>
+                        <input type="radio" name="dbType" id="cboMySql" value="MySql"/>
+                        <label for="cboMySql">MySql</label>
+                        <input type="radio" name="dbType" id="cboPostgreSql" value="PostgreSql"/>
+                        <label for="cboPostgreSql">PostgreSql</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>连接字符串：</td>
+                    <td>
+                        <input type="text" id="txtConnectionString" style="max-width: 686px;width: 100%"
+                               value="jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx"/>
+                    </td>
+                </tr>
+                <tr class="eleHide">
+                    <td>命名空间：</td>
+                    <td>
+                        <input type="text" id="txtPackage" style="max-width: 686px;width: 100%"
+                               value="com.xxx.xxx.{0}"/>
+                    </td>
+                </tr>
+                <tr class="eleHide">
+                    <td>表和视图：</td>
+                    <td>
+                        <select id="sltTables" style="max-width:700px;width:100%"></select>
+                    </td>
+                </tr>
+                <tr class="eleHide">
+                    <td>类名：</td>
+                    <td>
+                        <input type="text" id="txtClassName" class="" style="max-width: 686px;width: 100%"/>
+                    </td>
+                </tr>
+                <tr class="eleHide">
+                    <td>类型：</td>
+                    <td>
+                        <select id="sltDataType" style="max-width:700px;width:100%"></select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <pre id="divCode" class="divContent" style="display: none">
+    </pre>
+        <form method="post" id="fmExport" style="display: none" action="/CodeMaker/DownloadFile">
+            <input name="content"/>
+            <input name="fileName"/>
+            <input name="extension" value="java"/>
+        </form>
+        <form method="post" id="fmExportAll" style="display: none" action="/CodeMaker/DownloadAllFile">
+            <input name="Lang"/>
+            <input name="ClassName"/>
+            <input name="ConnectionString"/>
+            <input name="Package"/>
+            <input name="DbType"/>
+            <input name="Type"/>
+            <input name="extension" value="java"/>
+        </form>
+    </div>
+    <script type="text/javascript">
+
+        $(function () {
+            if (localStorage.getItem("conn") != null) {
+                $("#txtConnectionString").val(localStorage.getItem("conn"));
+            }
+
+            if (localStorage.getItem("dbtype") != null) {
+                $("input[value=" + localStorage.getItem("dbtype") + "]").prop("checked","checked");
+            }
+            InitCodeTypeSlt();
+        });
+
+        function InitCodeTypeSlt() {
+            $.getJSON("/codeMaker/getCodeTypeSlt?lang=Java&r=" + new Date().getTime(), function (data) {
+                $("#sltDataType").html('');
+                var html = '';
+                for (var i = 0; i < data.body.length; i++) {
+                    html += "<option value='" + data.body[i] + "'>" + data.body[i].replaceAll("ref", "") + "</option>";
+                }
+                $("#sltDataType").html(html);
+            });
+
+        }
+
+        $("#btnExport").bind("click", function () {
+            var content = $("#divCode").text();
+            if (content.trim() == '') return;
+            $("#fmExport").find("input[name=content]").val(encodeURIComponent(content));
+            $("#fmExport").find("input[name=fileName]").val($("#txtClassName").val());
+            $("#fmExport").submit();
+        });
+
+        $("#btnExportAll").bind("click", function () {
+            $("#fmExportAll").find("input[name=ConnectionString]").val(encodeURIComponent($("#txtConnectionString").val()));
+            $("#fmExportAll").find("input[name=Package]").val($("#txtPackage").val());
+            $("#fmExportAll").find("input[name=DbType]").val($("input:radio[checked=checked]").val());
+            $("#fmExportAll").find("input[name=Lang]").val("Java");
+            $("#fmExportAll").find("input[name=Type]").val($("#sltDataType").val());
+            $("#fmExportAll").find("input[name=ClassName]").val($("#txtClassName").val());
+            $("#fmExportAll").submit();
+        });
+
+        document.body.oncopy = function () {
+            setTimeout(function () {
+                var text = clipboardData.getData("text");
+                if (text) {
+                    text = text + "\r\n本篇文章来源于 codetool 原文链接：" + location.href;
+                    clipboardData.setData("text", text);
+                }
+            }, 100)
+        }
+
+        $("#btnGenerat").bind("click", function () {
+            var connectionString = $("#txtConnectionString").val();
+            var table = $("#sltTables").val();
+            var pkg = $("#txtPackage").val();
+            var className = $("#txtClassName").val();
+            var type = $("#sltDataType").val();
+            $.getJSON("/codeMaker/generatCode", {
+                lang: "Java",
+                dbType: $("input:radio[checked=checked]").val(),
+                connectionString: encodeURIComponent(connectionString),
+                table: table,
+                packagePath: pkg,
+                type: type,
+                className: className,
+                random: new Date().getTime()
+            }, function (result) {
+                if (result != null && result.code != '1') {
+                    alert(result.msg);
+                }
+                else {
+                    $("#divCode").fadeIn(200);
+                    $("#divCode").text(result.body);
+                    $("#btnExport").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
+                    $("#btnExportAll").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
+                    if (type.indexOf('Xml') > 0) {
+                        $("#fmExport,#fmExportAll").find("input[name=extension]").val('xml');
+                    }
+                    else {
+                        $("#fmExport,#fmExportAll").find("input[name=extension]").val('java');
+                    }
+                }
+            });
+        });
+
+        $("input:radio").bind("change", function () {
+            var connectionString = $("#txtConnectionString").val();
+            var sqlserver = "jdbc:sqlserver://xxxxxxxxxxxx:xxxx;DatabaseName=xxx?user=xxxxxx&password=xxxxxx";
+            var mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx";
+            var postgresql = "jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx";
+
+            if (this.value == 'SqlServer') {
+                if ($("#txtConnectionString").val() == postgresql || $("#txtConnectionString").val() == mysql || $("#txtConnectionString").val() == "") {
+                    $("#txtConnectionString").val(sqlserver);
+                }
+            } else if (this.value == 'PostgreSql') {
+                if ($("#txtConnectionString").val() == sqlserver || $("#txtConnectionString").val() == mysql || $("#txtConnectionString").val() == "") {
+                    $("#txtConnectionString").val(postgresql);
+                }
+            } else if (this.value == 'MySql') {
+                if ($("#txtConnectionString").val() == sqlserver || $("#txtConnectionString").val() == postgresql || $("#txtConnectionString").val() == "") {
+                    $("#txtConnectionString").val(mysql);
+                }
+            }
+        });
+
+        $("#divCode").bind("mouseover", function () {
+            SelectText($(this));
+        });
+
+        function GetClassName(str) {
+            if (str != null && str.length > 2 && str.substring(0, 2) == 't_') {
+                str = str.substring(2);
+            }
+            return str.replaceUnderline().toUpperFirst();
+        }
+
+        $("#sltTables").bind("change", function () {
+            $("#txtClassName").val(GetClassName($(this).find("option:selected").val()));
+        });
+
+        $("#btnConnect").bind("click", function () {
+            var connectionString = $("#txtConnectionString").val().trim();
+            if (connectionString.trim() == "") {
+                return;
+            }
+            var dbType = $("input:radio[checked=checked]").val();
+            localStorage.setItem("conn", connectionString);
+            localStorage.setItem("dbtype", dbType);
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/codeMaker/getTables",
+                cache: false,
+                timeout: 60 * 60 * 1000,
+                dataType: "json",
+                data: {
+                    connectionString: encodeURIComponent(connectionString),
+                    random: new Date(),
+                    dbType: dbType
+                },
+                success: function (result) {
+                    if (result != null && result.code != '1') {
+                        alert(result.msg);
+                        $(".eleHide").hide();
+                    }
+                    else {
+                        $(".eleHide").fadeIn(200);
+                        $("#btnGenerat").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
+                        $("#btnExportAll").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
+                        var html = "";
+                        if (result.body.length > 0) {
+                            for (var i = 0; i < result.body.length; i++) {
+                                html = html + "<option value='" + result.body[i] + "'>" + result.body[i] + "</option>";
+                            }
+                            $("#txtClassName").val(GetClassName(result.body[0]));
+                        }
+                        $("#sltTables").html(html);
+                    }
+                }
+            });
+        });
+    </script>
+</@page.main>

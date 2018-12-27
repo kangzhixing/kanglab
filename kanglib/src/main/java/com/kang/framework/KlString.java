@@ -1,40 +1,38 @@
-package other;
+package com.kang.framework;
 
 import com.alibaba.druid.util.StringUtils;
 
 public class KlString {
 
-    /// <summary>
-    /// 首字母小写
-    /// </summary>
-    /// <param name="dbType">数据库类型</param>
-    /// <param name="isNullable"></param>
-    /// <returns>结果</returns>
+    /**
+     * 首字母小写
+     * @param str 数据库类型
+     * @return 结果
+     */
     public static String toLowerFirst(String str) {
         if (StringUtils.isEmpty(str)) return str;
         if (str.length() == 1) return str.toLowerCase();
         return str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
-    /// <summary>
-    /// 首字母大写
-    /// </summary>
-    /// <param name="dbType">数据库类型</param>
-    /// <param name="isNullable"></param>
-    /// <returns>结果</returns>
+    /**
+     * 首字母大写
+     * @param str 数据库类型
+     * @return 结果
+     */
     public static String toUpperFirst(String str) {
         if (StringUtils.isEmpty(str)) return str;
         if (str.length() == 1) return str.toUpperCase();
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
-    /// <summary>
-    /// 截取左半部分
-    /// </summary>
-    /// <param name="input">输入</param>
-    /// <param name="length">长度</param>
-    /// <param name="ex">扩展字符</param>
-    /// <returns>结果</returns>
+    /**
+     * 截取左半部分
+     * @param input 输入
+     * @param length 长度
+     * @param ex 扩展字符
+     * @return 结果
+     */
     public static String left(String input, int length, String ex) {
         if (StringUtils.isEmpty(input)) {
             return "";
@@ -46,13 +44,13 @@ public class KlString {
         }
     }
 
-    /// <summary>
-    /// 删除字符串中下划线
-    /// </summary>
-    /// <param name="srcStr">原字符串</param>
-    /// <param name="org">删除字符</param>
-    /// <param name="ob">替换字符</param>
-    /// <returns>结果</returns>
+    /**
+     * 删除字符串中下划线
+     * @param srcStr 原字符串
+     * @param org 删除字符
+     * @param ob 替换字符
+     * @return 结果
+     */
     public static String replaceUnderline(String srcStr, String org, String ob) {
         String newString = "";
         int first;
@@ -72,5 +70,19 @@ public class KlString {
 
     public static String replaceUnderline(String srcStr) {
         return replaceUnderline(srcStr, "_", "");
+    }
+
+    public static boolean isBlank(String description) {
+        return description == null || description.length() == 0;
+    }
+
+    public static String format(String content, Object... strArr) {
+        if (strArr == null || strArr.length == 0) {
+            return content;
+        }
+        for (int i = 0; i < strArr.length; i++) {
+            content = content.replaceAll("\\{" + i + "}", strArr[i] == null ? "" : strArr[i].toString());
+        }
+        return content;
     }
 }

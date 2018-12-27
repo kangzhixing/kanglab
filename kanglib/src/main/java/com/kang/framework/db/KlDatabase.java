@@ -1,4 +1,4 @@
-package db;
+package com.kang.framework.db;
 
 import com.alibaba.druid.util.StringUtils;
 

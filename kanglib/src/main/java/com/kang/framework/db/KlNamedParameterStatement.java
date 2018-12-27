@@ -1,4 +1,4 @@
-package db;
+package com.kang.framework.db;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;

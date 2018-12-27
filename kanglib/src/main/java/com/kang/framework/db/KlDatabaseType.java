@@ -1,4 +1,4 @@
-package db;
+package com.kang.framework.db;
 
 public enum KlDatabaseType {
 
