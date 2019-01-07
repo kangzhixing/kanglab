@@ -48,7 +48,7 @@ public class HttpClientUtil {
      * @see org.apache.http.entity.ContentType
      */
     public static String doPost(String url, String body) {
-        return doPost(url, null, body, CHARSET, null);
+        return doPost(url, "text/html", body, CHARSET, null);
     }
 
     /**

@@ -30,6 +30,10 @@
             margin: 20px 0 10px 5px;
         }
 
+        .tbDatas {
+            width: 100%;
+        }
+
         .tbDatas thead {
             font-weight: bold;
             background-color: darkgray;
@@ -108,6 +112,16 @@
     </div>
     <script type="text/javascript">
 
+        $(function () {
+            if (localStorage.getItem("docconn") != null) {
+                $("#txtConnectionString").val(localStorage.getItem("docconn"));
+            }
+
+            if (localStorage.getItem("docdbtype") != null) {
+                $("input[value=" + localStorage.getItem("docdbtype") + "]").prop("checked", "checked");
+            }
+        });
+
         function findTable(id) {
             //location.href = '#' + id;
             $('html, body').animate({
@@ -117,9 +131,13 @@
 
         $("#btnSearch").bind("click", function () {
             var connectionString = $("#txtConnectionString").val().trim();
-            if(!connectionString){
+            if (!connectionString) {
                 return;
             }
+
+            var dbType = $("input:radio[checked=checked]").val();
+            localStorage.setItem("docconn", connectionString);
+            localStorage.setItem("docdbtype", dbType);
 
             $("#divDatas").html('');
             $(".eleHide").hide();

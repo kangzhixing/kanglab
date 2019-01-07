@@ -1,0 +1,151 @@
+<#import "../main.html" as page>
+    <@page.main current="/pushRc" title="并发测试">
+    <style type="text/css">
+        .divTableList {
+            width: 180px;
+            height: 30px;
+            line-height: 30px;
+            margin: 10px 30px 0 30px;
+            background: #dddddd;
+            display: inline-block;
+            transition: 0.2s;
+            text-align: center;
+            cursor: pointer;
+            word-break: break-all;
+            word-wrap: break-word;
+        }
+
+        .divTableList:hover {
+            background: #dddddd;
+            box-shadow: 0 0 5px blue;
+        }
+
+        .divContent {
+            box-shadow: 0 0 10px grey;
+            padding: 20px;
+        }
+
+        .dbName {
+            font-weight: bold;
+            margin: 20px 0 10px 5px;
+        }
+
+        .tbDatas thead {
+            font-weight: bold;
+            background-color: darkgray;
+        }
+
+        .tbDatas tbody {
+            background-color: lightgray;
+        }
+
+        #tbDatas tbody tr:hover {
+            background-color: darkgray;
+        }
+
+        .tbDatas td {
+            padding: 5px;
+            white-space: nowrap;
+        }
+
+        .lblResult {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+
+    <div id="pageMSSQL" class="divPage">
+        <div class="divTitleText"></div>
+        <div class="divCondition">
+            <div>
+                <button id="btnPush" class="jk-button mr10" style="width: 100px">开始</button>
+            </div>
+            <table style="margin-top: 10px;width:100%">
+                <tr>
+                    <td width="90px">提交方式:</td>
+                    <td>
+                        <input type="radio" name="method" id="cboGet" checked="checked" value="get"/>
+                        <label for="cboGet">GET</label>
+                        <input type="radio" name="method" id="cboPost" value="post"/>
+                        <label for="cboPost">POST</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="90px">调用次数:</td>
+                    <td>
+                        <input type="text" id="txtCount" style="width: 100px" value="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="90px">Url:</td>
+                    <td>
+                        <input type="text" id="txtUrl" style="max-width: 686px;width: 100%" placeholder="http://"
+                               value="http://"/>
+                    </td>
+                </tr>
+                <tr id="trPostData" style="display:none">
+                    <td width="90px">提交数据:</td>
+                    <td>
+                        <textarea id="txtPostData" style="max-width: 686px;width: 100%"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <pre id="divDatas" class="divContent eleHide" style="display: none;overflow-x:auto">
+        </pre>
+    </div>
+    <script type="text/javascript">
+
+        $("#cboGet,#cboPost").bind("change", function () {
+            if ($("#cboGet").is(":checked")) {
+                $("#trPostData").hide();
+            } else {
+                $("#trPostData").show();
+            }
+        });
+
+        $("#btnPush").bind("click", function () {
+            if (!$("#txtCount").val() || $("#txtCount").val() == 0) {
+                alert("请输入大于1的调用次数");
+                return;
+            }
+            if (!$("#txtUrl").val()) {
+                alert("请输入网址");
+                return;
+            }
+
+            $("#divDatas").html('');
+            $(".eleHide").hide();
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/tool/get",
+                cache: false,
+                timeout: 60 * 60 * 1000,
+                dataType: "json",
+                data: {
+                    count: $("#txtCount").val() == '' ? 1 : $("#txtCount").val(),
+                    url: encodeURIComponent($("#txtUrl").val()),
+                    method: $("#cboGet").is(":checked"),
+                    postData: encodeURIComponent($("#txtPostData").val())
+                },
+                success: function (result) {
+                    if (result != null && result.code == '0') {
+                        alert(result.msg);
+                        $(".eleHide").hide();
+                    }
+                    else {
+                        $(".eleHide").fadeIn(200);
+                        $("#divDatas").scrollLeft(0);
+                        $("#divDatas").html(result.body);
+
+                    }
+                }
+            });
+
+        });
+
+
+    </script>
+
+</@page.main>

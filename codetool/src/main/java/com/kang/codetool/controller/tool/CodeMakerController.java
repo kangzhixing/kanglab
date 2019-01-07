@@ -3,6 +3,7 @@ package com.kang.codetool.controller.tool;
 import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.Common;
 import com.kang.codetool.common.KlRequest;
+import com.kang.codetool.common.StringCompare;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
@@ -15,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @RestController
@@ -41,7 +43,7 @@ public class CodeMakerController {
             }
         }
 
-        result.setBody(methodNameList);
+        result.setBody(methodNameList.stream().sorted(Comparator.naturalOrder()));
         return result;
     }
 

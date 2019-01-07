@@ -25,11 +25,11 @@
                 <tr>
                     <td width="90px">数据库类型：</td>
                     <td>
-                        <input type="radio" name="dbType" id="cboSqlServer" checked="checked" value="SqlServer"/>
-                        <label for="cboSqlServer">Sql Server</label>
-                        <input type="radio" name="dbType" id="cboMySql" value="MySql"/>
-                        <label for="cboMySql">MySql</label>
-                        <input type="radio" name="dbType" id="cboPostgreSql" value="PostgreSql"/>
+                        <!--<input type="radio" name="dbType" id="cboSqlServer" checked="checked" value="SqlServer"/>-->
+                        <!--<label for="cboSqlServer">Sql Server</label>-->
+                        <!--<input type="radio" name="dbType" id="cboMySql" value="MySql"/>-->
+                        <!--<label for="cboMySql">MySql</label>-->
+                        <input type="radio" name="dbType" id="cboPostgreSql" checked="checked" value="PostgreSql"/>
                         <label for="cboPostgreSql">PostgreSql</label>
                     </td>
                 </tr>
@@ -67,20 +67,19 @@
                 </tr>
             </table>
         </div>
-        <pre id="divCode" class="divContent" style="display: none">
-    </pre>
-        <form method="post" id="fmExport" style="display: none" action="/CodeMaker/DownloadFile">
+        <pre id="divCode" class="divContent" style="display: none"></pre>
+        <form method="post" id="fmExport" style="display: none" action="/export/exportFile">
             <input name="content"/>
             <input name="fileName"/>
             <input name="extension" value="java"/>
         </form>
-        <form method="post" id="fmExportAll" style="display: none" action="/CodeMaker/DownloadAllFile">
-            <input name="Lang"/>
-            <input name="ClassName"/>
-            <input name="ConnectionString"/>
-            <input name="Package"/>
-            <input name="DbType"/>
-            <input name="Type"/>
+        <form method="post" id="fmExportAll" style="display: none" action="/export/exportAllFile">
+            <input name="lang"/>
+            <input name="className"/>
+            <input name="connectionString"/>
+            <input name="packagePath"/>
+            <input name="dbType"/>
+            <input name="type"/>
             <input name="extension" value="java"/>
         </form>
     </div>
@@ -92,7 +91,7 @@
             }
 
             if (localStorage.getItem("dbtype") != null) {
-                $("input[value=" + localStorage.getItem("dbtype") + "]").prop("checked","checked");
+                $("input[value=" + localStorage.getItem("dbtype") + "]").prop("checked", "checked");
             }
             InitCodeTypeSlt();
         });
@@ -118,12 +117,12 @@
         });
 
         $("#btnExportAll").bind("click", function () {
-            $("#fmExportAll").find("input[name=ConnectionString]").val(encodeURIComponent($("#txtConnectionString").val()));
-            $("#fmExportAll").find("input[name=Package]").val($("#txtPackage").val());
-            $("#fmExportAll").find("input[name=DbType]").val($("input:radio[checked=checked]").val());
-            $("#fmExportAll").find("input[name=Lang]").val("Java");
-            $("#fmExportAll").find("input[name=Type]").val($("#sltDataType").val());
-            $("#fmExportAll").find("input[name=ClassName]").val($("#txtClassName").val());
+            $("#fmExportAll").find("input[name=connectionString]").val(encodeURIComponent($("#txtConnectionString").val()));
+            $("#fmExportAll").find("input[name=packagePath]").val($("#txtPackage").val());
+            $("#fmExportAll").find("input[name=dbType]").val($("input:radio[checked=checked]").val());
+            $("#fmExportAll").find("input[name=lang]").val("Java");
+            $("#fmExportAll").find("input[name=type]").val($("#sltDataType").val());
+            $("#fmExportAll").find("input[name=className]").val($("#txtClassName").val());
             $("#fmExportAll").submit();
         });
 

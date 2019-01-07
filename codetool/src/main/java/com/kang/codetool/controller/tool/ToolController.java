@@ -1,18 +1,42 @@
 package com.kang.codetool.controller.tool;
 
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.metadata.BaseRowModel;
+import com.alibaba.excel.metadata.Sheet;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.KlRequest;
+import com.kang.codetool.util.RedisLockUtil;
+import com.kang.framework.HttpClientUtil;
+import com.mintq.conf.core.MintqConfClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.repository.query.Param;
+import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("tool")
 public class ToolController {
+
+    @Autowired
+    private RedisLockUtil redisLock;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @ViewPage(description = "RGB颜色值")
     @RequestMapping("color")
@@ -44,6 +68,12 @@ public class ToolController {
         return new ModelAndView("tool/timestamp");
     }
 
+    @ViewPage(description = "并发测试")
+    @RequestMapping("concurrency")
+    public ModelAndView concurrency() {
+        return new ModelAndView("tool/concurrency");
+    }
+
     @RequestMapping("encodeString")
     @ResponseBody
     public KlRequest encodeString(String str, String encoding) {
@@ -72,5 +102,34 @@ public class ToolController {
             result.setMsg(ex.getMessage());
             return result;
         }
+    }
+
+    @RequestMapping("get")
+    public KlRequest get(String url, Integer count, Boolean method, String postData) throws InterruptedException {
+        KlRequest result = new KlRequest();
+        StopWatch sw = new StopWatch();
+        sw.start();
+        String cacheKey = "alreadyPushConcurrency";
+        if (!redisLock.pollingTryLock(cacheKey, "1", 10)) {
+            result.setCode(0);
+            result.setMsg("正在发送请求，请稍后再试");
+        }
+        String postDataDecode = URLDecoder.decode(postData);
+        StringBuffer httpResult = new StringBuffer();
+        String finalUrl = URLDecoder.decode(url);
+        CountDownLatch cdl = new CountDownLatch(count);
+        for (int i = 0; i < count; i++) {
+            Executors.newFixedThreadPool(1000).execute(() -> {
+                String httpResponse = method ? HttpClientUtil.doGet(finalUrl) : HttpClientUtil.doPost(finalUrl, postDataDecode);
+                httpResult.append(httpResponse + "\r\n");
+                cdl.countDown();
+            });
+        }
+        cdl.await();
+        redisTemplate.delete(cacheKey);
+        result.setCode(1);
+        sw.stop();
+        result.setBody(httpResult + "\n\n共用时" + sw.getTotalTimeSeconds() + "秒");
+        return result;
     }
 }

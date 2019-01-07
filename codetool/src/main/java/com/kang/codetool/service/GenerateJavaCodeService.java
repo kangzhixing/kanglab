@@ -177,55 +177,55 @@ public class GenerateJavaCodeService {
                         "\n" +
                         "public interface I{2}Dao{\n" +
                         "\n" +
-                        "        @Select(\"select * from {8} where {9} = #{{5}}\")\n" +
-                        "        {7}By{3}({4} {5});\n" +
+                        "    @Select(\"select * from {8} where {9} = #{{5}}\")\n" +
+                        "    {7}By{3}({4} {5});\n" +
                         "\n" +
-                        "        @Select(\"select * from {8}\")\n" +
-                        "        List<{2}> selectAll();\n" +
+                        "    @Select(\"select * from {8}\")\n" +
+                        "    List<{2}> selectAll();\n" +
                         "\n" +
-                        "        @SelectProvider(type = {2}Provider.class, method = \"selectByPage\")\n" +
-                        "        List<{2}> selectByPage({2} {6});\n" +
+                        "    @SelectProvider(type = {2}Provider.class, method = \"selectByPage\")\n" +
+                        "    List<{2}> selectByPage({2} {6});\n" +
                         "\n" +
-                        "        @SelectProvider(type = {2}Provider.class, method = \"selectByWhere\")\n" +
-                        "        {2} selectByWhere({2} {6});\n" +
+                        "    @SelectProvider(type = {2}Provider.class, method = \"selectByWhere\")\n" +
+                        "    {2} selectByWhere({2} {6});\n" +
                         "\n" +
-                        "        @SelectProvider(type = {2}Provider.class, method = \"selectListByWhere\")\n" +
-                        "        List<{2}> selectListByWhere({2} {6});\n" +
+                        "    @SelectProvider(type = {2}Provider.class, method = \"selectListByWhere\")\n" +
+                        "    List<{2}> selectListByWhere({2} {6});\n" +
                         "\n" +
-                        "        @SelectProvider(type = {2}Provider.class, method = \"count\")\n" +
-                        "        int count({2} {6});\n" +
+                        "    @SelectProvider(type = {2}Provider.class, method = \"count\")\n" +
+                        "    int count({2} {6});\n" +
                         "\n" +
-                        "        @Delete(\"delete {8} where {9}=#{{5}}\")\n" +
-                        "        int deleteBy{3}({4} {5});\n" +
+                        "    @Delete(\"delete {8} where {9}=#{{5}}\")\n" +
+                        "    int deleteBy{3}({4} {5});\n" +
                         "\n" +
-                        "        @UpdateProvider(type = {2}Provider.class, method = \"updateBy{3}\")\n" +
-                        "        int updateBy{3}({2} {6});\n" +
+                        "    @UpdateProvider(type = {2}Provider.class, method = \"updateBy{3}\")\n" +
+                        "    int updateBy{3}({2} {6});\n" +
                         "\n" +
-                        "        @UpdateProvider(type = {2}Provider.class, method = \"updateBy{3}Selective\")\n" +
-                        "        int updateBy{3}Selective({2} {6});\n" +
+                        "    @UpdateProvider(type = {2}Provider.class, method = \"updateBy{3}Selective\")\n" +
+                        "    int updateBy{3}Selective({2} {6});\n" +
                         "\n" +
-                        "        @InsertProvider(type = {2}Provider.class, method = \"insert\")\n" +
-                        "        @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" +
-                        "        int insert({2} {6});\n" +
+                        "    @InsertProvider(type = {2}Provider.class, method = \"insert\")\n" +
+                        "    @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" +
+                        "    int insert({2} {6});\n" +
                         "\n" +
-                        "        @InsertProvider(type = {2}Provider.class, method = \"insertSelective\")\n" +
-                        "        @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" +
-                        "        int insertSelective({2} {6});\n" +
+                        "    @InsertProvider(type = {2}Provider.class, method = \"insertSelective\")\n" +
+                        "    @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" +
+                        "    int insertSelective({2} {6});\n" +
                         "\n" +
-                        "        @InsertProvider(type = {2}Provider.class, method = \"batchInsert\")\n" +
-                        "        void batchInsert(@Param(\"list\") List<{2}> {6}List);\n" +
+                        "    @InsertProvider(type = {2}Provider.class, method = \"batchInsert\")\n" +
+                        "    void batchInsert(@Param(\"list\") List<{2}> {6}List);\n" +
                         "\n" +
-                        "        class {2}Provider extends SQL {\n" +
+                        "    class {2}Provider extends SQL {\n" +
                         "\n" +
-                        "            private String getSqlWhere({2} {6}) {\n" +
-                        "                StringBuilder where = new StringBuilder(\"1 = 1\");\n" +
+                        "        private String getSqlWhere({2} {6}) {\n" +
+                        "            StringBuilder where = new StringBuilder(\"1 = 1\");\n" +
                         "{10}\n" +
-                        "                return where.toString();\n" +
-                        "            }\n\n" +
+                        "            return where.toString();\n" +
+                        "        }\n\n" +
                         generateSelectMethodCode(vo) +
                         generateUpdateMethodCode(vo) +
                         generateInsertMethodCode(vo) +
-                        "        }\n" +
+                        "    }\n" +
                         "}",
                 KlString.format(vo.getPackagePath(), "dao"),
                 KlString.format(vo.getPackagePath(), "model") + "." + vo.getClassName(),
@@ -251,34 +251,34 @@ public class GenerateJavaCodeService {
             fieldParams.append(f.getName() + ", ");
         });
         return KlString.format(
-                "            public String selectByPage({1} {2}) {\n" +
-                        "               return new SQL() {{\n" +
-                        "                    SELECT(\"{0}\");\n" +
-                        "                    FROM(\"{3}\");\n" +
-                        "                    WHERE(getSqlWhere({2}));\n" +
-                        "                }}.toString() + \" LIMIT #{length} OFFSET #{start}\";\n" +
-                        "            }\n\n" +
-                        "            public String selectByWhere({1} {2}) {\n" +
-                        "               return new SQL() {{\n" +
-                        "                    SELECT(\"{0}\");\n" +
-                        "                    FROM(\"{3}\");\n" +
-                        "                    WHERE(getSqlWhere({2}));\n" +
-                        "                }}.toString() + \" LIMIT 1\";\n" +
-                        "            }\n\n" +
-                        "            public String selectListByWhere({1} {2}) {\n" +
-                        "               return new SQL() {{\n" +
-                        "                    SELECT(\"{0}\");\n" +
-                        "                    FROM(\"{3}\");\n" +
-                        "                    WHERE(getSqlWhere({2}));\n" +
-                        "                }}.toString();\n" +
-                        "            }\n\n" +
-                        "            public String count({1} {2}) {\n" +
-                        "               return new SQL() {{\n" +
-                        "                    SELECT(\"count(1)\");\n" +
-                        "                    FROM(\"{3}\");\n" +
-                        "                    WHERE(getSqlWhere({2}));\n" +
-                        "                }}.toString();\n" +
-                        "            }\n\n",
+                "        public String selectByPage({1} {2}) {\n" +
+                        "           return new SQL() {{\n" +
+                        "                SELECT(\"{0}\");\n" +
+                        "                FROM(\"{3}\");\n" +
+                        "                WHERE(getSqlWhere({2}));\n" +
+                        "            }}.toString() + \" LIMIT #{length} OFFSET #{start}\";\n" +
+                        "        }\n\n" +
+                        "        public String selectByWhere({1} {2}) {\n" +
+                        "           return new SQL() {{\n" +
+                        "                SELECT(\"{0}\");\n" +
+                        "                FROM(\"{3}\");\n" +
+                        "                WHERE(getSqlWhere({2}));\n" +
+                        "            }}.toString() + \" LIMIT 1\";\n" +
+                        "        }\n\n" +
+                        "        public String selectListByWhere({1} {2}) {\n" +
+                        "           return new SQL() {{\n" +
+                        "                SELECT(\"{0}\");\n" +
+                        "                FROM(\"{3}\");\n" +
+                        "                WHERE(getSqlWhere({2}));\n" +
+                        "            }}.toString();\n" +
+                        "        }\n\n" +
+                        "        public String count({1} {2}) {\n" +
+                        "           return new SQL() {{\n" +
+                        "                SELECT(\"count(1)\");\n" +
+                        "                FROM(\"{3}\");\n" +
+                        "                WHERE(getSqlWhere({2}));\n" +
+                        "            }}.toString();\n" +
+                        "        }\n\n",
                 fieldParams.substring(0, fieldParams.length() - 2),
                 vo.getClassName(),
                 KlString.toLowerFirst(vo.getClassName()),
@@ -304,9 +304,9 @@ public class GenerateJavaCodeService {
 
             appendLineBreak(fieldUpdateSetSelective, 100);
             fieldUpdateSetSelective.append(KlString.format(
-                    "                if ({1}.get{0}() != null) {\n" +
-                            "                    strSet.append(\"{2} = #{{3},jdbcType={4}}, \");\n" +
-                            "                }\n",
+                    "            if ({1}.get{0}() != null) {\n" +
+                            "                strSet.append(\"{2} = #{{3},jdbcType={4}}, \");\n" +
+                            "            }\n",
                     KlString.toUpperFirst(f.getSimpleName()),
                     KlString.toLowerFirst(vo.getClassName()),
                     f.getName(),
@@ -315,18 +315,18 @@ public class GenerateJavaCodeService {
 
         });
         return KlString.format(
-                "            public String updateBy{0}({1} {2}) {\n" +
-                        "               return new SQL() {{\n" +
-                        "                    UPDATE(\"{3}\");\n" +
+                "        public String updateBy{0}({1} {2}) {\n" +
+                        "           return new SQL() {{\n" +
+                        "                UPDATE(\"{3}\");\n" +
                         "{6}" +
-                        "                    WHERE(\"{4} = #{{5},jdbcType={7}}\");\n" +
-                        "                }}.toString();\n" +
-                        "            }\n\n" +
-                        "            public String updateBy{0}Selective({1} {2}) {\n" +
-                        "                StringBuilder strSet = new StringBuilder();\n" +
+                        "                WHERE(\"{4} = #{{5},jdbcType={7}}\");\n" +
+                        "            }}.toString();\n" +
+                        "        }\n\n" +
+                        "        public String updateBy{0}Selective({1} {2}) {\n" +
+                        "            StringBuilder strSet = new StringBuilder();\n" +
                         "{8}" +
-                        "                return \"update {3} set \" + strSet +\" where {4} = #{{5},jdbcType={7}}\";\n" +
-                        "            }\n\n",
+                        "            return \"update {3} set \" + strSet +\" where {4} = #{{5},jdbcType={7}}\";\n" +
+                        "        }\n\n",
                 KlString.toUpperFirst(field.getSimpleName()),
                 vo.getClassName(),
                 KlString.toLowerFirst(vo.getClassName()),
@@ -363,10 +363,10 @@ public class GenerateJavaCodeService {
 
             appendLineBreak(fieldInsertSelective, 100);
             fieldInsertSelective.append(KlString.format(
-                    "                if ({1}.get{0}() != null) {\n" +
-                            "                    strParams.append(\"{2}, \");\n" +
-                            "                    strValues.append(\"#{{3},jdbcType={4}}, \");\n" +
-                            "                }\n",
+                    "            if ({1}.get{0}() != null) {\n" +
+                            "                strParams.append(\"{2}, \");\n" +
+                            "                strValues.append(\"#{{3},jdbcType={4}}, \");\n" +
+                            "            }\n",
                     KlString.toUpperFirst(f.getSimpleName()),
                     KlString.toLowerFirst(vo.getClassName()),
                     f.getName(),
@@ -375,30 +375,30 @@ public class GenerateJavaCodeService {
         });
 
         return KlString.format(
-                "            public String insert({0} {1}) {\n" +
-                        "               return new SQL() {{\n" +
-                        "                    INSERT_INTO(\"{5}\");\n" +
-                        "                    VALUES(\"{6}\", \n" +
-                        "                       \"{7}\");\n" +
-                        "                }}.toString();\n" +
-                        "            }\n\n" +
-                        "            public String insertSelective({0} {1}) {\n" +
-                        "               StringBuilder strParams = new StringBuilder();\n" +
-                        "               StringBuilder strValues = new StringBuilder();\n" +
+                "        public String insert({0} {1}) {\n" +
+                        "           return new SQL() {{\n" +
+                        "                INSERT_INTO(\"{5}\");\n" +
+                        "                VALUES(\"{6}\", \n" +
+                        "                   \"{7}\");\n" +
+                        "            }}.toString();\n" +
+                        "        }\n\n" +
+                        "        public String insertSelective({0} {1}) {\n" +
+                        "           StringBuilder strParams = new StringBuilder();\n" +
+                        "           StringBuilder strValues = new StringBuilder();\n" +
                         "{8}" +
-                        "               return new SQL() {{\n" +
-                        "                    INSERT_INTO(\"{5}\");\n" +
-                        "                    VALUES(strParams.substring(0, strParams.length() - 2), strValues.substring(0, strValues.length() - 2));\n" +
-                        "                }}.toString();\n" +
-                        "            }\n\n" +
-                        "            public String batchInsert(Map<String, Object> map) {\n" +
-                        "               List<{0}> {1}List = (List) map.get(\"list\");\n" +
-                        "               StringBuilder strValues = new StringBuilder();\n" +
-                        "               for(int i = 0; i < {1}List.size(); i++) {\n" +
-                        "                   strValues.append(\"({9}), \".replaceAll(\"{i}\", i));\n" +
-                        "               }\n" +
-                        "               return \"insert into {5}({6}) values \" + strValues.substring(0, strValues.length() - 2);\n" +
-                        "            }\n\n",
+                        "           return new SQL() {{\n" +
+                        "                INSERT_INTO(\"{5}\");\n" +
+                        "                VALUES(strParams.substring(0, strParams.length() - 2), strValues.substring(0, strValues.length() - 2));\n" +
+                        "            }}.toString();\n" +
+                        "        }\n\n" +
+                        "        public String batchInsert(Map<String, Object> map) {\n" +
+                        "           List<{0}> {1}List = (List) map.get(\"list\");\n" +
+                        "           StringBuilder strValues = new StringBuilder();\n" +
+                        "           for(int i = 0; i < {1}List.size(); i++) {\n" +
+                        "               strValues.append(\"({9}), \".replaceAll(\"{i}\", i));\n" +
+                        "           }\n" +
+                        "           return \"insert into {5}({6}) values \" + strValues.substring(0, strValues.length() - 2);\n" +
+                        "        }\n\n",
                 vo.getClassName(),
                 KlString.toLowerFirst(vo.getClassName()),
                 KlString.toUpperFirst(field.getSimpleName()),

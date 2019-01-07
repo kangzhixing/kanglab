@@ -1,5 +1,6 @@
 package com.kang.codetool.util;
 
+import com.mintq.conf.core.MintqConfClient;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
@@ -28,7 +29,7 @@ public class MongoUtil {
 
     private MongoUtil() {
         if (mongoClient == null) {
-            MongoClientURI uri = new MongoClientURI(PropertiesUtil.get("spring.data.mongodb.uri"));
+            MongoClientURI uri = new MongoClientURI(MintqConfClient.get("risk-control.spring.data.mongodb.uri"));
             database = uri.getDatabase();
             mongoClient = new MongoClient(uri);
         }
