@@ -174,6 +174,7 @@ public class GenerateJavaCodeService {
                         "import org.apache.ibatis.annotations.*;\n" +
                         "import org.apache.ibatis.jdbc.SQL;\n" +
                         "import java.util.List;\n" +
+                        "import java.util.Map;\n" +
                         "\n" +
                         "public interface I{2}Dao{\n" +
                         "\n" +
@@ -395,7 +396,7 @@ public class GenerateJavaCodeService {
                         "           List<{0}> {1}List = (List) map.get(\"list\");\n" +
                         "           StringBuilder strValues = new StringBuilder();\n" +
                         "           for(int i = 0; i < {1}List.size(); i++) {\n" +
-                        "               strValues.append(\"({9}), \".replaceAll(\"{i}\", i));\n" +
+                        "               strValues.append((\"({9}), \").replaceAll(\"\\\\{i}\", i + \"\"));\n" +
                         "           }\n" +
                         "           return \"insert into {5}({6}) values \" + strValues.substring(0, strValues.length() - 2);\n" +
                         "        }\n\n",
@@ -408,7 +409,7 @@ public class GenerateJavaCodeService {
                 fieldInsertParams.substring(0, fieldInsertParams.length() - 2),
                 fieldInsertValues.substring(0, fieldInsertValues.length() - 2),
                 fieldInsertSelective,
-                fieldInsertValuesBatch.substring(0, fieldInsertValues.length() - 2));
+                fieldInsertValuesBatch.substring(0, fieldInsertValuesBatch.length() - 2));
     }
 
     public String refMybatisMapperXml(CodeMakerGeneratCodeVO vo) {
@@ -660,7 +661,7 @@ public class GenerateJavaCodeService {
                             "      <foreach collection=\"list\" item=\"item\" index=\"index\" separator=\",\">\n" +
                             "        ({2})\n" +
                             "      </foreach>\n" +
-                            "  </insert>",
+                            "  </insert>\n",
                     vo.getTable(),
                     field_Params.toString().substring(0, field_Params.length() - 2),
                     field_InsertParams_Batch.toString().trim().substring(0, field_InsertParams_Batch.toString().trim().length() - 1).trim(),
