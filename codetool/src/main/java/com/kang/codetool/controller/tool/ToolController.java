@@ -8,7 +8,6 @@ import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.KlRequest;
 import com.kang.codetool.util.RedisLockUtil;
 import com.kang.framework.HttpClientUtil;
-import com.mintq.conf.core.MintqConfClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.repository.query.Param;
