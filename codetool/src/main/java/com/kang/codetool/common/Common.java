@@ -1,13 +1,12 @@
 package com.kang.codetool.common;
 
-import com.kang.codetool.util.ClassUtil;
 import com.kang.codetool.aop.anntion.ViewPage;
+import com.kang.codetool.util.ClassUtil;
+import com.kang.framework.KlConvert;
 import com.kang.framework.db.KlDatabase;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
 import org.springframework.web.bind.annotation.RequestMapping;
-import com.kang.framework.KlConvert;
-import com.kang.framework.KlString;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -109,8 +108,9 @@ public class Common {
     }
 
     private static List<String> getDatabaseTables_MySql(String connectionString) {
-        String dbName = connectionString.split("database=")[1].split(";")[0];
-        String sql = "SELECT TABLE_NAME Name FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'";
+        String[] vars = connectionString.split("\\?")[0].split("/");
+        String dbName = vars[vars.length - 1];
+        String sql = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'";
 
         List<Map<String, Object>> result = null;
         try {
@@ -119,7 +119,7 @@ public class Common {
             e.printStackTrace();
         }
 
-        return result.stream().map(r -> r.get("name").toString()).collect(Collectors.toList());
+        return result.stream().map(r -> r.get("TABLE_NAME").toString()).collect(Collectors.toList());
     }
 
     private static List<String> getDatabaseTables_PostgreSql(String connectionString) {
@@ -129,33 +129,28 @@ public class Common {
         List<Map<String, Object>> result = null;
         try {
             result = KlDatabase.fill(connectionString, sql);
+            return result.stream().map(r -> r.get("name").toString()).collect(Collectors.toList());
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
 
-        return result.stream().map(r -> r.get("name").toString()).collect(Collectors.toList());
     }
 
 
-
-
-    public static List<KlFieldDescription> getDatabaseColumns(String connectionString, String tableName, KlDatabaseType dbType)
-    {
-        switch (dbType)
-        {
-            case MySql:
-            {
+    public static List<KlFieldDescription> getDatabaseColumns(String connectionString, String tableName, KlDatabaseType dbType) {
+        switch (dbType) {
+            case MySql: {
                 return GetDatabaseColumns_MySql(connectionString, tableName);
             }
-            case SqlServer:
-            {
+            case SqlServer: {
                 return GetDatabaseColumns_SqlServer(connectionString, tableName);
             }
-            case PostgreSql:
-            {
+            case PostgreSql: {
                 return GetDatabaseColumns_PostgreSql(connectionString, tableName);
             }
-            default: return null;
+            default:
+                return null;
         }
     }
 
@@ -283,7 +278,7 @@ public class Common {
             model.setIsNullable(KlConvert.tryToBoolean("1".equals(map.get("isnullable").toString())));
             model.setIsIdentity(KlConvert.tryToBoolean("1".equals(map.get("isidentity").toString())));
             model.setDescription(KlConvert.tryToString(map.get("description")));
-            model.setColumnKey("1".equals(map.get("ispk").toString())?"PRI":"");
+            model.setColumnKey("1".equals(map.get("ispk").toString()) ? "PRI" : "");
             result.add(model);
         }
 
@@ -291,9 +286,10 @@ public class Common {
     }
 
     public static List<KlFieldDescription> GetDatabaseColumns_MySql(String connectionString, String tableName) {
-        String dbName = connectionString.split("database=")[1].split(";")[0];
+        String[] vars = connectionString.split("\\?")[0].split("/");
+        String dbName = vars[vars.length - 1];
         String sql =
-                "SELECT COLUMN_NAME name, COLUMN_COMMENT description, DATA_TYPE DbType, IS_NULLABLE isNullable, CHARACTER_MAXIMUM_LENGTH length, Extra, column_key\n" +
+                "SELECT COLUMN_NAME, COLUMN_COMMENT, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, Extra, column_key\n" +
                         "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_NAME like '" + tableName + "'";
 
         List<Map<String, Object>> queryResult = null;
@@ -306,13 +302,13 @@ public class Common {
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
             KlFieldDescription model = new KlFieldDescription();
-            model.setName(map.get("name").toString());
-            model.setDbType(map.get("dbtype").toString());
-            model.setLength(KlConvert.tryToInteger(map.get("length")));
-            model.setIsNullable(KlConvert.tryToBoolean("yes".equals(map.get("isnullable").toString().toLowerCase())));
-            model.setIsIdentity(KlConvert.tryToBoolean(map.get("extra").toString().contains("auto_increment")));
-            model.setDescription(KlConvert.tryToString(map.get("description")));
-            model.setColumnKey(map.get("column_key").toString());
+            model.setName(map.get("COLUMN_NAME").toString());
+            model.setDbType(map.get("DATA_TYPE").toString());
+            model.setLength(KlConvert.tryToInteger(map.get("CHARACTER_MAXIMUM_LENGTH")));
+            model.setIsNullable(KlConvert.tryToBoolean("YES".equals(map.get("IS_NULLABLE").toString().toLowerCase())));
+            model.setIsIdentity(KlConvert.tryToBoolean(map.get("EXTRA").toString().contains("auto_increment")));
+            model.setDescription(KlConvert.tryToString(map.get("COLUMN_COMMENT")));
+            model.setColumnKey(map.get("COLUMN_KEY").toString());
             result.add(model);
         }
 

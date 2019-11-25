@@ -1,21 +1,26 @@
 package com.kang.codetool.service;
 
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
+import com.kang.framework.KlConvert;
 import com.kang.framework.KlMybatisTypeMap;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
 import com.kang.framework.KlDbTypeMap;
 import com.kang.framework.KlString;
 
+import java.time.LocalDate;
+
 public class GenerateJavaCodeService {
 
     public String refEntity(CodeMakerGeneratCodeVO vo) {
         StringBuilder result = new StringBuilder();
-        StringBuilder getterAndSetter = new StringBuilder();
+//        StringBuilder getterAndSetter = new StringBuilder();
 
         result.append(KlString.format("package {0};\n\n" +
+                "import lombok.Data;\n" +
                 "import java.util.*;\n" +
                 "import java.math.*;\n\n" +
+                "@Data\n" +
                 "public class {1} {\n\n", vo.getPackagePath().replace("{0}", "model"), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult()))));
 
         for (KlFieldDescription f : vo.getFieldDescriptions()) {
@@ -25,17 +30,17 @@ public class GenerateJavaCodeService {
                         "    */\n");
             result.append("    private " + KlDbTypeMap.map4J(f.getDbType(), true, vo.getDatabaseType()) + " " + KlString.toLowerFirst(f.getSimpleName()) + ";\n\n");
 
-            getterAndSetter.append(KlString.format(
-                    "    public {2} get{1}() {\n" +
-                            "        return {0};\n" +
-                            "    }\n" +
-                            "    public void set{1}({2} {0}) {\n" +
-                            "        this.{0} = {0};\n" +
-                            "    }\n", KlString.toLowerFirst(f.getSimpleName()), KlString.toUpperFirst(f.getSimpleName()),
-                    KlDbTypeMap.map4J(f.getDbType(), true, vo.getDatabaseType())));
+//            getterAndSetter.append(KlString.format(
+//                    "    public {2} get{1}() {\n" +
+//                            "        return {0};\n" +
+//                            "    }\n" +
+//                            "    public void set{1}({2} {0}) {\n" +
+//                            "        this.{0} = {0};\n" +
+//                            "    }\n", KlString.toLowerFirst(f.getSimpleName()), KlString.toUpperFirst(f.getSimpleName()),
+//                    KlDbTypeMap.map4J(f.getDbType(), true, vo.getDatabaseType())));
 
         }
-        result.append(getterAndSetter);
+//        result.append(getterAndSetter);
         result.append("\n}");
 
         return result.toString();
@@ -150,10 +155,9 @@ public class GenerateJavaCodeService {
             field = vo.getFieldDescriptions().stream().findFirst().orElseGet(null);
         }
         vo.getFieldDescriptions().forEach(f -> {
-            fieldInsert.append("");
 
-            appendLineBreak(fieldParams, 100);
-            fieldParams.append(f.getName() + ", ");
+            appendLineBreak(fieldParams, 70, "            \"", "\" +");
+            fieldParams.append(f.getName().contains("_") ? KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " as " + f.getSimpleName() + ", " : KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
 
             field_SqlWhere.append(KlString.format(
                     "                if ({1}.get{0}() != null) {\n" +
@@ -161,7 +165,7 @@ public class GenerateJavaCodeService {
                             "                }\n",
                     KlString.toUpperFirst(f.getSimpleName()),
                     KlString.toLowerFirst(vo.getClassName()),
-                    f.getName(),
+                    KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()),
                     KlString.toLowerFirst(f.getSimpleName()),
                     KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())
             ));
@@ -176,12 +180,18 @@ public class GenerateJavaCodeService {
                         "import java.util.List;\n" +
                         "import java.util.Map;\n" +
                         "\n" +
+                        "/**\n" +
+                        " * {8}表数据访问类\n" +
+                        " *\n" +
+                        " * @author codeTool\n" +
+                        " * @date " + LocalDate.now().toString() + "\n" +
+                        " */\n" +
                         "public interface I{2}Dao{\n" +
                         "\n" +
-                        "    @Select(\"select * from {8} where {9} = #{{5}}\")\n" +
+                        "    @Select(\"select {11} from {8} where {9} = #{{5}}\")\n" +
                         "    {7}By{3}({4} {5});\n" +
                         "\n" +
-                        "    @Select(\"select * from {8}\")\n" +
+                        "    @Select(\"select {11} from {8}\")\n" +
                         "    List<{2}> selectAll();\n" +
                         "\n" +
                         "    @SelectProvider(type = {2}Provider.class, method = \"selectByPage\")\n" +
@@ -196,8 +206,11 @@ public class GenerateJavaCodeService {
                         "    @SelectProvider(type = {2}Provider.class, method = \"count\")\n" +
                         "    int count({2} {6});\n" +
                         "\n" +
-                        "    @Delete(\"delete {8} where {9}=#{{5}}\")\n" +
+                        "    @Delete(\"delete from {8} where {9}=#{{5}}\")\n" +
                         "    int deleteBy{3}({4} {5});\n" +
+                        "\n" +
+                        "    @DeleteProvider(type = {2}Provider.class, method = \"deleteByWhere\")\n" +
+                        "    int deleteByWhere({2} {6});\n" +
                         "\n" +
                         "    @UpdateProvider(type = {2}Provider.class, method = \"updateBy{3}\")\n" +
                         "    int updateBy{3}({2} {6});\n" +
@@ -216,6 +229,9 @@ public class GenerateJavaCodeService {
                         "    @InsertProvider(type = {2}Provider.class, method = \"batchInsert\")\n" +
                         "    void batchInsert(@Param(\"list\") List<{2}> {6}List);\n" +
                         "\n" +
+                        "    @UpdateProvider(type = {2}Provider.class, method = \"batchUpdate\")\n" +
+                        "    void batchUpdate(@Param(\"list\") List<{2}> {6}List);\n" +
+                        "\n" +
                         "    class {2}Provider extends SQL {\n" +
                         "\n" +
                         "        private String getSqlWhere({2} {6}) {\n" +
@@ -224,6 +240,7 @@ public class GenerateJavaCodeService {
                         "            return where.toString();\n" +
                         "        }\n\n" +
                         generateSelectMethodCode(vo) +
+                        generateDeleteMethodCode(vo) +
                         generateUpdateMethodCode(vo) +
                         generateInsertMethodCode(vo) +
                         "    }\n" +
@@ -239,7 +256,7 @@ public class GenerateJavaCodeService {
                 vo.getTable(),
                 field.getName(),
                 field_SqlWhere,
-                fieldParams))
+                fieldParams.substring(0, fieldParams.length() - 2)))
         ;
 
         return codeStr.toString();
@@ -248,42 +265,55 @@ public class GenerateJavaCodeService {
     public String generateSelectMethodCode(CodeMakerGeneratCodeVO vo) {
         StringBuilder fieldParams = new StringBuilder();
         vo.getFieldDescriptions().forEach(f -> {
-            appendLineBreak(fieldParams, 100);
-            fieldParams.append(f.getName() + ", ");
+            appendLineBreak(fieldParams, 100, "                    \"", "\" +");
+            fieldParams.append(f.getName().contains("_") ? KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " as " + f.getSimpleName() + ", " : KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
         });
         return KlString.format(
                 "        public String selectByPage({1} {2}) {\n" +
-                        "           return new SQL() {{\n" +
-                        "                SELECT(\"{0}\");\n" +
-                        "                FROM(\"{3}\");\n" +
-                        "                WHERE(getSqlWhere({2}));\n" +
-                        "            }}.toString() + \" LIMIT #{length} OFFSET #{start}\";\n" +
+                        "           return new SQL()\n" +
+                        "                   .SELECT(\"{0}\")\n" +
+                        "                   .FROM(\"{3}\")\n" +
+                        "                   .WHERE(getSqlWhere({2})).toString() + \" LIMIT #{length} OFFSET #{start}\";\n" +
                         "        }\n\n" +
                         "        public String selectByWhere({1} {2}) {\n" +
-                        "           return new SQL() {{\n" +
-                        "                SELECT(\"{0}\");\n" +
-                        "                FROM(\"{3}\");\n" +
-                        "                WHERE(getSqlWhere({2}));\n" +
-                        "            }}.toString() + \" LIMIT 1\";\n" +
+                        "           return new SQL()\n" +
+                        "                   .SELECT(\"{0}\")\n" +
+                        "                   .FROM(\"{3}\")\n" +
+                        "                   .WHERE(getSqlWhere({2})).toString() + \" LIMIT 1\";\n" +
                         "        }\n\n" +
                         "        public String selectListByWhere({1} {2}) {\n" +
-                        "           return new SQL() {{\n" +
-                        "                SELECT(\"{0}\");\n" +
-                        "                FROM(\"{3}\");\n" +
-                        "                WHERE(getSqlWhere({2}));\n" +
-                        "            }}.toString();\n" +
+                        "           return new SQL()\n" +
+                        "                   .SELECT(\"{0}\")\n" +
+                        "                   .FROM(\"{3}\")\n" +
+                        "                   .WHERE(getSqlWhere({2})).toString();\n" +
                         "        }\n\n" +
                         "        public String count({1} {2}) {\n" +
-                        "           return new SQL() {{\n" +
-                        "                SELECT(\"count(1)\");\n" +
-                        "                FROM(\"{3}\");\n" +
-                        "                WHERE(getSqlWhere({2}));\n" +
-                        "            }}.toString();\n" +
+                        "           return new SQL()\n" +
+                        "                   .SELECT(\"count(1)\")\n" +
+                        "                   .FROM(\"{3}\")\n" +
+                        "                   .WHERE(getSqlWhere({2})).toString();\n" +
                         "        }\n\n",
                 fieldParams.substring(0, fieldParams.length() - 2),
                 vo.getClassName(),
                 KlString.toLowerFirst(vo.getClassName()),
                 vo.getTable());
+    }
+
+    public String generateDeleteMethodCode(CodeMakerGeneratCodeVO vo) {
+        StringBuilder fieldParams = new StringBuilder();
+        vo.getFieldDescriptions().forEach(f -> {
+            appendLineBreak(fieldParams, 100, "                    \"", "\" +");
+            fieldParams.append(f.getName().contains("_") ? KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " as " + f.getSimpleName() + ", " : KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
+        });
+        return KlString.format(
+                "        public String deleteByWhere({1} {2}) {\n" +
+                        "           return new SQL()\n" +
+                        "                   .DELETE_FROM(\"{0}\")\n" +
+                        "                   .WHERE(getSqlWhere({2})).toString();\n" +
+                        "        }\n\n",
+                vo.getTable(),
+                vo.getClassName(),
+                KlString.toLowerFirst(vo.getClassName()));
     }
 
     public String generateUpdateMethodCode(CodeMakerGeneratCodeVO vo) {
@@ -298,11 +328,11 @@ public class GenerateJavaCodeService {
         StringBuilder fieldUpdateSetSelective = new StringBuilder();
         vo.getFieldDescriptions().forEach(f -> {
             appendLineBreak(fieldParams, 100);
-            fieldParams.append(f.getName() + ", ");
+            fieldParams.append(KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
 
-            if(!f.getIsIdentity()){
+            if (!f.getIsIdentity()) {
                 appendLineBreak(fieldUpdateSet, 100);
-                fieldUpdateSet.append("                    SET(\"" + f.getName() + " = #{" + f.getSimpleName() + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}\");\n");
+                fieldUpdateSet.append("                   .SET(\"" + KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " = #{" + f.getSimpleName() + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}\")\n");
 
                 appendLineBreak(fieldUpdateSetSelective, 100);
                 fieldUpdateSetSelective.append(KlString.format(
@@ -311,7 +341,7 @@ public class GenerateJavaCodeService {
                                 "            }\n",
                         KlString.toUpperFirst(f.getSimpleName()),
                         KlString.toLowerFirst(vo.getClassName()),
-                        f.getName(),
+                        KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()),
                         KlString.toLowerFirst(f.getSimpleName()),
                         KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())));
             }
@@ -319,22 +349,21 @@ public class GenerateJavaCodeService {
         });
         return KlString.format(
                 "        public String updateBy{0}({1} {2}) {\n" +
-                        "           return new SQL() {{\n" +
-                        "                UPDATE(\"{3}\");\n" +
+                        "           return new SQL()\n" +
+                        "                   .UPDATE(\"{3}\")\n" +
                         "{6}" +
-                        "                WHERE(\"{4} = #{{5},jdbcType={7}}\");\n" +
-                        "            }}.toString();\n" +
+                        "                   .WHERE(\"{4} = #{{5},jdbcType={7}}\").toString();\n" +
                         "        }\n\n" +
                         "        public String updateBy{0}Selective({1} {2}) {\n" +
                         "            StringBuilder strSet = new StringBuilder();\n" +
                         "{8}" +
-                        "            return \"update {3} set \" + strSet.substring(0, strSet.length() - 2) +\" where {4} = #{{5},jdbcType={7}}\";\n" +
+                        "            return \"update {3} set \" + strSet.substring(0, strSet.length() - 2) + \" where {4} = #{{5},jdbcType={7}}\";\n" +
                         "        }\n\n",
                 KlString.toUpperFirst(field.getSimpleName()),
                 vo.getClassName(),
                 KlString.toLowerFirst(vo.getClassName()),
                 vo.getTable(),
-                field.getName(),
+                KlMybatisTypeMap.getSafeParam(field.getName(), vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 fieldUpdateSet,
                 KlMybatisTypeMap.map4MybatisPostgreSql(field.getDbType()),
@@ -353,18 +382,18 @@ public class GenerateJavaCodeService {
         StringBuilder fieldInsertValuesBatch = new StringBuilder();
         StringBuilder fieldInsertSelective = new StringBuilder();
         vo.getFieldDescriptions().forEach(f -> {
-            if(!f.getIsIdentity()){
-                appendLineBreak(fieldInsertParams, 100);
-                fieldInsertParams.append(f.getName() + ", ");
+            if (!f.getIsIdentity()) {
+                appendLineBreak(fieldInsertParams, 100, "                       \"", "\" +");
+                fieldInsertParams.append(KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
 
-                appendLineBreak(fieldInsertValues, 50, "                       \"", "\" +");
+                appendLineBreak(fieldInsertValues, 70, "                       \"", "\" +");
                 fieldInsertValues.append("#{" + KlString.toLowerFirst(f.getSimpleName()) + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}, ");
 
-                appendLineBreak(fieldInsertValuesBatch, 50, "                       \"", "\" +");
+                appendLineBreak(fieldInsertValuesBatch, 70, "                       \"", "\" +");
                 fieldInsertValuesBatch.append("#{list[{i}]." + KlString.toLowerFirst(f.getSimpleName()) + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}, ");
             }
 
-            if(!f.getIsIdentity()){
+            if (!f.getIsIdentity()) {
                 appendLineBreak(fieldInsertSelective, 100);
                 fieldInsertSelective.append(KlString.format(
                         "            if ({1}.get{0}() != null) {\n" +
@@ -373,7 +402,7 @@ public class GenerateJavaCodeService {
                                 "            }\n",
                         KlString.toUpperFirst(f.getSimpleName()),
                         KlString.toLowerFirst(vo.getClassName()),
-                        f.getName(),
+                        KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()),
                         KlString.toLowerFirst(f.getSimpleName()),
                         KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())));
             }
@@ -381,20 +410,18 @@ public class GenerateJavaCodeService {
 
         return KlString.format(
                 "        public String insert({0} {1}) {\n" +
-                        "           return new SQL() {{\n" +
-                        "                INSERT_INTO(\"{5}\");\n" +
-                        "                VALUES(\"{6}\", \n" +
-                        "                   \"{7}\");\n" +
-                        "            }}.toString();\n" +
+                        "           return new SQL()\n" +
+                        "                   .INSERT_INTO(\"{5}\")\n" +
+                        "                   .VALUES(\"{6}\", \n" +
+                        "                   \"{7}\").toString();\n" +
                         "        }\n\n" +
                         "        public String insertSelective({0} {1}) {\n" +
                         "           StringBuilder strParams = new StringBuilder();\n" +
                         "           StringBuilder strValues = new StringBuilder();\n" +
                         "{8}" +
-                        "           return new SQL() {{\n" +
-                        "                INSERT_INTO(\"{5}\");\n" +
-                        "                VALUES(strParams.substring(0, strParams.length() - 2), strValues.substring(0, strValues.length() - 2));\n" +
-                        "            }}.toString();\n" +
+                        "           return new SQL()\n" +
+                        "                   .INSERT_INTO(\"{5}\")\n" +
+                        "                   .VALUES(strParams.substring(0, strParams.length() - 2), strValues.substring(0, strValues.length() - 2)).toString();\n" +
                         "        }\n\n" +
                         "        public String batchInsert(Map<String, Object> map) {\n" +
                         "           List<{0}> {1}List = (List) map.get(\"list\");\n" +
@@ -402,7 +429,16 @@ public class GenerateJavaCodeService {
                         "           for(int i = 0; i < {1}List.size(); i++) {\n" +
                         "               strValues.append((\"({9}), \").replaceAll(\"\\\\{i}\", i + \"\"));\n" +
                         "           }\n" +
-                        "           return \"insert into {5}({6}) values \" + strValues.substring(0, strValues.length() - 2);\n" +
+                        "           return \"insert into {5}({6}) values \" \n" +
+                        "                  + strValues.substring(0, strValues.length() - 2);\n" +
+                        "        }\n\n" +
+                        "        public String batchUpdate(Map<String, Object> map) {\n" +
+                        "           List<{0}> {1}List = (List) map.get(\"list\");\n" +
+                        "           StringBuilder strValues = new StringBuilder();\n" +
+                        "           for(int i = 0; i < {1}List.size(); i++) {\n" +
+                        "               strValues.append(updateByIdSelective({1}List.get(i)) + \";\");\n" +
+                        "           }\n" +
+                        "           return strValues.toString();\n" +
                         "        }\n\n",
                 vo.getClassName(),
                 KlString.toLowerFirst(vo.getClassName()),
@@ -435,11 +471,11 @@ public class GenerateJavaCodeService {
                     "PRI".equals(f.getColumnKey()) ? "id" : "result"));
 
             appendLineBreak(fieldParams, 100, "    ");
-            fieldParams.append(f.getName() + ", ");
+            fieldParams.append(KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
 
             fieldWhereParams.append(KlString.format("\n    <if test=\"{0} != null\">\n" +
                     "        AND {1} = #{{0},jdbcType={2}}\n" +
-                    "    </if>", f.getSimpleName(), f.getName(), KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase()));
+                    "    </if>", f.getSimpleName(), KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()), KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase()));
         });
 
         field_SqlContent.append(GenerateCode.mybatisSelect(vo));
@@ -564,13 +600,13 @@ public class GenerateJavaCodeService {
             }
             vo.getFieldDescriptions().stream().filter(f -> f.getColumnKey() != "PRI").forEach(f ->
             {
-                field_UpdateParams.append(KlString.format("{2} = #{{0},jdbcType={1}}, ", KlString.toLowerFirst(f.getSimpleName()), KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase(), f.getName()));
+                field_UpdateParams.append(KlString.format("{2} = #{{0},jdbcType={1}}, ", KlString.toLowerFirst(f.getSimpleName()), KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase(), KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType())));
                 appendLineBreak(field_UpdateParams, 100, "    ");
 
                 field_UpdateParamsSelective.append(KlString.format(
                         "      <if test=\"{0} != null\">\n" +
                                 "        {1} = #{{0},jdbcType={2}},\n" +
-                                "      </if>\n", KlString.toLowerFirst(f.getSimpleName()), f.getName(), KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase()));
+                                "      </if>\n", KlString.toLowerFirst(f.getSimpleName()), KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()), KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase()));
             });
 
             KlFieldDescription field = new KlFieldDescription();
@@ -613,7 +649,7 @@ public class GenerateJavaCodeService {
             vo.getFieldDescriptions().stream().filter(f -> !f.getIsIdentity()).forEach(f ->
             {
                 appendLineBreak(field_Params, 100, "    ");
-                field_Params.append(f.getName() + ", ");
+                field_Params.append(KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
 
                 appendLineBreak(field_InsertParams, 100, "    ");
                 field_InsertParams.append(KlString.format("    #{{0},jdbcType={1}},\n", KlString.toLowerFirst(f.getSimpleName()), KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase()));
@@ -624,7 +660,7 @@ public class GenerateJavaCodeService {
                 field_InsertSelectiveParams.append(KlString.format(
                         "      <if test=\"{0} != null\">\n" +
                                 "        {1},\n" +
-                                "      </if>\n", KlString.toLowerFirst(f.getSimpleName()), f.getName()));
+                                "      </if>\n", KlString.toLowerFirst(f.getSimpleName()), KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType())));
 
                 field_InsertSelectiveValues.append(KlString.format(
                         "      <if test=\"{0} != null\">\n" +

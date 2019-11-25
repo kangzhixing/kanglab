@@ -1,0 +1,268 @@
+<#import "../main.html" as page>
+    <@page.main current="/ping" title="Ping监测">
+
+    <style type="text/css">
+
+        .level0 {
+            background: -webkit-radial-gradient(lightgrey, white); /* Safari 5.1 - 6.0 */
+            background: -o-radial-gradient(lightgrey, white); /* Opera 11.6 - 12.0 */
+            background: -moz-radial-gradient(lightgrey, white); /* Firefox 3.6 - 15 */
+            background: radial-gradient(lightgrey, white); /* 标准的语法（必须放在最后） */
+        }
+
+        .level1 {
+            background: -webkit-radial-gradient(#34b000, white); /* Safari 5.1 - 6.0 */
+            background: -o-radial-gradient(#34b000, white); /* Opera 11.6 - 12.0 */
+            background: -moz-radial-gradient(#34b000, white); /* Firefox 3.6 - 15 */
+            background: radial-gradient(#34b000, white); /* 标准的语法（必须放在最后） */
+        }
+
+        .level2 {
+            background: -webkit-radial-gradient(#fecb00, white); /* Safari 5.1 - 6.0 */
+            background: -o-radial-gradient(#fecb00, white); /* Opera 11.6 - 12.0 */
+            background: -moz-radial-gradient(#fecb00, white); /* Firefox 3.6 - 15 */
+            background: radial-gradient(#fecb00, white); /* 标准的语法（必须放在最后） */
+        }
+
+        .level3 {
+            background: -webkit-radial-gradient(#df0100, white); /* Safari 5.1 - 6.0 */
+            background: -o-radial-gradient(#df0100, white); /* Opera 11.6 - 12.0 */
+            background: -moz-radial-gradient(#df0100, white); /* Firefox 3.6 - 15 */
+            background: radial-gradient(#df0100, white); /* 标准的语法（必须放在最后） */
+        }
+
+        .level4 {
+            background: -webkit-radial-gradient(#8e0e0b, white); /* Safari 5.1 - 6.0 */
+            background: -o-radial-gradient(#8e0e0b, white); /* Opera 11.6 - 12.0 */
+            background: -moz-radial-gradient(#8e0e0b, white); /* Firefox 3.6 - 15 */
+            background: radial-gradient(#8e0e0b, white); /* 标准的语法（必须放在最后） */
+        }
+
+        .divIp {
+            width: 250px;
+            height: 200px;
+            margin: 30px;
+            display: inline-block;
+            box-shadow: 0 0 10px lightgrey;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .divColor {
+            width: 80px;
+            height: 80px;
+            margin: 30px auto 0 auto;
+            line-height: 80px;
+            text-align: center;
+        }
+
+        .divIpText {
+            margin: 40px auto;
+            text-align: center;
+            color: grey;
+        }
+
+        .ipMask {
+            background-color: rgba(255, 0, 0, 0.6);
+            -webkit-filter: blur(8px);
+            -moz-filter: blur(8px);
+            -ms-filter: blur(8px);
+            -o-filter: blur(8px);
+            filter: blur(8px);
+            width: 250px;
+            height: 200px;
+            position: absolute;
+            top: 0;
+            filter: alpha(opacity=70); /*支持 IE 浏览器*/
+            -moz-opacity: 0.7; /*支持 FireFox 浏览器*/
+            opacity: 0.7; /*支持 Chrome, Opera, Safari 等浏览器*/
+        }
+    </style>
+
+    <div class="divPage">
+        <div class="divTitleText"></div>
+        <div class="divCondition">
+            <div>
+                <button id="btnPing" class="jk-button mr10" style="width: 100px">添加</button>
+            </div>
+            <table style="margin-top: 10px;width:100%">
+                <tr>
+                    <td width="90px">Url:</td>
+                    <td>
+                        <input type="text" id="txtIp" style="max-width: 686px;width: 100%"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="90px">调用次数:</td>
+                    <td>
+                        <input type="text" id="txtTime" style="width: 100px" value="10"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="divDatas">
+        </div>
+        <div id="divIpTemp" class="dn">
+            <div class="divIp rd15" id="{0}">
+                <div class="divColor rd100 level0"></div>
+                <div class="divIpText"></div>
+                <div class="ipMask rd15 dn"></div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            $(document).ajaxStart(function () {
+                NProgress.done();
+                NProgress.remove();
+            });
+
+            var lsUrl = localStorage.getItem("pingUrls");
+            var urlMap = JSON.parse(lsUrl);
+            for (var key in urlMap) {
+                ipMap.set(key, urlMap[key]);
+                pingIp(key, urlMap[key], 0);
+            }
+
+        });
+
+        ipMap = new Map();
+
+        $("#btnPing").bind("click", function () {
+            addIpInfo();
+        });
+
+        $("#divDatas").on("click", ".ipMask", function () {
+            stopPingId($(this).parent().find(".divIpText").text());
+        });
+
+        $("#divDatas").on("mouseenter", ".divIp", function () {
+            $(this).find(".ipMask").fadeIn(200);
+        });
+
+        $("#divDatas").on("mouseleave", ".divIp", function () {
+            $(this).find(".ipMask").fadeOut(200);
+        });
+
+        function pingIp(ip, times, divCount) {
+            var id = hex_md5(ip);
+            if (divCount == 0 && $("#" + id).length == 0 && ipMap.has(ip)) {
+                var html = $("#divIpTemp").html().replace("{0}", id);
+                $("#divDatas").append(html);
+            }
+            if ($("#" + id).length == 0) {
+                return;
+            }
+            $("#" + id).find(".divIpText").text(ip);
+            $.ajax({
+                url: "/tool/pingIp",
+                data: {
+                    ip: ip,
+                    times: times
+                },
+                success: function (result) {
+                    $("#" + id).find(".divColor").text(result.body.averageTime);
+                    $("#" + id).find(".divColor").attr('class', function (i, cls) {
+                        return cls.replaceAll(/level\d+/g, '');
+                    }).addClass("level" + getRgbByPing(result.body.averageTime));
+                    setTimeout(pingIp, 5000, ip, times, 1);
+                    ipMap.set(ip, times);
+                },
+                error: function (result) {
+                    $("#" + id).find(".divColor").text(0);
+                    $("#" + id).find(".divColor").attr('class', function (i, cls) {
+                        return cls.replaceAll(/level\d+/g, '');
+                    }).addClass("level" + getRgbByPing(0));
+                    setTimeout(pingIp, 5000, ip, times, 1);
+                    ipMap.set(ip, times);
+                }
+            });
+        }
+
+        function stopPingId(ip) {
+            var key = hex_md5(ip);
+//            clearInterval(ipMap.get(ip));
+            ipMap.delete(ip);
+            $("#" + key).hide(200);
+            $("#" + key).remove();
+
+            //清除ls
+            var lsUrl = localStorage.getItem("pingUrls");
+            if (lsUrl != null) {
+                var urlObj = JSON.parse(lsUrl);
+                var urlMap = objToMap(urlObj);
+                urlMap.delete(ip);
+                localStorage.setItem("pingUrls", JSON.stringify(mapToObj(urlMap)));
+            }
+        }
+
+        function getRgbByPing(ping) {
+            if (ping == 0) {
+                return 0;
+            } else if (ping < 15) {
+                return 1;
+            } else if (ping < 50) {
+                return 2;
+            } else if (ping < 300) {
+                return 3;
+            } else if (ping < 1000) {
+                return 4;
+            } else {
+                return 0;
+            }
+        }
+
+        function mapToObj(strMap) {
+            var obj = Object.create(null);
+            for ([k, v] of strMap.entries()) {
+                obj[k] = v;
+            }
+            return obj;
+        }
+
+        function objToMap(obj) {
+            var strMap = new Map();
+            for (var k of Object.keys(obj)) {
+                strMap.set(k, obj[k]);
+            }
+            return strMap;
+        }
+
+
+        function addIpInfo() {
+
+            var ip = $("#txtIp").val();
+            var time = $("#txtTime").val();
+            if (!ip) {
+                $("#txtIp").focus();
+                return;
+            }
+
+            var lsUrl = localStorage.getItem("pingUrls");
+            var urlMap = new Map();
+            if (lsUrl != null) {
+                urlMap = objToMap(JSON.parse(lsUrl));
+            }
+            if (urlMap.has(ip)) {
+                alert("已监测该IP");
+                $("#txtIp").focus();
+                return;
+            }
+
+            if (!time) {
+                $("#txtTime").val(10);
+            }
+            if (!IsNumber(time)) {
+                $("#txtTime").focus();
+                alert("请输入数字");
+                return;
+            }
+
+            urlMap.set(ip, time);
+            localStorage.setItem("pingUrls", JSON.stringify(mapToObj(urlMap)));
+            ipMap.set(ip, time);
+            pingIp(ip, time, 0);
+        }
+
+    </script>
+</@page.main>

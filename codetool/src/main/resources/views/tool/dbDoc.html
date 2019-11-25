@@ -30,6 +30,8 @@
             margin: 20px 0 10px 5px;
         }
 
+        .divContent
+
         .tbDatas {
             width: 100%;
         }
@@ -43,7 +45,7 @@
             background-color: lightgray;
         }
 
-        #tbDatas tbody tr:hover {
+        .tbDatas tbody tr:hover {
             background-color: darkgray;
         }
 
@@ -176,7 +178,7 @@
                                 var field = row.fieldDescriptions;
                                 tdHtml += "<tr><td>" + field[j].name + "</td>"
                                     + "<td>" + field[j].dbType + "</td>"
-                                    + "<td>" + field[j].length + "</td>"
+                                    + "<td>" + (field[j].length==null?"":field[j].length) + "</td>"
                                     + "<td>" + (field[j].isNullable ? "是" : "否") + "</td>"
                                     + "<td>" + (field[j].columnKey == "PRI" ? "是" : "否") + "</td>"
                                     + "<td>" + (field[j].isIdentity ? "是" : "否") + "</td>"

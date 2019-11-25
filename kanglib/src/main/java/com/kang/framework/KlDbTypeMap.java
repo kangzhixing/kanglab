@@ -36,6 +36,7 @@ public class KlDbTypeMap {
             case "bigint":
                 return isNullable ? "Long" : "long";
             case "int":
+            case "smallint":
                 return isNullable ? "Integer" : "int";
             case "tinyint":
                 return isNullable ? "Short" : "short";

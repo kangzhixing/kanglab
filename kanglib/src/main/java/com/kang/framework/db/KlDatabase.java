@@ -13,9 +13,7 @@ import java.util.Map;
 
 public class KlDatabase {
 
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss.SSS");
-
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     public static int executeNonQuery(String connectionString, String sentence,
                                       HashMap<String, Object> parameters) throws Exception {
@@ -34,13 +32,13 @@ public class KlDatabase {
         }
     }
 
-    
+
     public static int executeNonQuery(String connectionString, String sentence)
             throws Exception {
         return executeNonQuery(connectionString, sentence, null);
     }
 
-   
+
     public static Object executeScalar(String connectionString,
                                        String sentence, HashMap<String, Object> parameters)
             throws Exception {
@@ -77,6 +75,7 @@ public class KlDatabase {
         Connection connection = null;
         KlNamedParameterStatement namedParameterStatement;
         ResultSet resultSet;
+        List result;
         try {
             connection = DriverManager.getConnection(connectionString);
             namedParameterStatement = new KlNamedParameterStatement(connection,
@@ -84,12 +83,13 @@ public class KlDatabase {
 
             namedParameterStatement.setParameterStatementValue(parameters);
             resultSet = namedParameterStatement.executeQuery();
+            result = resultSet2List(resultSet);
         } finally {
             if (connection != null) {
                 connection.close();
             }
         }
-        return resultSet2List(resultSet);
+        return result;
     }
 
 
@@ -117,8 +117,11 @@ public class KlDatabase {
 
     static {
         try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver").newInstance();
+            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("org.postgresql.Driver");
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

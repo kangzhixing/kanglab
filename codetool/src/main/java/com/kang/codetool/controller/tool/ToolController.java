@@ -8,6 +8,9 @@ import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.KlRequest;
 import com.kang.codetool.util.RedisLockUtil;
 import com.kang.framework.HttpClientUtil;
+import com.kang.framework.net.KlPing;
+import com.kang.framework.net.KlPingResult;
+import com.mintq.conf.core.MintqConfClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.repository.query.Param;
@@ -73,6 +76,12 @@ public class ToolController {
         return new ModelAndView("tool/concurrency");
     }
 
+    @ViewPage(description = "Ping监测")
+    @RequestMapping("ping")
+    public ModelAndView ping() {
+        return new ModelAndView("tool/ping");
+    }
+
     @RequestMapping("encodeString")
     @ResponseBody
     public KlRequest encodeString(String str, String encoding) {
@@ -94,6 +103,22 @@ public class ToolController {
         KlRequest result = new KlRequest();
         try {
             result.setBody(URLDecoder.decode(str, encoding));
+            return result;
+
+        } catch (Exception ex) {
+            result.setCode(0);
+            result.setMsg(ex.getMessage());
+            return result;
+        }
+    }
+
+    @RequestMapping("pingIp")
+    @ResponseBody
+    public KlRequest pingIp(String ip, Integer times) {
+        KlRequest result = new KlRequest();
+        try {
+            KlPingResult pingResult = KlPing.get(ip, times);
+            result.setBody(pingResult);
             return result;
 
         } catch (Exception ex) {

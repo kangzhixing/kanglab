@@ -13,7 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-@SpringBootApplication(scanBasePackages = {"com.kang.codetool"}, exclude = MongoAutoConfiguration.class)
+@SpringBootApplication(scanBasePackages = {"com.kang.codetool", "com.kang.codetool.util"}, exclude = MongoAutoConfiguration.class)
 public class CodetoolApplication extends SpringBootServletInitializer {
 
     private static final Log log = LogFactory.getLog(CodetoolApplication.class);

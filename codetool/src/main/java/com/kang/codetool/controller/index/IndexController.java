@@ -10,14 +10,14 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.CollationKey;
+import java.text.Collator;
+import java.util.*;
 
 @RestController
 public class IndexController {
 
-    @RequestMapping("index")
+    @RequestMapping("/")
     public ModelAndView testPage() {
         return new ModelAndView("main/index");
     }
@@ -53,8 +53,10 @@ public class IndexController {
     @ResponseBody
     public String getPageByKeyword(String keyword, int isall) {
         Map<String, Method> pages = Common.getAllPageMethod();
+        Map<String, Method> sortMap = new TreeMap<String, Method>(Comparator.naturalOrder());
+        sortMap.putAll(pages);
         JSONArray result = new JSONArray();
-        for (Map.Entry entry : pages.entrySet()) {
+        for (Map.Entry entry : sortMap.entrySet()) {
             if (isall == 1 || entry.getKey().toString().contains(URLDecoder.decode(keyword))) {
                 JSONObject obj = new JSONObject();
                 obj.put("text", entry.getKey());
@@ -62,6 +64,7 @@ public class IndexController {
                 result.add(obj);
             }
         }
+
         return JSONObject.toJSONString(result);
     }
 

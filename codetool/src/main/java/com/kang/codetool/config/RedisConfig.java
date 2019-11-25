@@ -27,9 +27,9 @@ public class RedisConfig {
     @Bean
     protected JedisPoolConfig getJedisPoolConfig(){
         JedisPoolConfig  config =  new JedisPoolConfig();
-        config.setMaxIdle(KlConvert.tryToInteger(MintqConfClient.get("risk-control.spring.redis.maxIdle")));
-        config.setMaxTotal(KlConvert.tryToInteger(MintqConfClient.get("risk-control.spring.redis.maxActive")));
-        config.setMaxWaitMillis(KlConvert.tryToInteger(MintqConfClient.get("risk-control.spring.redis.maxWait")));
+        config.setMaxIdle(KlConvert.tryToInteger(MintqConfClient.get("risk-china.spring.redis.maxIdle")));
+        config.setMaxTotal(KlConvert.tryToInteger(MintqConfClient.get("risk-china.spring.redis.maxActive")));
+        config.setMaxWaitMillis(KlConvert.tryToInteger(MintqConfClient.get("risk-china.spring.redis.maxWait")));
 
         return config;
     }
@@ -37,9 +37,9 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory connectionFactory(JedisPoolConfig poolConfig) {
         JedisConnectionFactory connectionFactory = new JedisConnectionFactory(poolConfig);
-        connectionFactory.setHostName(MintqConfClient.get("risk-control.spring.redis.host"));
-        connectionFactory.setPassword(MintqConfClient.get("risk-control.spring.redis.password"));
-        connectionFactory.setPort(KlConvert.tryToInteger(MintqConfClient.get("risk-control.spring.redis.port")));
+        connectionFactory.setHostName(MintqConfClient.get("risk-china.spring.redis.host"));
+        connectionFactory.setPassword(MintqConfClient.get("risk-china.spring.redis.password"));
+        connectionFactory.setPort(KlConvert.tryToInteger(MintqConfClient.get("risk-china.spring.redis.port")));
         return connectionFactory;
     }
 
