@@ -21,12 +21,5 @@
             <version>3.5</version>
         </dependency>
 
-
-        <!-- 配置中心 -->
-        <dependency>
-            <groupId>com.mintq</groupId>
-            <artifactId>mintq-conf-core</artifactId>
-            <version>1.5.1</version>
-        </dependency>
     </dependencies>
 </project>
