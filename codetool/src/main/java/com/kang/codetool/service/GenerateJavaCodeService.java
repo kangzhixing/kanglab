@@ -300,19 +300,21 @@ public class GenerateJavaCodeService {
             appendLineBreak(fieldParams, 100);
             fieldParams.append(f.getName() + ", ");
 
-            appendLineBreak(fieldUpdateSet, 100);
-            fieldUpdateSet.append("                    SET(\"" + f.getName() + " = #{" + f.getSimpleName() + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}\");\n");
+            if(!f.getIsIdentity()){
+                appendLineBreak(fieldUpdateSet, 100);
+                fieldUpdateSet.append("                    SET(\"" + f.getName() + " = #{" + f.getSimpleName() + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}\");\n");
 
-            appendLineBreak(fieldUpdateSetSelective, 100);
-            fieldUpdateSetSelective.append(KlString.format(
-                    "            if ({1}.get{0}() != null) {\n" +
-                            "                strSet.append(\"{2} = #{{3},jdbcType={4}}, \");\n" +
-                            "            }\n",
-                    KlString.toUpperFirst(f.getSimpleName()),
-                    KlString.toLowerFirst(vo.getClassName()),
-                    f.getName(),
-                    KlString.toLowerFirst(f.getSimpleName()),
-                    KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())));
+                appendLineBreak(fieldUpdateSetSelective, 100);
+                fieldUpdateSetSelective.append(KlString.format(
+                        "            if ({1}.get{0}() != null) {\n" +
+                                "                strSet.append(\"{2} = #{{3},jdbcType={4}}, \");\n" +
+                                "            }\n",
+                        KlString.toUpperFirst(f.getSimpleName()),
+                        KlString.toLowerFirst(vo.getClassName()),
+                        f.getName(),
+                        KlString.toLowerFirst(f.getSimpleName()),
+                        KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())));
+            }
 
         });
         return KlString.format(
@@ -326,7 +328,7 @@ public class GenerateJavaCodeService {
                         "        public String updateBy{0}Selective({1} {2}) {\n" +
                         "            StringBuilder strSet = new StringBuilder();\n" +
                         "{8}" +
-                        "            return \"update {3} set \" + strSet +\" where {4} = #{{5},jdbcType={7}}\";\n" +
+                        "            return \"update {3} set \" + strSet.substring(0, strSet.length() - 2) +\" where {4} = #{{5},jdbcType={7}}\";\n" +
                         "        }\n\n",
                 KlString.toUpperFirst(field.getSimpleName()),
                 vo.getClassName(),
@@ -362,17 +364,19 @@ public class GenerateJavaCodeService {
                 fieldInsertValuesBatch.append("#{list[{i}]." + KlString.toLowerFirst(f.getSimpleName()) + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}, ");
             }
 
-            appendLineBreak(fieldInsertSelective, 100);
-            fieldInsertSelective.append(KlString.format(
-                    "            if ({1}.get{0}() != null) {\n" +
-                            "                strParams.append(\"{2}, \");\n" +
-                            "                strValues.append(\"#{{3},jdbcType={4}}, \");\n" +
-                            "            }\n",
-                    KlString.toUpperFirst(f.getSimpleName()),
-                    KlString.toLowerFirst(vo.getClassName()),
-                    f.getName(),
-                    KlString.toLowerFirst(f.getSimpleName()),
-                    KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())));
+            if(!f.getIsIdentity()){
+                appendLineBreak(fieldInsertSelective, 100);
+                fieldInsertSelective.append(KlString.format(
+                        "            if ({1}.get{0}() != null) {\n" +
+                                "                strParams.append(\"{2}, \");\n" +
+                                "                strValues.append(\"#{{3},jdbcType={4}}, \");\n" +
+                                "            }\n",
+                        KlString.toUpperFirst(f.getSimpleName()),
+                        KlString.toLowerFirst(vo.getClassName()),
+                        f.getName(),
+                        KlString.toLowerFirst(f.getSimpleName()),
+                        KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())));
+            }
         });
 
         return KlString.format(
