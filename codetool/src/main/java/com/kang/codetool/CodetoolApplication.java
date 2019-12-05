@@ -3,7 +3,9 @@ package com.kang.codetool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -13,7 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-@SpringBootApplication(scanBasePackages = {"com.kang.codetool", "com.kang.codetool.util"}, exclude = MongoAutoConfiguration.class)
+@SpringBootApplication(scanBasePackages = {"com.kang.codetool"}, exclude = {DataSourceAutoConfiguration.class, MongoAutoConfiguration.class})
 public class CodetoolApplication extends SpringBootServletInitializer {
 
     private static final Log log = LogFactory.getLog(CodetoolApplication.class);

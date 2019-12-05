@@ -10,12 +10,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.text.CollationKey;
-import java.text.Collator;
 import java.util.*;
 
 @RestController
-public class IndexController {
+public class indexController {
 
     @RequestMapping("/")
     public ModelAndView testPage() {
@@ -35,6 +33,7 @@ public class IndexController {
                 list.add(entry.getKey().toString());
             }
         }
+                Hashtable
         if (list.size() == 0) {
             return "empty";
         } else if (list.size() == 1) {
@@ -47,6 +46,16 @@ public class IndexController {
     @RequestMapping("searchPage")
     public ModelAndView searchPage() {
         return new ModelAndView("/main/searchPage");
+    }
+
+    public static void main(String[] args) {
+
+
+        ThreadLocal<Integer> tl = new ThreadLocal<>();
+        tl.set(1);
+        tl.set(2);
+        System.out.println(tl.get());
+        System.out.println(tl.get());
     }
 
     @RequestMapping("getPageByKeyword")

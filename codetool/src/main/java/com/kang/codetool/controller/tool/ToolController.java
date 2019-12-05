@@ -1,34 +1,23 @@
 package com.kang.codetool.controller.tool;
 
-import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.metadata.BaseRowModel;
-import com.alibaba.excel.metadata.Sheet;
-import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.KlRequest;
 import com.kang.codetool.util.RedisLockUtil;
 import com.kang.framework.HttpClientUtil;
 import com.kang.framework.net.KlPing;
 import com.kang.framework.net.KlPingResult;
-import com.mintq.conf.core.MintqConfClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.repository.query.Param;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("tool")
