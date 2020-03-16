@@ -118,6 +118,7 @@ public class KlDatabase {
     static {
         try {
             Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             Class.forName("org.postgresql.Driver");
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         } catch (Exception e) {

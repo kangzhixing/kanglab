@@ -192,6 +192,9 @@
                         $("#divDatas").append(divTableListHtml + divTableFilesHtml);
 
                     }
+                },
+                error: function(result){
+                    alert("查询失败");
                 }
             });
 
@@ -213,7 +216,7 @@
         $("input:radio").bind("change", function () {
             var connectionString = $("#txtConnectionString").val();
             var sqlserver = "data source=xxxxxxxxxx;database=xxxxxxxxxx;uid=xxxxxxxxxx;pwd=xxxxxxxxxx;";
-            var mysql = "data source=xxxxxxxxxx;database=xxxxxxxxxx;uid=xxxxxxxxxx;pwd=xxxxxxxxxx;port=xxxx;";
+            var mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxxxxxxxxx?user=xxxxxxxxxx&password=xxxxxxxxxx";
             var postgresql = "server=xxxxxxxxxx;database=xxxxxxxxxx;uid=xxxxxxxxxx;pwd=xxxxxxxxxx;port=xxxx;";
 
             if (this.value == 'SqlServer') {

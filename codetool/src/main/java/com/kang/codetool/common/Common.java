@@ -6,6 +6,7 @@ import com.kang.framework.KlConvert;
 import com.kang.framework.db.KlDatabase;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.File;
@@ -14,6 +15,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class Common {
 
     public static Map<String, Method> getAllPageMethod() {
@@ -116,6 +118,7 @@ public class Common {
         try {
             result = KlDatabase.fill(connectionString, sql);
         } catch (Exception e) {
+            log.info("连接数据库失败", e);
             e.printStackTrace();
         }
 

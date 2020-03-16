@@ -4,6 +4,7 @@ import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.Common;
 import com.kang.codetool.common.KlRequest;
 import com.kang.framework.db.KlDatabaseType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("db")
 public class DbController {
@@ -31,18 +33,25 @@ public class DbController {
         KlRequest<List<Map<String, Object>>> request = new KlRequest<>();
         connection = URLDecoder.decode(connection);
         List<Map<String, Object>> result = new ArrayList<>();
-        List<String> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
-        String finalConnection = connection;
-        databaseTables.forEach(dbTableName ->
-        {
-            Map<String,Object> m = new LinkedHashMap<>();
-            m.put("dbName", dbTableName);
-            m.put("fieldDescriptions", Common.getDatabaseColumns(finalConnection, dbTableName, KlDatabaseType.getByName(dbType)));
-            result.add(m);
-        });
+        try {
+            List<String> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
+            String finalConnection = connection;
+            databaseTables.forEach(dbTableName ->
+            {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("dbName", dbTableName);
+                m.put("fieldDescriptions", Common.getDatabaseColumns(finalConnection, dbTableName, KlDatabaseType.getByName(dbType)));
+                result.add(m);
+            });
 
-        request.setBody(result);
-        return request;
+            request.setBody(result);
+            return request;
+        } catch (Exception ex) {
+            request.setCode(0);
+            request.setMsg(ex.getMessage());
+            log.info("打印数据库文档失败", ex);
+            return request;
+        }
     }
 
 }

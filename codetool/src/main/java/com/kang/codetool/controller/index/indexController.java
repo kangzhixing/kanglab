@@ -3,25 +3,14 @@ package com.kang.codetool.controller.index;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.kang.codetool.common.Common;
-import com.rabbitmq.client.*;
-import com.sun.management.OperatingSystemMXBean;
-import com.sun.management.ThreadMXBean;
-import org.assertj.core.util.Maps;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @RestController
 public class indexController {
@@ -44,7 +33,6 @@ public class indexController {
                 list.add(entry.getKey().toString());
             }
         }
-
         if (list.size() == 0) {
             return "empty";
         } else if (list.size() == 1) {
