@@ -1,7 +1,7 @@
 <#import "../main.html" as page>
 <@page.main current="/dbDoc" title="Json格式化">
 <style type="text/css">
-    .divContent {
+    textarea {
         min-height: 60vh;
         outline: none;
         border: none;
@@ -19,27 +19,18 @@
     <div class="divTitleText"></div>
     <div class="divCondition">
         <div>
-            <button id="btnInit" class="jk-button mr10">格式化</button>
+            <button id="btnFormat" class="jk-button mr10">格式化</button>
+            <button id="btnClear" onclick="$('#divDatas').val('')" class="jk-button mr10">清空</button>
         </div>
     </div>
-    <textarea id="divDatas" class="divContent eleHide" style="overflow-x:auto" contenteditable="true" aria-placeholder="在此输入"
-         placeholder="在此输入">
-    </textarea>
+    <textarea id="divDatas" class="divContent" placeholder="输入原字符串"></textarea>
 </div>
 <script type="text/javascript">
 
     $(function () {
         $("#divDatas").focus();
-
-        if (localStorage.getItem("docconn") != null) {
-            $("#txtConnectionString").val(localStorage.getItem("docconn"));
-        }
-
-        if (localStorage.getItem("docdbtype") != null) {
-            $("input[value=" + localStorage.getItem("docdbtype") + "]").prop("checked", "checked");
-        }
     });
-    $("#btnInit").bind("click", function () {
+    $("#btnFormat").bind("click", function () {
         if ($("#divDatas").val()) {
             try {
                 var jsonStr = formatJson($("#divDatas").val());
@@ -53,7 +44,7 @@
     });
     // 工具方法
     var formatJson = function (json, options) {
-        var reg = null,
+        var reg,
             formatted = '',
             pad = 0,
             PADDING = '    '; // one can also use '\t' or a different number of spaces
