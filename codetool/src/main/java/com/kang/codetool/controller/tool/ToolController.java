@@ -71,6 +71,12 @@ public class ToolController {
         return new ModelAndView("tool/ping");
     }
 
+    @ViewPage(description = "Json格式化")
+    @RequestMapping("json")
+    public ModelAndView json() {
+        return new ModelAndView("tool/json");
+    }
+
     @RequestMapping("encodeString")
     @ResponseBody
     public KlRequest encodeString(String str, String encoding) {
