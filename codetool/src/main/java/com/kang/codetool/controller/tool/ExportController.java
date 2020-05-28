@@ -31,7 +31,7 @@ public class ExportController {
 
     @RequestMapping("exportFile")
     public void exportFile(@Param("content") String content, @Param("fileName") String fileName, @Param("extension") String extension,
-                           HttpServletResponse response) throws Exception {
+                           HttpServletResponse response) {
         try {
             content = URLDecoder.decode(content);
             // 以流的形式下载文件。
@@ -42,7 +42,7 @@ public class ExportController {
             // 清空response
             response.reset();
             // 设置response的Header
-            response.addHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes()) + "." + extension);
+            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + "." + extension);
             OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/octet-stream");
             toClient.write(buffer);

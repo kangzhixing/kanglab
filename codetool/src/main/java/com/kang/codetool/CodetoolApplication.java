@@ -26,12 +26,14 @@ public class CodetoolApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         File fileDirectorys = new File(APPLICATION_CONFIG_DIRECTORY);
         File[] files = fileDirectorys.listFiles();
-        for (File file : files) {
-            try {
-                log.info("=====配置文件初始化，path={}=====" + APPLICATION_CONFIG_DIRECTORY + file.getName());
-                obtainFile(file.getName());
-            } catch (IOException e) {
-                log.error(e);
+        if(files!=null){
+            for (File file : files) {
+                try {
+                    log.info("=====配置文件初始化，path={}=====" + APPLICATION_CONFIG_DIRECTORY + file.getName());
+                    obtainFile(file.getName());
+                } catch (IOException e) {
+                    log.error(e);
+                }
             }
         }
         return application.sources(CodetoolApplication.class);
