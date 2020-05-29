@@ -10,8 +10,22 @@
         resize: none;
     }
 
-    .waring{
-        box-shadow:0 0 10px lightcoral;
+    .waring {
+        box-shadow: 0 0 10px lightcoral;
+    }
+
+    .divMessage {
+        z-index: 1;
+        box-shadow: 0 0 10px grey;
+        min-width: 300px;
+        max-width: 40vw;
+        min-height: 100px;
+        position: fixed;
+        right: 50px;
+        bottom: 50px;
+        padding: 0 20px 20px 20px;
+        background-color: white;
+        overflow-x: auto;
     }
 </style>
 
@@ -24,6 +38,7 @@
         </div>
     </div>
     <textarea id="divDatas" class="divContent" placeholder="输入原字符串"></textarea>
+    <div class="dn divMessage"></div>
 </div>
 <script type="text/javascript">
 
@@ -31,13 +46,26 @@
         $("#divDatas").focus();
     });
     $("#btnFormat").bind("click", function () {
-        if ($("#divDatas").val()) {
+        var content = $("#divDatas").val();
+        var messageLength = 200 / 2;
+        if (content) {
             try {
-                var jsonStr = JSON.stringify(JSON.parse($("#divDatas").val()), null, 4);
+                var jsonStr = JSON.stringify(JSON.parse(content), null, 4);
                 $("#divDatas").removeClass("waring");
+                $(".divMessage").fadeOut(150);
                 $("#divDatas").val(jsonStr);
             } catch (e) {
                 $("#divDatas").addClass("waring");
+                var errMsg = " in JSON at position ";
+                if (e.message.indexOf(errMsg) > -1) {
+                    var position = Number(e.message.substr(e.message.indexOf(errMsg) + errMsg.length));
+                    var demoBeginIndex = position > messageLength ? position - messageLength : 0;
+
+                    $(".divMessage").html("<p>" + e.message + ":</p><label>" + content.substr(demoBeginIndex, position - demoBeginIndex)
+                        + "</label><b style='border: 1px solid lightcoral;background-color: lightcoral'>" + content.substr(position, 1) + "</b>"
+                        + content.substr(position + 1, messageLength));
+                    $(".divMessage").fadeIn(200);
+                }
             }
 
         }
