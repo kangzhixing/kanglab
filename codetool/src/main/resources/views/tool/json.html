@@ -10,6 +10,11 @@
         resize: none;
     }
 
+    .wrongWord {
+        border: 1px solid lightcoral;
+        background-color: lightcoral;
+    }
+
     .waring {
         box-shadow: 0 0 10px lightcoral;
     }
@@ -34,7 +39,8 @@
     <div class="divCondition">
         <div>
             <button id="btnFormat" class="jk-button mr10">格式化</button>
-            <button id="btnClear" onclick="$('#divDatas').val('')" class="jk-button mr10">清空</button>
+            <button id="btnSelect"  class="jk-button mr10">选中</button>
+            <button id="btnClear"  class="jk-button mr10">清空</button>
         </div>
     </div>
     <textarea id="divDatas" class="divContent" placeholder="输入原字符串"></textarea>
@@ -45,6 +51,21 @@
     $(function () {
         $("#divDatas").focus();
     });
+
+    $("#btnSelect").bind("click", function () {
+        if($("#divDatas").val()){
+            $("#divDatas").select();
+        }
+    });
+
+    $("#btnClear").bind("click", function(){
+
+        $('#divDatas').val('');
+        $(".divMessage").fadeOut(150);
+        $("#divDatas").removeClass("waring");
+    });
+
+
     $("#btnFormat").bind("click", function () {
         var content = $("#divDatas").val();
         var messageLength = 200 / 2;
@@ -62,7 +83,7 @@
                     var demoBeginIndex = position > messageLength ? position - messageLength : 0;
 
                     $(".divMessage").html("<p>" + e.message + ":</p><label>" + content.substr(demoBeginIndex, position - demoBeginIndex)
-                        + "</label><b style='border: 1px solid lightcoral;background-color: lightcoral'>" + content.substr(position, 1) + "</b>"
+                        + "</label><b class='wrongWord'>" + content.substr(position, 1) + "</b>"
                         + content.substr(position + 1, messageLength));
                     $(".divMessage").fadeIn(200);
                 }

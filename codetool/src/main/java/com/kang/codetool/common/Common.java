@@ -112,7 +112,7 @@ public class Common {
     private static List<String> getDatabaseTables_MySql(String connectionString) {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
-        String sql = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'";
+        String sql = "SELECT TABLE_NAME, TABLE_COMMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'";
 
         List<Map<String, Object>> result = null;
         try {
