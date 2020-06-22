@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("export")
@@ -75,7 +76,7 @@ public class ExportController {
                     break;
             }
 
-            List<String> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
+            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
 
             String zipDirPath = this.getClass().getResource("/").getPath() + "zip/";
 
@@ -91,15 +92,16 @@ public class ExportController {
 
                 zipDirFullPath.mkdir();
             }
-            for (String table : databaseTables) {
-                List<KlFieldDescription> databaseColumns = Common.getDatabaseColumns(connectionString, table, KlDatabaseType.getByName(dbType));
-                String className = KlString.toUpperFirst(KlString.replaceUnderline(table.startsWith("t_") ? table.replace("t_", "") : table));
+            for (Map<String, Object> table : databaseTables) {
+                String tableName = table.get("TABLE_NAME").toString();
+                List<KlFieldDescription> databaseColumns = Common.getDatabaseColumns(connectionString, tableName, KlDatabaseType.getByName(dbType));
+                String className = KlString.toUpperFirst(KlString.replaceUnderline(tableName.startsWith("t_") ? tableName.replace("t_", "") : tableName));
                 CodeMakerGeneratCodeVO outModel = new CodeMakerGeneratCodeVO();
                 outModel.setPackagePath(packagePath);
                 outModel.setFieldDescriptions(databaseColumns);
                 outModel.setDatabaseType(databaseType);
                 outModel.setClassName(className);
-                outModel.setTable(table);
+                outModel.setTable(tableName);
                 Class clazz = Class.forName("com.kang.codetool.service.Generate" + lang + "CodeService");
                 //声明创建当前类实例
                 Method method = clazz.getMethod("ref" + type, CodeMakerGeneratCodeVO.class);

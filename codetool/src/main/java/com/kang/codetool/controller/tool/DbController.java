@@ -34,13 +34,14 @@ public class DbController {
         connection = URLDecoder.decode(connection);
         List<Map<String, Object>> result = new ArrayList<>();
         try {
-            List<String> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
+            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
             String finalConnection = connection;
-            databaseTables.forEach(dbTableName ->
+            databaseTables.forEach(dbTable ->
             {
                 Map<String, Object> m = new LinkedHashMap<>();
-                m.put("dbName", dbTableName);
-                m.put("fieldDescriptions", Common.getDatabaseColumns(finalConnection, dbTableName, KlDatabaseType.getByName(dbType)));
+                m.put("dbName", dbTable.get("TABLE_NAME").toString());
+                m.put("comment", dbTable.get("TABLE_COMMENT").toString());
+                m.put("fieldDescriptions", Common.getDatabaseColumns(finalConnection, dbTable.get("TABLE_NAME").toString(), KlDatabaseType.getByName(dbType)));
                 result.add(m);
             });
 

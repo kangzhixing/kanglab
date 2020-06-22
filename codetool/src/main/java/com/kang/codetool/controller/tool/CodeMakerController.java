@@ -17,6 +17,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("codeMaker")
@@ -52,7 +53,7 @@ public class CodeMakerController {
         KlRequest result = new KlRequest();
         connectionString = URLDecoder.decode(connectionString.trim());
 
-        List<String> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
+        List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
 
         result.setBody(databaseTables);
         return result;

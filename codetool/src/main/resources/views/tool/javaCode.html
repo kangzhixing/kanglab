@@ -238,7 +238,7 @@
                         var html = "";
                         if (result.body.length > 0) {
                             for (var i = 0; i < result.body.length; i++) {
-                                html = html + "<option value='" + result.body[i] + "'>" + result.body[i] + "</option>";
+                                html = html + "<option value='" + result.body[i]["TABLE_NAME"] + "'>" + result.body[i]["TABLE_NAME"] + "</option>";
                             }
                             $("#txtClassName").val(GetClassName(result.body[0]));
                         }

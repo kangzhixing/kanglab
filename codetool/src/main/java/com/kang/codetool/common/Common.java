@@ -80,7 +80,7 @@ public class Common {
     }
 
 
-    public static List<String> getDatabaseTables(String connectionString, KlDatabaseType dbType) {
+    public static List<Map<String, Object>> getDatabaseTables(String connectionString, KlDatabaseType dbType) {
         switch (dbType) {
             case MySql: {
                 return getDatabaseTables_MySql(connectionString);
@@ -96,8 +96,8 @@ public class Common {
         }
     }
 
-    private static List<String> getDatabaseTables_SqlServer(String connectionString) {
-        String sql = "SELECT name AS Name FROM SYSOBJECTS WHERE XTYPE IN ('V','U') AND NAME<>'DTPROPERTIES' ORDER BY Name ASC";
+    private static List<Map<String, Object>> getDatabaseTables_SqlServer(String connectionString) {
+        String sql = "SELECT name as TABLE_NAME, '' as TABLE_COMMENT FROM SYSOBJECTS WHERE XTYPE IN ('V','U') AND NAME<>'DTPROPERTIES' ORDER BY Name ASC";
 
         List<Map<String, Object>> result = null;
         try {
@@ -106,13 +106,13 @@ public class Common {
             e.printStackTrace();
         }
 
-        return result.stream().map(r -> r.get("name").toString()).collect(Collectors.toList());
+        return result;
     }
 
-    private static List<String> getDatabaseTables_MySql(String connectionString) {
+    private static List<Map<String, Object>> getDatabaseTables_MySql(String connectionString) {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
-        String sql = "SELECT TABLE_NAME, TABLE_COMMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'";
+        String sql = "SELECT TABLE_NAME, TABLE_COMMENT, ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'";
 
         List<Map<String, Object>> result = null;
         try {
@@ -122,17 +122,17 @@ public class Common {
             e.printStackTrace();
         }
 
-        return result.stream().map(r -> r.get("TABLE_NAME").toString()).collect(Collectors.toList());
+        return result;
     }
 
-    private static List<String> getDatabaseTables_PostgreSql(String connectionString) {
-        String sql = "select relname as Name,cast(obj_description(relfilenode,'pg_class') as varchar) as comment from pg_class c \n" +
-                "where  relkind = 'r' and relname not like 'pg_%' and relname not like 'sql_%' order by relname";
+    private static List<Map<String, Object>> getDatabaseTables_PostgreSql(String connectionString) {
+        String sql = "select relname as TABLE_NAME,cast(obj_description(relfilenode,'pg_class') as varchar) as TABLE_COMMENT from pg_class c \n" +
+                "where relkind = 'r' and relname not like 'pg_%' and relname not like 'sql_%' order by relname";
 
         List<Map<String, Object>> result = null;
         try {
             result = KlDatabase.fill(connectionString, sql);
-            return result.stream().map(r -> r.get("name").toString()).collect(Collectors.toList());
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
