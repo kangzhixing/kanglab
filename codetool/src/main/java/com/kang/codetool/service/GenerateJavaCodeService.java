@@ -24,7 +24,7 @@ public class GenerateJavaCodeService {
                 "import java.util.*;\n" +
                 "import java.math.*;\n\n" +
                 "/**\n" +
-                " * 表\"" + vo.getTable() + "\"对应实体类\n" +
+                " * " + vo.getTable() + "表实体类\n" +
                 " *\n" +
                 " * @author codeTool\n" +
                 " * @date " + LocalDate.now().toString() + "\n" +
