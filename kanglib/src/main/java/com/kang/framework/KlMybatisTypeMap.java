@@ -48,6 +48,22 @@ public class KlMybatisTypeMap {
      * @param dbType 数据类型
      * @return JAVA类型
      */
+    public static String map4Mybatis(String dbType, KlDatabaseType databaseType) {
+        if(databaseType.equals(KlDatabaseType.PostgreSql)){
+            return map4MybatisPostgreSql(dbType);
+        }else{
+            return map4Mybatis(dbType);
+        }
+
+
+    }
+
+    /**
+     * 映射
+     *
+     * @param dbType 数据类型
+     * @return JAVA类型
+     */
     public static String map4Mybatis(String dbType) {
         switch (dbType) {
             case "bigint":

@@ -99,8 +99,8 @@
         function InitCodeTypeSlt() {
             $.getJSON("/codeMaker/getCodeTypeSlt?lang=Java&r=" + new Date().getTime(), function (data) {
                 $("#sltDataType").html('');
-                var html = '';
-                for (var i = 0; i < data.body.length; i++) {
+                let html = '';
+                for (let i = 0; i < data.body.length; i++) {
                     html += "<option value='" + data.body[i] + "'>" + data.body[i].replaceAll("ref", "") + "</option>";
                 }
                 $("#sltDataType").html(html);
@@ -109,7 +109,7 @@
         }
 
         $("#btnExport").bind("click", function () {
-            var content = $("#divCode").text();
+            const content = $("#divCode").text();
             if (content.trim() == '') return;
             $("#fmExport").find("input[name=content]").val(encodeURIComponent(content));
             $("#fmExport").find("input[name=fileName]").val($("#txtClassName").val());
@@ -128,7 +128,7 @@
 
         document.body.oncopy = function () {
             setTimeout(function () {
-                var text = clipboardData.getData("text");
+                let text = clipboardData.getData("text");
                 if (text) {
                     text = text + "\r\n本篇文章来源于 codetool 原文链接：" + location.href;
                     clipboardData.setData("text", text);
@@ -137,11 +137,11 @@
         }
 
         $("#btnGenerat").bind("click", function () {
-            var connectionString = $("#txtConnectionString").val();
-            var table = $("#sltTables").val();
-            var pkg = $("#txtPackage").val();
-            var className = $("#txtClassName").val();
-            var type = $("#sltDataType").val();
+            const connectionString = $("#txtConnectionString").val();
+            const table = $("#sltTables").val();
+            const pkg = $("#txtPackage").val();
+            const className = $("#txtClassName").val();
+            const type = $("#sltDataType").val();
             $.getJSON("/codeMaker/generatCode", {
                 lang: "Java",
                 dbType: $("input:radio[checked=checked]").val(),
@@ -171,10 +171,10 @@
         });
 
         $("input:radio").bind("change", function () {
-            var connectionString = $("#txtConnectionString").val();
-            var sqlserver = "jdbc:sqlserver://xxxxxxxxxxxx:xxxx;DatabaseName=xxx?user=xxxxxx&password=xxxxxx";
-            var mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx";
-            var postgresql = "jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx";
+            const connectionString = $("#txtConnectionString").val();
+            const sqlserver = "jdbc:sqlserver://xxxxxxxxxxxx:xxxx;DatabaseName=xxx?user=xxxxxx&password=xxxxxx";
+            const mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx";
+            const postgresql = "jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx";
 
             if (this.value == 'SqlServer') {
                 if ($("#txtConnectionString").val() == postgresql || $("#txtConnectionString").val() == mysql || $("#txtConnectionString").val() == "") {
@@ -207,11 +207,11 @@
         });
 
         $("#btnConnect").bind("click", function () {
-            var connectionString = $("#txtConnectionString").val().trim();
+            const connectionString = $("#txtConnectionString").val().trim();
             if (connectionString.trim() == "") {
                 return;
             }
-            var dbType = $("input:radio[checked=checked]").val();
+            const dbType = $("input:radio[checked=checked]").val();
             localStorage.setItem("conn", connectionString);
             localStorage.setItem("dbtype", dbType);
             $.ajax({
@@ -235,9 +235,9 @@
                         $(".eleHide").fadeIn(200);
                         $("#btnGenerat").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
                         $("#btnExportAll").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
-                        var html = "";
+                        let html = "";
                         if (result.body.length > 0) {
-                            for (var i = 0; i < result.body.length; i++) {
+                            for (let i = 0; i < result.body.length; i++) {
                                 html = html + "<option value='" + result.body[i]["TABLE_NAME"] + "'>" + result.body[i]["TABLE_NAME"] + "</option>";
                             }
                             $("#txtClassName").val(GetClassName(result.body[0]["TABLE_NAME"]));

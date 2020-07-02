@@ -10,6 +10,9 @@ import com.kang.framework.KlString;
 
 import java.time.LocalDate;
 
+/**
+ *
+ */
 public class GenerateJavaCodeService {
 
     public String refEntity(CodeMakerGeneratCodeVO vo) {
@@ -17,19 +20,26 @@ public class GenerateJavaCodeService {
 //        StringBuilder getterAndSetter = new StringBuilder();
 
         result.append(KlString.format("package {0};\n\n" +
-                "import lombok.Data;\n" +
+                "import lombok.*;\n" +
                 "import java.util.*;\n" +
                 "import java.math.*;\n\n" +
+                "/**\n" +
+                " * 表\"" + vo.getTable() + "\"对应实体类\n" +
+                " *\n" +
+                " * @author codeTool\n" +
+                " * @date " + LocalDate.now().toString() + "\n" +
+                " */\n" +
                 "@Data\n" +
+                "@Builder\n" +
                 "public class {1} {\n\n", vo.getPackagePath().replace("{0}", "model"), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult()))));
 
         for (KlFieldDescription f : vo.getFieldDescriptions()) {
-            if (!KlString.isBlank(f.getDescription()))
+            if (!KlString.isBlank(f.getDescription())) {
                 result.append("    /**\n" +
                         "    * " + f.getDescription().replace("\n", "  ") + "\n" +
                         "    */\n");
-            result.append("    private " + KlDbTypeMap.map4J(f.getDbType(), true, vo.getDatabaseType()) + " " + KlString.toLowerFirst(f.getSimpleName()) + ";\n\n");
-
+                result.append("    private " + KlDbTypeMap.map4J(f.getDbType(), true, vo.getDatabaseType()) + " " + KlString.toLowerFirst(f.getSimpleName()) + ";\n\n");
+            }
 //            getterAndSetter.append(KlString.format(
 //                    "    public {2} get{1}() {\n" +
 //                            "        return {0};\n" +
@@ -73,11 +83,11 @@ public class GenerateJavaCodeService {
                 "import {2}.{1};\n" +
                 "import com.kang.framework.*;\n" +
                 "\n" +
-                "        public class {1}Dao{\n" +
+                "        public class {1}Mapper{\n" +
                 "        {3}\n" +
                 "\n" +
                 "\n" +
-                "    }", KlString.format(vo.getPackagePath(), "dao"), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult())), KlString.format(vo.getPackagePath(), "model"), content));
+                "    }", KlString.format(vo.getPackagePath(), "mapper"), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult())), KlString.format(vo.getPackagePath(), "model"), content));
 
         return result.toString();
     }
@@ -101,7 +111,7 @@ public class GenerateJavaCodeService {
                         "import {1};\n" +
                         "import java.util.List;\n" +
                         "\n" +
-                        "public interface I{2}Dao{\n" +
+                        "public interface {2}Mapper{\n" +
                         "\n" +
                         "        {7}By{3}({4} {5});\n" +
                         "\n" +
@@ -128,7 +138,7 @@ public class GenerateJavaCodeService {
                         "        void batchInsert(List<{2}> {6}List);\n" +
                         "    \n" +
                         "}",
-                KlString.format(vo.getPackagePath(), "dao"),
+                KlString.format(vo.getPackagePath(), "mapper"),
                 KlString.format(vo.getPackagePath(), "model") + "." + vo.getClassName(),
                 vo.getClassName(),
                 KlString.toUpperFirst(field.getSimpleName()),
@@ -167,7 +177,7 @@ public class GenerateJavaCodeService {
                     KlString.toLowerFirst(vo.getClassName()),
                     KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()),
                     KlString.toLowerFirst(f.getSimpleName()),
-                    KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())
+                    KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType())
             ));
         });
         StringBuilder codeStr = new StringBuilder();
@@ -186,7 +196,7 @@ public class GenerateJavaCodeService {
                         " * @author codeTool\n" +
                         " * @date " + LocalDate.now().toString() + "\n" +
                         " */\n" +
-                        "public interface I{2}Dao{\n" +
+                        "public interface {2}Mapper{\n" +
                         "\n" +
                         "    @Select(\"select {11} from {8} where {9} = #{{5}}\")\n" +
                         "    {7}By{3}({4} {5});\n" +
@@ -245,7 +255,7 @@ public class GenerateJavaCodeService {
                         generateInsertMethodCode(vo) +
                         "    }\n" +
                         "}",
-                KlString.format(vo.getPackagePath(), "dao"),
+                KlString.format(vo.getPackagePath(), "mapper"),
                 KlString.format(vo.getPackagePath(), "model") + "." + vo.getClassName(),
                 vo.getClassName(),
                 KlString.toUpperFirst(field.getSimpleName()),
@@ -332,7 +342,7 @@ public class GenerateJavaCodeService {
 
             if (!f.getIsIdentity()) {
                 appendLineBreak(fieldUpdateSet, 100);
-                fieldUpdateSet.append("                   .SET(\"" + KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " = #{" + f.getSimpleName() + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}\")\n");
+                fieldUpdateSet.append("                   .SET(\"" + KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " = #{" + f.getSimpleName() + ",jdbcType=" + KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType()) + "}\")\n");
 
                 appendLineBreak(fieldUpdateSetSelective, 100);
                 fieldUpdateSetSelective.append(KlString.format(
@@ -343,7 +353,7 @@ public class GenerateJavaCodeService {
                         KlString.toLowerFirst(vo.getClassName()),
                         KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()),
                         KlString.toLowerFirst(f.getSimpleName()),
-                        KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())));
+                        KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType())));
             }
 
         });
@@ -462,7 +472,7 @@ public class GenerateJavaCodeService {
 
         StringBuilder codeStr = new StringBuilder();
         codeStr.append("<!DOCTYPE mapper PUBLIC \" -//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">\n" +
-                "<mapper namespace=\"" + KlString.format(vo.getPackagePath(), "dao") + ".I" + KlString.toUpperFirst(vo.getClassName()) + "Dao\">\n");
+                "<mapper namespace=\"" + KlString.format(vo.getPackagePath(), "mapper") + "." + KlString.toUpperFirst(vo.getClassName()) + "Mapper\">\n");
 
         vo.getFieldDescriptions().forEach(f ->
         {
