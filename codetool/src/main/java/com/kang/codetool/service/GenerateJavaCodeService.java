@@ -17,7 +17,6 @@ public class GenerateJavaCodeService {
 
     public String refEntity(CodeMakerGeneratCodeVO vo) {
         StringBuilder result = new StringBuilder();
-//        StringBuilder getterAndSetter = new StringBuilder();
 
         result.append(KlString.format("package {0};\n\n" +
                 "import lombok.*;\n" +
@@ -40,17 +39,7 @@ public class GenerateJavaCodeService {
                         "    */\n");
                 result.append("    private " + KlDbTypeMap.map4J(f.getDbType(), true, vo.getDatabaseType()) + " " + KlString.toLowerFirst(f.getSimpleName()) + ";\n\n");
             }
-//            getterAndSetter.append(KlString.format(
-//                    "    public {2} get{1}() {\n" +
-//                            "        return {0};\n" +
-//                            "    }\n" +
-//                            "    public void set{1}({2} {0}) {\n" +
-//                            "        this.{0} = {0};\n" +
-//                            "    }\n", KlString.toLowerFirst(f.getSimpleName()), KlString.toUpperFirst(f.getSimpleName()),
-//                    KlDbTypeMap.map4J(f.getDbType(), true, vo.getDatabaseType())));
-
         }
-//        result.append(getterAndSetter);
         result.append("\n}");
 
         return result.toString();
