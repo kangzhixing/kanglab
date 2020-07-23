@@ -2,7 +2,7 @@ package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.Common;
-import com.kang.codetool.common.KlRequest;
+import com.kang.codetool.common.KlResponse;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
@@ -31,8 +31,8 @@ public class CodeMakerController {
 
     @RequestMapping("getCodeTypeSlt")
     @ResponseBody
-    public KlRequest<List<String>> getCodeTypeSlt(String lang) throws ClassNotFoundException {
-        KlRequest result = new KlRequest();
+    public KlResponse<List<String>> getCodeTypeSlt(String lang) throws ClassNotFoundException {
+        KlResponse result = new KlResponse();
         Class clazz = Class.forName("com.kang.codetool.service.Generate" + lang + "CodeService");
 
         List<String> methodNameList = new ArrayList<>();
@@ -49,8 +49,8 @@ public class CodeMakerController {
 
     @RequestMapping("getTables")
     @ResponseBody
-    public KlRequest getTables(String connectionString, String dbType) {
-        KlRequest result = new KlRequest();
+    public KlResponse getTables(String connectionString, String dbType) {
+        KlResponse result = new KlResponse();
         connectionString = URLDecoder.decode(connectionString.trim());
 
         List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
@@ -61,8 +61,8 @@ public class CodeMakerController {
 
     @RequestMapping("generatCode")
     @ResponseBody
-    public KlRequest generatCode(CodeMakerGeneratCodeVO vo) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
-        KlRequest result = new KlRequest();
+    public KlResponse generatCode(CodeMakerGeneratCodeVO vo) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        KlResponse result = new KlResponse();
         vo.setConnectionString(URLDecoder.decode(vo.getConnectionString()).trim());
 
         switch (vo.getDbType().toLowerCase()) {

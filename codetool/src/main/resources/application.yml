@@ -1,0 +1,28 @@
+server:
+  port: 1068
+
+spring:
+  resources:
+    chain:
+      strategy:
+        content:
+          enabled: true
+          paths: /**
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/
+  mvc:
+    static-path-pattern: /static/**
+  freemarker:
+    cache: false
+    template-loader-path: classpath:/views/
+    prefix:
+    suffix: .html
+    charset: utf-8
+    settings:
+      number_format: 0.####
+      datetime_format: yyyy-MM-dd HH:mm:ss
+      time_format: HH:mm:ss
+      boolean_format: true,false
+      whitespace_stripping: true
+      tag_syntax: auto_detect
+      url_escaping_charset: UTF-8
+

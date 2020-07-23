@@ -5,17 +5,15 @@ import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kang.codetool.common.Common;
-import com.kang.codetool.common.KlRequest;
+import com.kang.codetool.common.KlResponse;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
 import com.kang.framework.KlString;
 import com.kang.framework.KlUuid;
 import com.kang.framework.KlZip;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
-import org.apache.tomcat.jni.Directory;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -167,7 +165,7 @@ public class ExportController {
     @RequestMapping("exportExcel")
     public void exportExcel(@Param("content") String content, @Param("fileName") String fileName,
                             HttpServletResponse response) throws Exception {
-        KlRequest result = new KlRequest();
+        KlResponse result = new KlResponse();
         List<ExcelInfo> list = new ArrayList<ExcelInfo>();
         ExcelInfo info = new ExcelInfo();
 

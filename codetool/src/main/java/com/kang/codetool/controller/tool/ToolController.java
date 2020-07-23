@@ -1,13 +1,10 @@
 package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.anntion.ViewPage;
-import com.kang.codetool.common.KlRequest;
-import com.kang.codetool.util.RedisLockUtil;
+import com.kang.codetool.common.KlResponse;
 import com.kang.framework.HttpClientUtil;
 import com.kang.framework.net.KlPing;
 import com.kang.framework.net.KlPingResult;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,18 +13,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RestController
 @RequestMapping("tool")
 public class ToolController {
-
-    @Autowired
-    private RedisLockUtil redisLock;
-
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
 
     @ViewPage(description = "RGB颜色值")
     @RequestMapping("color")
@@ -79,8 +70,8 @@ public class ToolController {
 
     @RequestMapping("encodeString")
     @ResponseBody
-    public KlRequest encodeString(String str, String encoding) {
-        KlRequest result = new KlRequest();
+    public KlResponse encodeString(String str, String encoding) {
+        KlResponse result = new KlResponse();
         try {
             result.setBody(URLEncoder.encode(str, encoding));
             return result;
@@ -94,8 +85,8 @@ public class ToolController {
 
     @RequestMapping("decodeString")
     @ResponseBody
-    public KlRequest decodeString(String str, String encoding) {
-        KlRequest result = new KlRequest();
+    public KlResponse decodeString(String str, String encoding) {
+        KlResponse result = new KlResponse();
         try {
             result.setBody(URLDecoder.decode(str, encoding));
             return result;
@@ -109,8 +100,8 @@ public class ToolController {
 
     @RequestMapping("pingIp")
     @ResponseBody
-    public KlRequest pingIp(String ip, Integer times) {
-        KlRequest result = new KlRequest();
+    public KlResponse pingIp(String ip, Integer times) {
+        KlResponse result = new KlResponse();
         try {
             KlPingResult pingResult = KlPing.get(ip, times);
             result.setBody(pingResult);
@@ -124,31 +115,33 @@ public class ToolController {
     }
 
     @RequestMapping("get")
-    public KlRequest get(String url, Integer count, Boolean method, String postData) throws InterruptedException {
-        KlRequest result = new KlRequest();
-        StopWatch sw = new StopWatch();
-        sw.start();
-        String cacheKey = "alreadyPushConcurrency";
-        if (!redisLock.pollingTryLock(cacheKey, "1", 10)) {
-            result.setCode(0);
-            result.setMsg("正在发送请求，请稍后再试");
+    public KlResponse get(String url, Integer count, Boolean method, String postData) throws InterruptedException {
+        try {
+            if (!LOCK.tryLock()) {
+                return KlResponse.fail("正在发送请求，请稍后再试");
+            }
+            StopWatch sw = new StopWatch();
+            sw.start();
+            String postDataDecode = URLDecoder.decode(postData);
+            String finalUrl = URLDecoder.decode(url);
+            ThreadPoolExecutor executor = new ThreadPoolExecutor(86400, 86400,
+                    0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+            for (int i = 0; i < count; i++) {
+                executor.execute(() -> {
+                    if (method) {
+                        HttpClientUtil.doGet(finalUrl);
+                    } else {
+                        HttpClientUtil.doPost(finalUrl, postDataDecode);
+                    }
+                });
+            }
+            executor.shutdown();
+            sw.stop();
+            return KlResponse.success("共用时" + sw.getTotalTimeSeconds() + "秒");
+        } finally {
+            LOCK.unlock();
         }
-        String postDataDecode = URLDecoder.decode(postData);
-        StringBuffer httpResult = new StringBuffer();
-        String finalUrl = URLDecoder.decode(url);
-        CountDownLatch cdl = new CountDownLatch(count);
-        for (int i = 0; i < count; i++) {
-            Executors.newFixedThreadPool(1000).execute(() -> {
-                String httpResponse = method ? HttpClientUtil.doGet(finalUrl) : HttpClientUtil.doPost(finalUrl, postDataDecode);
-                httpResult.append(httpResponse + "\r\n");
-                cdl.countDown();
-            });
-        }
-        cdl.await();
-        redisTemplate.delete(cacheKey);
-        result.setCode(1);
-        sw.stop();
-        result.setBody(httpResult + "\n\n共用时" + sw.getTotalTimeSeconds() + "秒");
-        return result;
     }
+
+    private static final ReentrantLock LOCK = new ReentrantLock();
 }

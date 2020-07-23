@@ -2,7 +2,7 @@ package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.Common;
-import com.kang.codetool.common.KlRequest;
+import com.kang.codetool.common.KlResponse;
 import com.kang.framework.db.KlDatabaseType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +29,8 @@ public class DbController {
 
     @RequestMapping("getDbFile")
     @ResponseBody
-    public KlRequest<List<Map<String, Object>>> getDbFile(String connection, String dbType) {
-        KlRequest<List<Map<String, Object>>> request = new KlRequest<>();
+    public KlResponse<List<Map<String, Object>>> getDbFile(String connection, String dbType) {
+        KlResponse<List<Map<String, Object>>> request = new KlResponse<>();
         connection = URLDecoder.decode(connection);
         List<Map<String, Object>> result = new ArrayList<>();
         try {
