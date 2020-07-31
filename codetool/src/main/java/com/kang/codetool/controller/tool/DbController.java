@@ -35,8 +35,8 @@ public class DbController {
         try {
             List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
             String finalConnection = connection;
-            ExecutorService executor = new ThreadPoolExecutor(100, 100,
-                    0L, TimeUnit.MILLISECONDS,
+            ExecutorService executor = new ThreadPoolExecutor(10, 150,
+                    60L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>());
             CountDownLatch cdl = new CountDownLatch(databaseTables.size());
             for (Map<String, Object> dbTable : databaseTables) {
