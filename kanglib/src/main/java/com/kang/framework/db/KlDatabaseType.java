@@ -24,20 +24,24 @@ public enum KlDatabaseType {
 
     /**
      * PostgreSql数据库
-      */
+     */
     PostgreSql;
 
     /**
      * 根据code获取去value
+     *
      * @param code
      * @return
      */
-    public static KlDatabaseType getByName(String code){
-        for(KlDatabaseType e:KlDatabaseType.values()){
-            if(code.equals(e.name())){
+    public static KlDatabaseType getByName(String code) {
+        if (code == null) {
+            return null;
+        }
+        for (KlDatabaseType e : KlDatabaseType.values()) {
+            if (code.toLowerCase().equals(e.name().toLowerCase())) {
                 return e;
             }
         }
-        return  null;
+        return null;
     }
 }

@@ -5,16 +5,15 @@ import com.kang.codetool.common.Common;
 import com.kang.codetool.common.KlResponse;
 import com.kang.framework.db.KlDatabaseType;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.*;
 
 @Slf4j
 @RestController
@@ -30,29 +29,36 @@ public class DbController {
     @RequestMapping("getDbFile")
     @ResponseBody
     public KlResponse<List<Map<String, Object>>> getDbFile(String connection, String dbType) {
-        KlResponse<List<Map<String, Object>>> request = new KlResponse<>();
         connection = URLDecoder.decode(connection);
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Map<String, Object>> result = new CopyOnWriteArrayList<>();
+
         try {
             List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
             String finalConnection = connection;
-            databaseTables.forEach(dbTable ->
-            {
-                Map<String, Object> m = new LinkedHashMap<>();
-                m.put("dbName", dbTable.get("TABLE_NAME").toString());
-                m.put("comment", dbTable.get("TABLE_COMMENT").toString());
-                m.put("fieldDescriptions", Common.getDatabaseColumns(finalConnection, dbTable.get("TABLE_NAME").toString(), KlDatabaseType.getByName(dbType)));
-                result.add(m);
-            });
-
-            request.setBody(result);
-            return request;
+            ExecutorService executor = new ThreadPoolExecutor(100, 100,
+                    0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>());
+            CountDownLatch cdl = new CountDownLatch(databaseTables.size());
+            for (Map<String, Object> dbTable : databaseTables) {
+                executor.execute(() -> {
+                    try {
+                        Map<String, Object> m = new LinkedHashMap<>();
+                        m.put("dbName", dbTable.get("TABLE_NAME").toString());
+                        m.put("comment", dbTable.get("TABLE_COMMENT").toString());
+                        m.put("fieldDescriptions", Common.getDatabaseColumns(finalConnection, dbTable.get("TABLE_NAME").toString(), KlDatabaseType.getByName(dbType)));
+                        result.add(m);
+                    } catch (Exception e) {
+                        log.error("查询数据库失败", e);
+                    }
+                    cdl.countDown();
+                });
+            }
+            cdl.await();
+            result.sort(Comparator.comparing(li -> li.get("dbName").toString()));
+            return KlResponse.success(result);
         } catch (Exception ex) {
-            request.setCode(0);
-            request.setMsg(ex.getMessage());
-            log.info("打印数据库文档失败", ex);
-            return request;
+            log.error("打印数据库文档失败", ex);
+            return KlResponse.fail("打印数据库文档失败:" + ex.getMessage());
         }
     }
-
 }

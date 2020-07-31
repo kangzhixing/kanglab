@@ -80,68 +80,45 @@ public class Common {
     }
 
 
-    public static List<Map<String, Object>> getDatabaseTables(String connectionString, KlDatabaseType dbType) {
+    public static List<Map<String, Object>> getDatabaseTables(String connectionString, KlDatabaseType dbType) throws Exception {
         switch (dbType) {
             case MySql: {
-                return getDatabaseTables_MySql(connectionString);
+                return KlDatabase.fill(connectionString, getDatabaseTables_MySql(connectionString));
             }
             case SqlServer: {
-                return getDatabaseTables_SqlServer(connectionString);
+                return KlDatabase.fill(connectionString, getDatabaseTables_SqlServer());
             }
             case PostgreSql: {
-                return getDatabaseTables_PostgreSql(connectionString);
+                return KlDatabase.fill(connectionString, getDatabaseTables_PostgreSql());
             }
             default:
                 return null;
         }
     }
 
-    private static List<Map<String, Object>> getDatabaseTables_SqlServer(String connectionString) {
+    private static String getDatabaseTables_SqlServer() {
         String sql = "SELECT name as TABLE_NAME, '' as TABLE_COMMENT FROM SYSOBJECTS WHERE XTYPE IN ('V','U') AND NAME<>'DTPROPERTIES' ORDER BY Name ASC";
 
-        List<Map<String, Object>> result = null;
-        try {
-            result = KlDatabase.fill(connectionString, sql);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return result;
+        return sql;
     }
 
-    private static List<Map<String, Object>> getDatabaseTables_MySql(String connectionString) {
+    private static String getDatabaseTables_MySql(String connectionString) {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
         String sql = "SELECT TABLE_NAME, TABLE_COMMENT, ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'";
 
-        List<Map<String, Object>> result = null;
-        try {
-            result = KlDatabase.fill(connectionString, sql);
-        } catch (Exception e) {
-            log.info("连接数据库失败", e);
-            e.printStackTrace();
-        }
-
-        return result;
+        return sql;
     }
 
-    private static List<Map<String, Object>> getDatabaseTables_PostgreSql(String connectionString) {
+    private static String getDatabaseTables_PostgreSql() {
         String sql = "select relname as TABLE_NAME,cast(obj_description(relfilenode,'pg_class') as varchar) as TABLE_COMMENT from pg_class c \n" +
                 "where relkind = 'r' and relname not like 'pg_%' and relname not like 'sql_%' order by relname";
 
-        List<Map<String, Object>> result = null;
-        try {
-            result = KlDatabase.fill(connectionString, sql);
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
+        return sql;
     }
 
 
-    public static List<KlFieldDescription> getDatabaseColumns(String connectionString, String tableName, KlDatabaseType dbType) {
+    public static List<KlFieldDescription> getDatabaseColumns(String connectionString, String tableName, KlDatabaseType dbType) throws Exception {
         switch (dbType) {
             case MySql: {
                 return GetDatabaseColumns_MySql(connectionString, tableName);
@@ -157,7 +134,7 @@ public class Common {
         }
     }
 
-    public static List<KlFieldDescription> GetDatabaseColumns_SqlServer(String connectionString, String tableName) {
+    public static List<KlFieldDescription> GetDatabaseColumns_SqlServer(String connectionString, String tableName) throws Exception {
         String sql =
                 "        SELECT" +
                         "                Name=C.name," +
@@ -219,12 +196,7 @@ public class Common {
                         "       where O.name = '" + tableName + "'" +
                         "       order by c.column_id";
 
-        List<Map<String, Object>> queryResult = null;
-        try {
-            queryResult = KlDatabase.fill(connectionString, sql);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Map<String, Object>> queryResult = KlDatabase.fill(connectionString, sql);
 
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
@@ -242,7 +214,7 @@ public class Common {
         return result;
     }
 
-    public static List<KlFieldDescription> GetDatabaseColumns_PostgreSql(String connectionString, String tableName) {
+    public static List<KlFieldDescription> GetDatabaseColumns_PostgreSql(String connectionString, String tableName) throws Exception {
         String sql =
                 "select ordinal_position as Colorder,column_name as Name,data_type as DbType,\n" +
                         "coalesce(character_maximum_length,numeric_precision,-1) as Length,numeric_scale as Scale,\n" +
@@ -266,11 +238,7 @@ public class Common {
                         "where table_schema='public' and table_name='" + tableName + "' order by ispk desc,isidentity desc,ordinal_position asc";
 
         List<Map<String, Object>> queryResult = null;
-        try {
-            queryResult = KlDatabase.fill(connectionString, sql);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        queryResult = KlDatabase.fill(connectionString, sql);
 
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
@@ -288,7 +256,7 @@ public class Common {
         return result;
     }
 
-    public static List<KlFieldDescription> GetDatabaseColumns_MySql(String connectionString, String tableName) {
+    public static List<KlFieldDescription> GetDatabaseColumns_MySql(String connectionString, String tableName) throws Exception {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
         String sql =
@@ -296,11 +264,7 @@ public class Common {
                         "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_NAME like '" + tableName + "'";
 
         List<Map<String, Object>> queryResult = null;
-        try {
-            queryResult = KlDatabase.fill(connectionString, sql);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        queryResult = KlDatabase.fill(connectionString, sql);
 
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {

@@ -84,7 +84,8 @@ public class KlDatabase {
             namedParameterStatement.setParameterStatementValue(parameters);
             resultSet = namedParameterStatement.executeQuery();
             result = resultSet2List(resultSet);
-        } finally {
+        }
+        finally {
             if (connection != null) {
                 connection.close();
             }

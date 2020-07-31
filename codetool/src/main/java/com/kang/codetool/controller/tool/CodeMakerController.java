@@ -49,19 +49,20 @@ public class CodeMakerController {
 
     @RequestMapping("getTables")
     @ResponseBody
-    public KlResponse getTables(String connectionString, String dbType) {
-        KlResponse result = new KlResponse();
+    public KlResponse getTables(String connectionString, String dbType) throws Exception {
         connectionString = URLDecoder.decode(connectionString.trim());
 
         List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
+        if (databaseTables != null) {
+            return KlResponse.success(databaseTables);
+        }
 
-        result.setBody(databaseTables);
-        return result;
+        return KlResponse.fail("连接数据库失败");
     }
 
     @RequestMapping("generatCode")
     @ResponseBody
-    public KlResponse generatCode(CodeMakerGeneratCodeVO vo) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    public KlResponse generatCode(CodeMakerGeneratCodeVO vo) throws Exception {
         KlResponse result = new KlResponse();
         vo.setConnectionString(URLDecoder.decode(vo.getConnectionString()).trim());
 

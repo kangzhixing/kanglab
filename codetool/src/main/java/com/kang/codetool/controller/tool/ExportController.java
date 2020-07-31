@@ -12,6 +12,7 @@ import com.kang.framework.KlUuid;
 import com.kang.framework.KlZip;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@Slf4j
 @RequestMapping("export")
 public class ExportController {
 
@@ -58,21 +60,7 @@ public class ExportController {
                               HttpServletResponse response) throws Exception {
         try {
             connectionString = URLDecoder.decode(connectionString);
-            KlDatabaseType databaseType;
-            switch (dbType.toLowerCase()) {
-                case "mysql":
-                    databaseType = KlDatabaseType.MySql;
-                    break;
-                case "postgresql":
-                    databaseType = KlDatabaseType.PostgreSql;
-                    break;
-                case "sqlserver":
-                    databaseType = KlDatabaseType.SqlServer;
-                    break;
-                default:
-                    databaseType = KlDatabaseType.MySql;
-                    break;
-            }
+            KlDatabaseType databaseType = KlDatabaseType.getByName(dbType);
 
             List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
 
@@ -156,18 +144,15 @@ public class ExportController {
             toClient.flush();
             toClient.close();
 
-
         } catch (IOException ex) {
-            ex.printStackTrace();
+            log.error("系统异常", ex);
         }
     }
 
     @RequestMapping("exportExcel")
     public void exportExcel(@Param("content") String content, @Param("fileName") String fileName,
                             HttpServletResponse response) throws Exception {
-        KlResponse result = new KlResponse();
         List<ExcelInfo> list = new ArrayList<ExcelInfo>();
-        ExcelInfo info = new ExcelInfo();
 
         ExcelWriter writer = new ExcelWriter(getOutputStream(fileName, response), ExcelTypeEnum.XLSX);
         Sheet sheet = new Sheet(1, 0, BaseRowModel.class);

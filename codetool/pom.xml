@@ -9,12 +9,12 @@
     <packaging>war</packaging>
 
     <name>codetool</name>
-    <description>A smart too for coding</description>
+    <description>A smart tool for coding</description>
 
     <parent>
         <groupId>com.kang</groupId>
         <artifactId>kanglab</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <properties>
@@ -73,10 +73,6 @@
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.9.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver</artifactId>
         </dependency>
 
         <dependency>
