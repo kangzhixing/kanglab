@@ -7,6 +7,7 @@ import com.kang.framework.db.KlDatabase;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.File;
@@ -136,10 +137,7 @@ public class Common {
 
     public static List<KlFieldDescription> GetDatabaseColumns_SqlServer(String connectionString, String tableName) throws Exception {
         String sql =
-                "        SELECT" +
-                        "                Name=C.name," +
-                        "                DbType=T.name," +
-                        "                PrimaryKey=ISNULL(IDX.PrimaryKey,N'')," +
+                "        SELECT TableName=O.name, Name=C.name, DbType=T.name, PrimaryKey=ISNULL(IDX.PrimaryKey,N'')," +
                         "        IsIdentity=CASE WHEN C.is_identity=1 THEN N'true'ELSE N'false' END," +
                         "            Length=C.max_length," +
                         "            IsNullable=CASE WHEN C.is_nullable=1 THEN N'true'ELSE N'false' END," +
@@ -193,7 +191,7 @@ public class Common {
                         "    ) IDX" +
                         "        ON C.[object_id]=IDX.[object_id]" +
                         "        AND C.column_id=IDX.column_id" +
-                        "       where O.name = '" + tableName + "'" +
+                        (StringUtils.isBlank(tableName) ? "" : (" where O.name = '" + tableName + "'")) +
                         "       order by c.column_id";
 
         List<Map<String, Object>> queryResult = KlDatabase.fill(connectionString, sql);
@@ -208,6 +206,7 @@ public class Common {
             model.setIsIdentity(KlConvert.tryToBoolean(map.get("isidentity").toString()));
             model.setDescription(KlConvert.tryToString(map.get("description")));
             model.setColumnKey(map.get("primarykey").toString());
+            model.setTableName(map.get("TableName").toString());
             result.add(model);
         }
 
@@ -220,25 +219,25 @@ public class Common {
                         "coalesce(character_maximum_length,numeric_precision,-1) as Length,numeric_scale as Scale,\n" +
                         "case is_nullable when 'NO' then 0 else 1 end as IsNullable,column_default as DefaultVal,\n" +
                         "case  when position('nextval' in column_default)>0 then 1 else 0 end as IsIdentity, \n" +
-                        "case when b.pk_name is null then 0 else 1 end as IsPK,c.DeText Description\n" +
+                        "case when b.pk_name is null then 0 else 1 end as IsPK,c.DeText Description,\n" +
+                        "table_name\n" +
                         "from information_schema.columns \n" +
                         "left join (\n" +
                         "    select pg_attr.attname as colname,pg_constraint.conname as pk_name from pg_constraint  \n" +
                         "    inner join pg_class on pg_constraint.conrelid = pg_class.oid \n" +
                         "    inner join pg_attribute pg_attr on pg_attr.attrelid = pg_class.oid and  pg_attr.attnum = pg_constraint.conkey[1] \n" +
                         "    inner join pg_type on pg_type.oid = pg_attr.atttypid\n" +
-                        "    where pg_class.relname = '" + tableName + "' and pg_constraint.contype='p' \n" +
+                        "    where " + (StringUtils.isBlank(tableName) ? "" : ("pg_class.relname = '" + tableName + "' and")) + " pg_constraint.contype='p' \n" +
                         ") b on b.colname = information_schema.columns.column_name\n" +
                         "left join (\n" +
                         "    select attname,description as DeText from pg_class\n" +
                         "    left join pg_attribute pg_attr on pg_attr.attrelid= pg_class.oid\n" +
                         "    left join pg_description pg_desc on pg_desc.objoid = pg_attr.attrelid and pg_desc.objsubid=pg_attr.attnum\n" +
-                        "    where pg_attr.attnum>0 and pg_attr.attrelid=pg_class.oid and pg_class.relname='" + tableName + "'\n" +
+                        "    where pg_attr.attnum>0 and pg_attr.attrelid=pg_class.oid " + (StringUtils.isBlank(tableName) ? "" : ("and pg_class.relname='" + tableName + "'")) + "\n" +
                         ")c on c.attname = information_schema.columns.column_name\n" +
-                        "where table_schema='public' and table_name='" + tableName + "' order by ispk desc,isidentity desc,ordinal_position asc";
+                        "where table_schema='public'" + (StringUtils.isBlank(tableName) ? "" : (" and table_name='" + tableName + "'")) + " order by ispk desc,isidentity desc,ordinal_position asc";
 
-        List<Map<String, Object>> queryResult = null;
-        queryResult = KlDatabase.fill(connectionString, sql);
+        List<Map<String, Object>> queryResult = KlDatabase.fill(connectionString, sql);
 
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
@@ -250,6 +249,7 @@ public class Common {
             model.setIsIdentity(KlConvert.tryToBoolean("1".equals(map.get("isidentity").toString())));
             model.setDescription(KlConvert.tryToString(map.get("description")));
             model.setColumnKey("1".equals(map.get("ispk").toString()) ? "PRI" : "");
+            model.setTableName(map.get("table_name").toString());
             result.add(model);
         }
 
@@ -260,11 +260,11 @@ public class Common {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
         String sql =
-                "SELECT COLUMN_NAME, COLUMN_COMMENT, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, Extra, column_key\n" +
-                        "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_NAME like '" + tableName + "'";
+                "SELECT COLUMN_NAME, COLUMN_COMMENT, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, Extra, column_key, TABLE_NAME\n" +
+                        "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + dbName + "'"
+                        + (StringUtils.isBlank(tableName) ? "" : (" AND TABLE_NAME = '" + tableName + "'"));
 
-        List<Map<String, Object>> queryResult = null;
-        queryResult = KlDatabase.fill(connectionString, sql);
+        List<Map<String, Object>> queryResult = KlDatabase.fill(connectionString, sql);
 
         List<KlFieldDescription> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
@@ -276,6 +276,7 @@ public class Common {
             model.setIsIdentity(KlConvert.tryToBoolean(map.get("EXTRA").toString().contains("auto_increment")));
             model.setDescription(KlConvert.tryToString(map.get("COLUMN_COMMENT")));
             model.setColumnKey(map.get("COLUMN_KEY").toString());
+            model.setTableName(map.get("TABLE_NAME").toString());
             result.add(model);
         }
 

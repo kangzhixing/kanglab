@@ -4,6 +4,7 @@ import com.kang.codetool.aop.anntion.ViewPage;
 import com.kang.codetool.common.Common;
 import com.kang.codetool.common.KlResponse;
 import com.kang.framework.db.KlDatabaseType;
+import com.kang.framework.db.KlFieldDescription;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -34,26 +36,19 @@ public class DbController {
 
         try {
             List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
-            String finalConnection = connection;
-            ExecutorService executor = new ThreadPoolExecutor(10, 150,
-                    60L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>());
-            CountDownLatch cdl = new CountDownLatch(databaseTables.size());
+            List<KlFieldDescription> columnList = Common.getDatabaseColumns(connection, null, KlDatabaseType.getByName(dbType));
+
             for (Map<String, Object> dbTable : databaseTables) {
-                executor.execute(() -> {
                     try {
                         Map<String, Object> m = new LinkedHashMap<>();
                         m.put("dbName", dbTable.get("TABLE_NAME").toString());
                         m.put("comment", dbTable.get("TABLE_COMMENT").toString());
-                        m.put("fieldDescriptions", Common.getDatabaseColumns(finalConnection, dbTable.get("TABLE_NAME").toString(), KlDatabaseType.getByName(dbType)));
+                        m.put("fieldDescriptions", columnList.stream().filter(li -> li.getTableName().equals(dbTable.get("TABLE_NAME").toString())).collect(Collectors.toList()));
                         result.add(m);
                     } catch (Exception e) {
                         log.error("查询数据库失败", e);
                     }
-                    cdl.countDown();
-                });
             }
-            cdl.await();
             result.sort(Comparator.comparing(li -> li.get("dbName").toString()));
             return KlResponse.success(result);
         } catch (Exception ex) {
