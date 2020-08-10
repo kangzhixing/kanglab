@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("codeMaker")
@@ -43,7 +44,7 @@ public class CodeMakerController {
             }
         }
 
-        result.setBody(methodNameList.stream().sorted(Comparator.naturalOrder()));
+        result.setBody(methodNameList.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList()));
         return result;
     }
 
