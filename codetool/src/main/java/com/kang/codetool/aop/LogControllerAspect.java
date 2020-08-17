@@ -34,27 +34,4 @@ public class LogControllerAspect {
         return result;
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        String abc = "abacade";
-        int total = 0;
-        LinkedBlockingQueue queue = new LinkedBlockingQueue(abc.length());
-        for(char c : abc.toCharArray()){
-            if(!queue.contains(c)){
-                queue.put(c);
-                if(queue.size()>total){
-                    total = queue.size();
-                }
-            }else{
-                while(true){
-                    char poll = (char)queue.poll();
-                    if(poll == c){
-                        queue.put(c);
-                        break;
-                    }
-                }
-            }
-        }
-        System.out.println(3/2);
-    }
-
 }
