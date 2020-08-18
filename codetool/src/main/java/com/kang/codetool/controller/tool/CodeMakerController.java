@@ -1,6 +1,6 @@
 package com.kang.codetool.controller.tool;
 
-import com.kang.codetool.aop.anntion.ViewPage;
+import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.common.Common;
 import com.kang.codetool.common.KlResponse;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package com.kang.codetool.controller.tool;
 
-import com.kang.codetool.aop.anntion.ViewPage;
+import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.common.KlResponse;
 import com.kang.framework.HttpClientUtil;
 import com.kang.framework.net.KlPing;

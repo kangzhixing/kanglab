@@ -6,11 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.assertj.core.util.Sets;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 
 @Aspect
 @Component

@@ -5,7 +5,6 @@ import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kang.codetool.common.Common;
-import com.kang.codetool.common.KlResponse;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
 import com.kang.framework.KlString;
 import com.kang.framework.KlUuid;
@@ -13,8 +12,8 @@ import com.kang.framework.KlZip;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +30,7 @@ import java.util.Map;
 public class ExportController {
 
     @RequestMapping("exportFile")
-    public void exportFile(@Param("content") String content, @Param("fileName") String fileName, @Param("extension") String extension,
+    public void exportFile(@RequestParam("content") String content, @RequestParam("fileName") String fileName, @RequestParam("extension") String extension,
                            HttpServletResponse response) {
         try {
             content = URLDecoder.decode(content);
@@ -55,8 +54,8 @@ public class ExportController {
     }
 
     @RequestMapping("exportAllFile")
-    public void exportAllFile(@Param("connectionString") String connectionString, @Param("dbType") String dbType, @Param("packagePath") String packagePath,
-                              @Param("lang") String lang, @Param("type") String type,
+    public void exportAllFile(@RequestParam("connectionString") String connectionString, @RequestParam("dbType") String dbType, @RequestParam("packagePath") String packagePath,
+                              @RequestParam("lang") String lang, @RequestParam("type") String type,
                               HttpServletResponse response) throws Exception {
         try {
             connectionString = URLDecoder.decode(connectionString);
@@ -150,7 +149,7 @@ public class ExportController {
     }
 
     @RequestMapping("exportExcel")
-    public void exportExcel(@Param("content") String content, @Param("fileName") String fileName,
+    public void exportExcel(@RequestParam("content") String content, @RequestParam("fileName") String fileName,
                             HttpServletResponse response) throws Exception {
         List<ExcelInfo> list = new ArrayList<ExcelInfo>();
 

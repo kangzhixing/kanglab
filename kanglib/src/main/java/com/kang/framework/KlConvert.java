@@ -1,7 +1,5 @@
 package com.kang.framework;
 
-import com.mongodb.client.MongoCursor;
-import org.bson.Document;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
@@ -28,36 +26,6 @@ public class KlConvert {
         }
 
         return null;
-    }
-
-    public static Map<String, Object> mongoCursor2Map(MongoCursor<Document> cursor) {
-        if (cursor == null) {
-            return null;
-        }
-
-        Map<String, Object> result = new LinkedHashMap();
-
-        if (cursor.hasNext()) {
-            return cursor.next();
-        }
-        return result;
-    }
-
-    public static List<Map<String, Object>> mongoCursor2List(MongoCursor<Document> cursor) {
-        if (cursor == null) {
-            return null;
-        }
-
-        List<Map<String, Object>> result = new ArrayList();
-        try {
-            while (cursor.hasNext()) {
-                Map<String, Object> map = cursor.next();
-                result.add(map);
-            }
-        } finally {
-            cursor.close();
-        }
-        return result;
     }
 
     public static Long tryToLong(Object obj) {

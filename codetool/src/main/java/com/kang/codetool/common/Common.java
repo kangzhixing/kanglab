@@ -1,6 +1,6 @@
 package com.kang.codetool.common;
 
-import com.kang.codetool.aop.anntion.ViewPage;
+import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.util.ClassUtil;
 import com.kang.framework.KlConvert;
 import com.kang.framework.db.KlDatabase;
@@ -14,7 +14,6 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class Common {

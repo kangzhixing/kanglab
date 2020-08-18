@@ -1,4 +1,4 @@
-package com.kang.codetool.aop.anntion;
+package com.kang.codetool.aop.annotation;
 
 
 import java.lang.annotation.*;

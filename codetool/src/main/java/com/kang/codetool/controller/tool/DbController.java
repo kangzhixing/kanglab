@@ -1,12 +1,11 @@
 package com.kang.codetool.controller.tool;
 
-import com.kang.codetool.aop.anntion.ViewPage;
+import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.common.Common;
 import com.kang.codetool.common.KlResponse;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
