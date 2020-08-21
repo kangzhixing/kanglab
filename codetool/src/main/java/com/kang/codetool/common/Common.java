@@ -259,7 +259,7 @@ public class Common {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
         String sql =
-                "SELECT COLUMN_NAME, COLUMN_COMMENT, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, Extra, column_key, TABLE_NAME\n" +
+                "SELECT COLUMN_NAME, COLUMN_COMMENT, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH, Extra, column_key, TABLE_NAME, COLUMN_DEFAULT\n" +
                         "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + dbName + "'"
                         + (StringUtils.isBlank(tableName) ? "" : (" AND TABLE_NAME = '" + tableName + "'"));
 
@@ -276,6 +276,7 @@ public class Common {
             model.setDescription(KlConvert.tryToString(map.get("COLUMN_COMMENT")));
             model.setColumnKey(map.get("COLUMN_KEY").toString());
             model.setTableName(map.get("TABLE_NAME").toString());
+            model.setDefaultValue(KlConvert.tryToString(map.get("COLUMN_DEFAULT")));
             result.add(model);
         }
 

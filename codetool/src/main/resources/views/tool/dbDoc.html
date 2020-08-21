@@ -95,6 +95,7 @@
                 <td>类型</td>
                 <td>长度</td>
                 <td>是否为Null</td>
+                <td>默认值</td>
                 <td>是否为主键</td>
                 <td>是否自增</td>
                 <td>说明</td>
@@ -172,9 +173,9 @@
                         const tbListHtml = $("#divTableNameListTemp").html();
                         divTableListHtml +=
                             tbListHtml
-                            .replace("{0}", showName)
-                            .replace("{1}", idStr)
-                            .replace("{2}", tableNameTitle);
+                                .replace("{0}", showName)
+                                .replace("{1}", idStr)
+                                .replace("{2}", tableNameTitle);
 
                         let tdHtml = '';
                         for (let j = 0; j < row.fieldDescriptions.length; j++) {
@@ -183,6 +184,7 @@
                                 + "<td>" + field[j].dbType + "</td>"
                                 + "<td>" + (field[j].length == null ? "" : field[j].length) + "</td>"
                                 + "<td>" + (field[j].isNullable ? "是" : "否") + "</td>"
+                                + "<td>" + (field[j].defaultValue == null ? "" : field[j].defaultValue) + "</td>"
                                 + "<td>" + (field[j].columnKey == "PRI" ? "是" : "否") + "</td>"
                                 + "<td>" + (field[j].isIdentity ? "是" : "否") + "</td>"
                                 + "<td>" + (field[j].description == null ? "" : field[j].description) + "</td>"

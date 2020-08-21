@@ -51,6 +51,11 @@ public class KlFieldDescription {
      */
     private String simpleName;
 
+    /**
+     * 默认值
+     */
+    private String defaultValue;
+
     public String getSimpleName() {
         return KlString.replaceUnderline(name);
     }
