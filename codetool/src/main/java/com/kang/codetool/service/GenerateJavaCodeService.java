@@ -284,7 +284,7 @@ public class GenerateJavaCodeService {
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName(): ("List<" + vo.getClassName() + ">"),
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() : ("List<" + vo.getClassName() + ">"),
                 KlString.format(vo.getPackagePath(), "service"),
                 vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "select" : "selectList"))
         ;
@@ -311,7 +311,7 @@ public class GenerateJavaCodeService {
                     KlString.toLowerFirst(vo.getClassName()),
                     KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()),
                     KlString.toLowerFirst(f.getSimpleName()),
-                    KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType())
+                    KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType()).toUpperCase()
             ));
         });
         boolean isPKIdentity = vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey()) && f.getIsIdentity());
@@ -334,7 +334,7 @@ public class GenerateJavaCodeService {
                         " */\n" +
                         "public interface {2}Mapper{\n" +
                         "\n" +
-                        "    @Select(\"select {11} from {8} where {9} = #{{5}}\")\n" +
+                        "    @Select(\"select {11} from {8} where {9} = #{{5},jdbcType={12}}\")\n" +
                         "    {7}By{3}({4} {5});\n" +
                         "\n" +
                         "    @Select(\"select {11} from {8}\")\n" +
@@ -352,7 +352,7 @@ public class GenerateJavaCodeService {
                         "    @SelectProvider(type = {2}Provider.class, method = \"count\")\n" +
                         "    int count({2} {6});\n" +
                         "\n" +
-                        "    @Delete(\"delete from {8} where {9}=#{{5}}\")\n" +
+                        "    @Delete(\"delete from {8} where {9}=#{{5},jdbcType={12}}\")\n" +
                         "    int deleteBy{3}({4} {5});\n" +
                         "\n" +
                         "    @DeleteProvider(type = {2}Provider.class, method = \"deleteByWhere\")\n" +
@@ -404,8 +404,8 @@ public class GenerateJavaCodeService {
                 vo.getTable(),
                 field.getName(),
                 field_SqlWhere,
-                fieldParams.substring(0, fieldParams.length() - 2)))
-        ;
+                fieldParams.substring(0, fieldParams.length() - 2),
+                KlMybatisTypeMap.map4Mybatis(field.getDbType(), vo.getDatabaseType()).toUpperCase()));
 
         return codeStr.toString();
     }
@@ -477,7 +477,7 @@ public class GenerateJavaCodeService {
 
             if (!f.getIsIdentity()) {
                 appendLineBreak(fieldUpdateSet, 100);
-                fieldUpdateSet.append("                   .SET(\"" + KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " = #{" + f.getSimpleName() + ",jdbcType=" + KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType()) + "}\")\n");
+                fieldUpdateSet.append("                   .SET(\"" + KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " = #{" + f.getSimpleName() + ",jdbcType=" + KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType()).toUpperCase() + "}\")\n");
 
                 appendLineBreak(fieldUpdateSetSelective, 100);
                 fieldUpdateSetSelective.append(KlString.format(
@@ -488,7 +488,7 @@ public class GenerateJavaCodeService {
                         KlString.toLowerFirst(vo.getClassName()),
                         KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()),
                         KlString.toLowerFirst(f.getSimpleName()),
-                        KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType())));
+                        KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType()).toUpperCase()));
             }
 
         });
@@ -511,7 +511,7 @@ public class GenerateJavaCodeService {
                 KlMybatisTypeMap.getSafeParam(field.getName(), vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 fieldUpdateSet,
-                KlMybatisTypeMap.map4MybatisPostgreSql(field.getDbType()),
+                KlMybatisTypeMap.map4MybatisPostgreSql(field.getDbType()).toUpperCase(),
                 fieldUpdateSetSelective);
     }
 
@@ -529,10 +529,10 @@ public class GenerateJavaCodeService {
                 fieldInsertParams.append(KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
 
                 appendLineBreak(fieldInsertValues, 70, "                       \"", "\" +");
-                fieldInsertValues.append("#{" + KlString.toLowerFirst(f.getSimpleName()) + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}, ");
+                fieldInsertValues.append("#{" + KlString.toLowerFirst(f.getSimpleName()) + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase() + "}, ");
 
                 appendLineBreak(fieldInsertValuesBatch, 70, "                       \"", "\" +");
-                fieldInsertValuesBatch.append("#{list[{i}]." + KlString.toLowerFirst(f.getSimpleName()) + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()) + "}, ");
+                fieldInsertValuesBatch.append("#{list[{i}]." + KlString.toLowerFirst(f.getSimpleName()) + ",jdbcType=" + KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase() + "}, ");
             }
 
             if (!f.getIsIdentity()) {
@@ -546,7 +546,7 @@ public class GenerateJavaCodeService {
                         KlString.toLowerFirst(vo.getClassName()),
                         KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()),
                         KlString.toLowerFirst(f.getSimpleName()),
-                        KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType())));
+                        KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase()));
             }
         });
 

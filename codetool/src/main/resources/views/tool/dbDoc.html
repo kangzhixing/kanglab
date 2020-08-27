@@ -30,8 +30,7 @@
         margin: 20px 0 10px 5px;
     }
 
-    .divContent
-    .tbDatas {
+    .divContent .tbDatas {
         width: 100%;
     }
 
@@ -51,6 +50,14 @@
     .tbDatas td {
         padding: 5px;
         white-space: nowrap;
+    }
+
+    .btnGetData {
+        width: 18px;
+        height: 18px;
+        position: relative;
+        top: 20px;
+        float: right;
     }
 </style>
 
@@ -93,7 +100,8 @@
         <div class="divTableList rd5 eleDb" db="{3}" onclick="findTable('{1}');" title="{2}">{0}</div>
     </div>
     <div id="divTableTemp" class="dn">
-        <div class="dbName"></div>
+        <div class="dbName dib"></div>
+        <img src="/static/images/search.png" title="查询数据" class="btnGetData cp mr5">
         <table class="tbTemp tbDatas">
             <thead>
             <tr>
@@ -174,7 +182,7 @@
             dataType: "json",
             data: {
                 connection: encodeURIComponent(connectionString),
-                dbType: $("input[name=dbType]:radio[checked=checked]").val()
+                dbType: dbType
             },
             success: function (result) {
                 if (result != null && result.code == '0') {
@@ -203,7 +211,7 @@
                         let tdHtml = '';
                         for (let j = 0; j < row.fieldDescriptions.length; j++) {
                             const field = row.fieldDescriptions;
-                            tdHtml += "<tr><td>" + field[j].name + "</td>"
+                            tdHtml += "<tr><td class='dbColumn'>" + field[j].name + "</td>"
                                 + "<td>" + field[j].dbType + "</td>"
                                 + "<td>" + (field[j].length == null ? "" : field[j].length) + "</td>"
                                 + "<td>" + (field[j].isNullable ? "是" : "否") + "</td>"
@@ -226,6 +234,43 @@
             }
         });
 
+    });
+
+    $("#pageMSSQL").on("click", '.btnGetData', function () {
+
+        const connectionString = $("#txtConnectionString").val().trim();
+        if (!connectionString) {
+            return;
+        }
+
+        let div = $(this).parent();
+
+        const dbType = $("input:radio[checked=checked]").val();
+        $.post("/db/getDbData", {
+            connection: encodeURIComponent(connectionString),
+            dbType: dbType,
+            tableName: $(this).parent().attr('db')
+        }, function (data) {
+            if(data.body.length == 0){
+                alert("无数据");
+                return;
+            }
+            let tHead = '';
+            let tBody = '';
+            div.children('.topData').remove();
+            div.find('.dbColumn').each(function () {
+                tHead += "<td>" + $(this).text() + "</td>";
+            });
+
+            for (let i = 0; i < data.body.length; i++) {
+                let tBodyTr = '';
+                div.find('.dbColumn').each(function () {
+                    tBodyTr += "<td>" + data.body[i][$(this).text()] + "</td>";
+                });
+                tBody += "<tr>" + tBodyTr + "</tr>";
+            }
+            div.append('<table class="topData tbDatas mt20"><thead><tr>' + tHead +'</tr></thead><tbody>' + tBody + '</tbody></table>');
+        });
     });
 
     $("#btnExport").bind("click", function () {

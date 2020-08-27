@@ -12,6 +12,10 @@ input[type=text] {
     padding: 3px 5px;
 }
 
+.dib{
+    display: inline-block;
+}
+
 .mask {
     z-index: 90;
     background-color: #cfcfcf;
