@@ -6,6 +6,7 @@ import com.kang.codetool.common.KlResponse;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
 import com.kang.framework.db.KlDatabaseType;
 import com.kang.framework.db.KlFieldDescription;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,7 +30,7 @@ public class CodeMakerController {
         return new ModelAndView("tool/javaCode");
     }
 
-    @RequestMapping("getCodeTypeSlt")
+    @GetMapping("getCodeTypeSlt")
     @ResponseBody
     public KlResponse<List<String>> getCodeTypeSlt(String lang) throws ClassNotFoundException {
         KlResponse result = new KlResponse();

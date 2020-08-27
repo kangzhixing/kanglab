@@ -79,12 +79,18 @@
                            value="data source=xxxxxxxxxx;database=xxxxxxxxxx;uid=xxxxxxxxxx;pwd=xxxxxxxxxx;"/>
                 </td>
             </tr>
+            <tr class="eleHide dn">
+                <td>筛选:</td>
+                <td>
+                    <input type="text" id="txtDbName" style="max-width: 686px;width: 100%" placeholder="请输入表名"/>
+                </td>
+            </tr>
         </table>
     </div>
-    <div id="divDatas" class="divContent eleHide" style="display: none;overflow-x:auto">
+    <div id="divDatas" class="divContent eleHide dn" style="overflow-x:auto">
     </div>
     <div id="divTableNameListTemp" class="dn">
-        <div class="divTableList rd5" onclick="findTable('{1}');" title="{2}">{0}</div>
+        <div class="divTableList rd5 eleDb" db="{3}" onclick="findTable('{1}');" title="{2}">{0}</div>
     </div>
     <div id="divTableTemp" class="dn">
         <div class="dbName"></div>
@@ -131,6 +137,21 @@
         }, 500);
     }
 
+    $("#txtDbName").bind('keyup', function () {
+        let text = $(this).val();
+        if (text) {
+            $(".eleDb").each(function () {
+                if ($(this).attr("db").indexOf(text) > -1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        } else {
+            $(".eleDb").show();
+        }
+    });
+
     $("#btnSearch").bind("click", function () {
         const connectionString = $("#txtConnectionString").val().trim();
         if (!connectionString) {
@@ -142,6 +163,7 @@
         localStorage.setItem("docdbtype", dbType);
 
         $("#divDatas").html('');
+        $("#txtDbName").val('');
         $(".eleHide").hide();
         $.ajax({
             async: true,
@@ -175,7 +197,8 @@
                             tbListHtml
                                 .replace("{0}", showName)
                                 .replace("{1}", idStr)
-                                .replace("{2}", tableNameTitle);
+                                .replace("{2}", tableNameTitle)
+                                .replace("{3}", row.dbName);
 
                         let tdHtml = '';
                         for (let j = 0; j < row.fieldDescriptions.length; j++) {
@@ -191,7 +214,7 @@
                                 + "</tr>";
                         }
                         $("#divTableTemp tbody").html(tdHtml);
-                        divTableFilesHtml += $("#divTableTemp").html();
+                        divTableFilesHtml += "<div class='eleDb' db='" + row.dbName + "'>" + $("#divTableTemp").html() + "</div>";
 
                     }
                     $("#divDatas").append(divTableListHtml + divTableFilesHtml);

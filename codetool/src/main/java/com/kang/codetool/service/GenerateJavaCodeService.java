@@ -82,12 +82,8 @@ public class GenerateJavaCodeService {
     }
 
     public String refMybatisMapper(CodeMakerGeneratCodeVO vo) {
-        KlFieldDescription field;
-        if (vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey()))) {
-            field = vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).findFirst().orElseGet(null);
-        } else {
-            field = vo.getFieldDescriptions().stream().findFirst().orElseGet(null);
-        }
+        KlFieldDescription field = vo.tryToGetPrimaryKey();
+
         StringBuilder codeStr = new StringBuilder();
         codeStr.append(KlString.format(
                 "package {0};\n" +
@@ -135,25 +131,173 @@ public class GenerateJavaCodeService {
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " select" : "List<" + vo.getClassName() + "> selectList"))
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " select" : ("List<" + vo.getClassName() + "> selectList")))
+        ;
+
+        return codeStr.toString();
+    }
+
+    public String refService(CodeMakerGeneratCodeVO vo) {
+        KlFieldDescription field = vo.tryToGetPrimaryKey();
+
+        StringBuilder codeStr = new StringBuilder();
+        codeStr.append(KlString.format(
+                "package {0};\n" +
+                        "\n" +
+                        "import {1};\n" +
+                        "import java.util.List;\n" +
+                        "\n" +
+                        "/**\n" +
+                        " * " + vo.getTable() + "表数据服务接口\n" +
+                        " *\n" +
+                        " * @author codeTool\n" +
+                        " * @date " + LocalDate.now().toString() + "\n" +
+                        " */\n" +
+                        "public interface {2}Service {\n" +
+                        "\n" +
+                        "        {7}By{3}({4} {5});\n" +
+                        "\n" +
+                        "        List<{2}> selectAll();\n" +
+                        "\n" +
+                        "        List<{2}> selectByPage({2} {6});\n" +
+                        "\n" +
+                        "        {2} selectByWhere({2} {6});\n" +
+                        "\n" +
+                        "        List<{2}> selectListByWhere({2} {6});\n" +
+                        "\n" +
+                        "        int count({2} {6});\n" +
+                        "\n" +
+                        "        int deleteBy{3}({4} {5});\n" +
+                        "\n" +
+                        "        int updateBy{3}({2} {6});\n" +
+                        "\n" +
+                        "        int updateBy{3}Selective({2} {6});\n" +
+                        "\n" +
+                        "        int insert({2} {6});\n" +
+                        "\n" +
+                        "        int insertSelective({2} {6});\n" +
+                        "\n" +
+                        "        void batchInsert(List<{2}> {6}List);\n" +
+                        "    \n" +
+                        "}",
+                KlString.format(vo.getPackagePath(), "service"),
+                KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
+                vo.getClassName(),
+                KlString.toUpperFirst(field.getSimpleName()),
+                KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
+                KlString.toLowerFirst(field.getSimpleName()),
+                KlString.toLowerFirst(vo.getClassName()),
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " select" : ("List<" + vo.getClassName() + "> selectList")))
+        ;
+
+        return codeStr.toString();
+    }
+
+    public String refServiceImpl(CodeMakerGeneratCodeVO vo) {
+        KlFieldDescription field = vo.tryToGetPrimaryKey();
+
+        StringBuilder codeStr = new StringBuilder();
+        codeStr.append(KlString.format(
+                "package {0};\n" +
+                        "\n" +
+                        "import {8}.{2}Service;\n" +
+                        "import {1};\n" +
+                        "import org.springframework.beans.factory.annotation.Autowired;\n" +
+                        "import java.util.List;\n" +
+                        "\n" +
+                        "/**\n" +
+                        " * " + vo.getTable() + "表数据服务\n" +
+                        " *\n" +
+                        " * @author codeTool\n" +
+                        " * @date " + LocalDate.now().toString() + "\n" +
+                        " */\n" +
+                        "public class {2}ServiceImpl implements {2}Service {\n" +
+                        "        \n" +
+                        "        @Autowired\n" +
+                        "        private {2}Mapper {6}Mapper;\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public {7} {9}By{3}({4} {5}) {\n" +
+                        "            return {6}Mapper.{9}By{3}({5});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public List<{2}> selectAll() {\n" +
+                        "            return {6}Mapper.selectAll();\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public List<{2}> selectByPage({2} {6}) {\n" +
+                        "            return {6}Mapper.selectByPage({6});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public {2} selectByWhere({2} {6}) {\n" +
+                        "            return {6}Mapper.selectByWhere({6});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public List<{2}> selectListByWhere({2} {6}) {\n" +
+                        "            return {6}Mapper.selectListByWhere({6});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public int count({2} {6}) {\n" +
+                        "            return {6}Mapper.count({6});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public int deleteBy{3}({4} {5}) {\n" +
+                        "            return {6}Mapper.deleteBy{3}({5});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public int updateBy{3}({2} {6}) {\n" +
+                        "            return {6}Mapper.updateBy{3}({6});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public int updateBy{3}Selective({2} {6}) {\n" +
+                        "            return {6}Mapper.updateBy{3}Selective({6});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public int insert({2} {6}) {\n" +
+                        "            return {6}Mapper.insert({6});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public int insertSelective({2} {6}) {\n" +
+                        "            return {6}Mapper.insertSelective({6});\n" +
+                        "        }\n" +
+                        "\n" +
+                        "        @Override\n" +
+                        "        public void batchInsert(List<{2}> {6}List) {\n" +
+                        "            {6}Mapper.batchInsert({6}List);\n" +
+                        "        }\n" +
+                        "    \n" +
+                        "}",
+                KlString.format(vo.getPackagePath(), "service.impl"),
+                KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
+                vo.getClassName(),
+                KlString.toUpperFirst(field.getSimpleName()),
+                KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
+                KlString.toLowerFirst(field.getSimpleName()),
+                KlString.toLowerFirst(vo.getClassName()),
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName(): ("List<" + vo.getClassName() + ">"),
+                KlString.format(vo.getPackagePath(), "service"),
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "select" : "selectList"))
         ;
 
         return codeStr.toString();
     }
 
     public String refMybatisMapperWithAnnotation(CodeMakerGeneratCodeVO vo) {
-        StringBuilder field_Basic = new StringBuilder();
-        StringBuilder fieldInsert = new StringBuilder();
-        StringBuilder fieldValue = new StringBuilder();
         StringBuilder fieldParams = new StringBuilder();
-        StringBuilder field_SqlContent = new StringBuilder();
         StringBuilder field_SqlWhere = new StringBuilder();
-        KlFieldDescription field;
-        if (vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey()))) {
-            field = vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).findFirst().orElseGet(null);
-        } else {
-            field = vo.getFieldDescriptions().stream().findFirst().orElseGet(null);
-        }
+
+        KlFieldDescription field = vo.tryToGetPrimaryKey();
+
         vo.getFieldDescriptions().forEach(f -> {
 
             appendLineBreak(fieldParams, 70, "            \"", "\" +");
@@ -170,6 +314,8 @@ public class GenerateJavaCodeService {
                     KlMybatisTypeMap.map4Mybatis(f.getDbType(), vo.getDatabaseType())
             ));
         });
+        boolean isPKIdentity = vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey()) && f.getIsIdentity());
+
         StringBuilder codeStr = new StringBuilder();
         codeStr.append(KlString.format(
                 "package {0};\n" +
@@ -219,11 +365,13 @@ public class GenerateJavaCodeService {
                         "    int updateBy{3}Selective({2} {6});\n" +
                         "\n" +
                         "    @InsertProvider(type = {2}Provider.class, method = \"insert\")\n" +
-                        "    @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" +
+                        (isPKIdentity ?
+                                "    @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" : "") +
                         "    int insert({2} {6});\n" +
                         "\n" +
                         "    @InsertProvider(type = {2}Provider.class, method = \"insertSelective\")\n" +
-                        "    @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" +
+                        (isPKIdentity ?
+                                "    @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" : "") +
                         "    int insertSelective({2} {6});\n" +
                         "\n" +
                         "    @InsertProvider(type = {2}Provider.class, method = \"batchInsert\")\n" +
@@ -252,7 +400,7 @@ public class GenerateJavaCodeService {
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " select" : "List<" + vo.getClassName() + "> selectList",
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " select" : ("List<" + vo.getClassName() + "> selectList"),
                 vo.getTable(),
                 field.getName(),
                 field_SqlWhere,
@@ -317,12 +465,9 @@ public class GenerateJavaCodeService {
     }
 
     public String generateUpdateMethodCode(CodeMakerGeneratCodeVO vo) {
-        KlFieldDescription field;
-        if (vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey()))) {
-            field = vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).findFirst().orElseGet(null);
-        } else {
-            field = vo.getFieldDescriptions().stream().findFirst().orElseGet(null);
-        }
+
+        KlFieldDescription field = vo.tryToGetPrimaryKey();
+
         StringBuilder fieldParams = new StringBuilder();
         StringBuilder fieldUpdateSet = new StringBuilder();
         StringBuilder fieldUpdateSetSelective = new StringBuilder();
@@ -370,13 +515,10 @@ public class GenerateJavaCodeService {
                 fieldUpdateSetSelective);
     }
 
-    public String generateInsertMethodCode(CodeMakerGeneratCodeVO vo) {
-        KlFieldDescription field;
-        if (vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey()))) {
-            field = vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).findFirst().orElseGet(null);
-        } else {
-            field = vo.getFieldDescriptions().stream().findFirst().orElseGet(null);
-        }
+    public static String generateInsertMethodCode(CodeMakerGeneratCodeVO vo) {
+
+        KlFieldDescription field = vo.tryToGetPrimaryKey();
+
         StringBuilder fieldInsertParams = new StringBuilder();
         StringBuilder fieldInsertValues = new StringBuilder();
         StringBuilder fieldInsertValuesBatch = new StringBuilder();
@@ -454,8 +596,6 @@ public class GenerateJavaCodeService {
 
     public String refMybatisMapperXml(CodeMakerGeneratCodeVO vo) {
         StringBuilder field_Basic = new StringBuilder();
-        StringBuilder field_Add = new StringBuilder();
-        StringBuilder fieldValue = new StringBuilder();
         StringBuilder fieldParams = new StringBuilder();
         StringBuilder fieldWhereParams = new StringBuilder();
         StringBuilder field_SqlContent = new StringBuilder();
@@ -529,12 +669,8 @@ public class GenerateJavaCodeService {
             StringBuilder result = new StringBuilder();
 
             if (vo.getFieldDescriptions().size() > 0) {
-                KlFieldDescription field = new KlFieldDescription();
-                if (vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey()))) {
-                    field = vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).findFirst().orElse(null);
-                } else {
-                    field = vo.getFieldDescriptions().get(0);
-                }
+
+                KlFieldDescription field = vo.tryToGetPrimaryKey();
 
                 result.append(KlString.format(
                         "  <select id=\"{6}By{1}\" parameterType=\"{4}\" resultMap=\"BaseResultMap\">\n" +
@@ -609,12 +745,7 @@ public class GenerateJavaCodeService {
                                 "      </if>\n", KlString.toLowerFirst(f.getSimpleName()), KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()), KlMybatisTypeMap.map4MybatisPostgreSql(f.getDbType()).toUpperCase()));
             });
 
-            KlFieldDescription field = new KlFieldDescription();
-            if (vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).count() == 1) {
-                field = vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).findFirst().orElse(null);
-            } else {
-                field = vo.getFieldDescriptions().stream().findFirst().orElse(null);
-            }
+            KlFieldDescription field = vo.tryToGetPrimaryKey();
 
             result.append(KlString.format(
                     "  <update id=\"updateBy{7}\" parameterType=\"{4}\">\n" +
@@ -716,12 +847,7 @@ public class GenerateJavaCodeService {
             if (vo.getFieldDescriptions().size() == 0) {
                 return "";
             }
-            KlFieldDescription field = new KlFieldDescription();
-            if (vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).count() == 1) {
-                field = vo.getFieldDescriptions().stream().filter(f -> "PRI".equals(f.getColumnKey())).findFirst().orElse(null);
-            } else {
-                field = vo.getFieldDescriptions().stream().findFirst().orElse(null);
-            }
+            KlFieldDescription field = vo.tryToGetPrimaryKey();
 
             result.append(KlString.format(
                     "  <delete id=\"deleteBy{1}\" parameterType=\"{4}\">\n" +
