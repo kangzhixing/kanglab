@@ -105,10 +105,12 @@ public class ExportController {
                 } else {
                     if (type.toLowerCase().endsWith("xml")) {
                         fileName = className + "Mapper.xml";
-                    } else if (type.toLowerCase().endsWith("mapper")) {
+                    } else if (type.toLowerCase().endsWith("mapper") || type.toLowerCase().endsWith("Annotation")) {
                         fileName = className + "Mapper.java";
-                    } else if (type.toLowerCase().startsWith("dao")) {
-                        fileName = className + "Dao.java";
+                    } else if (type.toLowerCase().equals("service")) {
+                        fileName = className + "Service.java";
+                    } else if (type.toLowerCase().equals("serviceimpl")) {
+                        fileName = className + "ServiceImpl.java";
                     } else {
                         fileName = className + ".java";
                     }
