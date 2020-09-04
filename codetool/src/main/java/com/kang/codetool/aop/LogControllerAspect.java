@@ -24,9 +24,9 @@ public class LogControllerAspect {
                 proceedingJoinPoint.getSignature().getName(),
                 KlJson.toJSONString(proceedingJoinPoint.getArgs()));
         Object result = proceedingJoinPoint.proceed();
-        log.info("[{}.{}] response: {}, cost: {}ms", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
-                proceedingJoinPoint.getSignature().getName(),
-                KlJson.toJSONString(result), System.currentTimeMillis() - start);
+        log.info("[{}.{}][{}ms] response: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
+                proceedingJoinPoint.getSignature().getName(), System.currentTimeMillis() - start,
+                KlJson.toJSONString(result));
         return result;
     }
 
