@@ -37,26 +37,19 @@ public class DbController {
 
         try {
             List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
-            String finalConnection = connection;
-            ExecutorService executor = new ThreadPoolExecutor(10, 150,
-                    60L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>());
-            CountDownLatch cdl = new CountDownLatch(databaseTables.size());
+            List<KlFieldDescription> columnList = Common.getDatabaseColumns(connection, null, KlDatabaseType.getByName(dbType));
+
             for (Map<String, Object> dbTable : databaseTables) {
-                executor.execute(() -> {
-                    try {
-                        Map<String, Object> m = new LinkedHashMap<>();
-                        m.put("dbName", dbTable.get("TABLE_NAME").toString());
-                        m.put("comment", dbTable.get("TABLE_COMMENT").toString());
-                        m.put("fieldDescriptions", Common.getDatabaseColumns(finalConnection, dbTable.get("TABLE_NAME").toString(), KlDatabaseType.getByName(dbType)));
-                        result.add(m);
-                    } catch (Exception e) {
-                        log.error("查询数据库失败", e);
-                    }
-                    cdl.countDown();
-                });
+                try {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("dbName", dbTable.get("TABLE_NAME").toString());
+                    m.put("comment", dbTable.get("TABLE_COMMENT").toString());
+                    m.put("fieldDescriptions", columnList.stream().filter(li -> li.getTableName().equals(dbTable.get("TABLE_NAME").toString())).collect(Collectors.toList()));
+                    result.add(m);
+                } catch (Exception e) {
+                    log.error("查询数据库失败", e);
+                }
             }
-            cdl.await();
             result.sort(Comparator.comparing(li -> li.get("dbName").toString()));
             return KlResponse.success(result);
         } catch (Exception ex) {
@@ -71,6 +64,7 @@ public class DbController {
         if (connection.indexOf("zeroDateTimeBehavior") == -1) {
             connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
         }
+        List<Map<String, Object>> result = new CopyOnWriteArrayList<>();
 
         try {
             String sql = "";
