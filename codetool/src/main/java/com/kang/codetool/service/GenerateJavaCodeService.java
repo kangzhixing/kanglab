@@ -29,7 +29,6 @@ public class GenerateJavaCodeService {
                 " * @date " + LocalDate.now().toString() + "\n" +
                 " */\n" +
                 "@Data\n" +
-                "@Builder\n" +
                 "public class {1} {\n\n", vo.getPackagePath().replace("{0}", "entity"), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult()))));
 
         for (KlFieldDescription f : vo.getFieldDescriptions()) {
