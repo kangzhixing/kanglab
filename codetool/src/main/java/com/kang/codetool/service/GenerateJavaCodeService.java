@@ -153,7 +153,7 @@ public class GenerateJavaCodeService {
                         " * @author codeTool\n" +
                         " * @date " + LocalDate.now().toString() + "\n" +
                         " */\n" +
-                        "public interface {2}Service {\n" +
+                        "public interface I{2}Service {\n" +
                         "\n" +
                         "        {7}By{3}({4} {5});\n" +
                         "\n" +
@@ -200,7 +200,7 @@ public class GenerateJavaCodeService {
         codeStr.append(KlString.format(
                 "package {0};\n" +
                         "\n" +
-                        "import {8}.{2}Service;\n" +
+                        "import {8}.I{2}Service;\n" +
                         "import {1};\n" +
                         "import org.springframework.beans.factory.annotation.Autowired;\n" +
                         "import java.util.List;\n" +
@@ -211,7 +211,7 @@ public class GenerateJavaCodeService {
                         " * @author codeTool\n" +
                         " * @date " + LocalDate.now().toString() + "\n" +
                         " */\n" +
-                        "public class {2}ServiceImpl implements {2}Service {\n" +
+                        "public class {2}ServiceImpl implements I{2}Service {\n" +
                         "        \n" +
                         "        @Autowired\n" +
                         "        private {2}Mapper {6}Mapper;\n" +
