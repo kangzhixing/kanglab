@@ -124,7 +124,7 @@ public class ToolController {
             sw.start();
             String postDataDecode = URLDecoder.decode(postData);
             String finalUrl = URLDecoder.decode(url);
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(86400, 86400,
+            ThreadPoolExecutor executor = new ThreadPoolExecutor(1000, 86400,
                     0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
             for (int i = 0; i < count; i++) {
                 executor.execute(() -> {

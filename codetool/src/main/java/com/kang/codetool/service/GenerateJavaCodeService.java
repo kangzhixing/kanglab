@@ -1,12 +1,11 @@
 package com.kang.codetool.service;
 
+
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
-import com.kang.framework.KlConvert;
-import com.kang.framework.KlMybatisTypeMap;
-import com.kang.framework.db.KlDatabaseType;
-import com.kang.framework.db.KlFieldDescription;
 import com.kang.framework.KlDbTypeMap;
+import com.kang.framework.KlMybatisTypeMap;
 import com.kang.framework.KlString;
+import com.kang.framework.db.KlFieldDescription;
 
 import java.time.LocalDate;
 
@@ -69,7 +68,7 @@ public class GenerateJavaCodeService {
                 "import javax.sql.rowset.CachedRowSet;\n" +
                 "\n" +
                 "import {2}.{1};\n" +
-                "import com.kang.framework.*;\n" +
+                "import com.jd.codetool.lib.*;\n" +
                 "\n" +
                 "        public class {1}Mapper{\n" +
                 "        {3}\n" +
@@ -98,30 +97,66 @@ public class GenerateJavaCodeService {
                         " */\n" +
                         "public interface {2}Mapper{\n" +
                         "\n" +
-                        "        {7}By{3}({4} {5});\n" +
+                        "    /**\n" +
+                        "     * 通过{5}查询\n" +
+                        "     */\n" +
+                        "    {7}By{3}({4} {5});\n" +
                         "\n" +
-                        "        List<{2}> selectAll();\n" +
+                        "    /**\n" +
+                        "     * 查询所有数据\n" +
+                        "     */\n" +
+                        "    List<{2}> listAll();\n" +
                         "\n" +
-                        "        List<{2}> selectByPage({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询分页数据\n" +
+                        "     */\n" +
+                        "    List<{2}> listByPage({2} {6});\n" +
                         "\n" +
-                        "        {2} selectByWhere({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询单条数据\n" +
+                        "     */\n" +
+                        "    {2} getByWhere({2} {6});\n" +
                         "\n" +
-                        "        List<{2}> selectListByWhere({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询批量数据\n" +
+                        "     */\n" +
+                        "    List<{2}> listByWhere({2} {6});\n" +
                         "\n" +
-                        "        int count({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询数量\n" +
+                        "     */\n" +
+                        "    int count({2} {6});\n" +
                         "\n" +
-                        "        int deleteBy{3}({4} {5});\n" +
+                        "    /**\n" +
+                        "     * 通过{5}删除数据\n" +
+                        "     */\n" +
+                        "    int deleteBy{3}({4} {5});\n" +
                         "\n" +
-                        "        int updateBy{3}({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过{5}修改数据\n" +
+                        "     */\n" +
+                        "    int updateBy{3}({2} {6});\n" +
                         "\n" +
-                        "        int updateBy{3}Selective({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过{5}修改不为空的字段\n" +
+                        "     */\n" +
+                        "    int updateBy{3}Selective({2} {6});\n" +
                         "\n" +
-                        "        int insert({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 插入数据\n" +
+                        "     */\n" +
+                        "    int insert({2} {6});\n" +
                         "\n" +
-                        "        int insertSelective({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 插入数据（仅赋值不为空的字段）\n" +
+                        "     */\n" +
+                        "    int insertSelective({2} {6});\n" +
                         "\n" +
-                        "        void batchInsert(List<{2}> {6}List);\n" +
-                        "    \n" +
+                        "    /**\n" +
+                        "     * 批量插入数据\n" +
+                        "     */\n" +
+                        "    void batchInsert(List<{2}> {6}List);\n" +
+                        "\n" +
                         "}",
                 KlString.format(vo.getPackagePath(), "mapper"),
                 KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
@@ -130,7 +165,7 @@ public class GenerateJavaCodeService {
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " select" : ("List<" + vo.getClassName() + "> selectList")))
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " get" : ("List<" + vo.getClassName() + "> list")))
         ;
 
         return codeStr.toString();
@@ -154,28 +189,64 @@ public class GenerateJavaCodeService {
                         " */\n" +
                         "public interface I{2}Service {\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}查询\n" +
+                        "     */\n" +
                         "    {7}By{3}({4} {5});\n" +
                         "\n" +
-                        "    List<{2}> selectAll();\n" +
+                        "    /**\n" +
+                        "     * 查询所有数据\n" +
+                        "     */\n" +
+                        "    List<{2}> listAll();\n" +
                         "\n" +
-                        "    List<{2}> selectByPage({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询分页数据\n" +
+                        "     */\n" +
+                        "    List<{2}> listByPage({2} {6});\n" +
                         "\n" +
-                        "    {2} selectByWhere({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询单条数据\n" +
+                        "     */\n" +
+                        "    {2} getByWhere({2} {6});\n" +
                         "\n" +
-                        "    List<{2}> selectListByWhere({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询批量数据\n" +
+                        "     */\n" +
+                        "    List<{2}> listByWhere({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询数量\n" +
+                        "     */\n" +
                         "    int count({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}删除数据\n" +
+                        "     */\n" +
                         "    int deleteBy{3}({4} {5});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}修改数据\n" +
+                        "     */\n" +
                         "    int updateBy{3}({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}修改不为空的字段\n" +
+                        "     */\n" +
                         "    int updateBy{3}Selective({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 插入数据\n" +
+                        "     */\n" +
                         "    int insert({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 插入数据（仅赋值不为空的字段）\n" +
+                        "     */\n" +
                         "    int insertSelective({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 批量插入数据\n" +
+                        "     */\n" +
                         "    void batchInsert(List<{2}> {6}List);\n" +
                         "\n" +
                         "}",
@@ -186,7 +257,7 @@ public class GenerateJavaCodeService {
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " select" : ("List<" + vo.getClassName() + "> selectList")))
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " get" : ("List<" + vo.getClassName() + "> list")))
         ;
 
         return codeStr.toString();
@@ -215,61 +286,97 @@ public class GenerateJavaCodeService {
                         "    @Autowired\n" +
                         "    private {2}Mapper {6}Mapper;\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}查询\n" +
+                        "     */\n" +
                         "    @Override\n" +
                         "    public {7} {9}By{3}({4} {5}) {\n" +
                         "        return {6}Mapper.{9}By{3}({5});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 查询所有数据\n" +
+                        "     */\n" +
                         "    @Override\n" +
-                        "    public List<{2}> selectAll() {\n" +
-                        "        return {6}Mapper.selectAll();\n" +
+                        "    public List<{2}> listAll() {\n" +
+                        "        return {6}Mapper.listAll();\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询分页数据\n" +
+                        "     */\n" +
                         "    @Override\n" +
-                        "    public List<{2}> selectByPage({2} {6}) {\n" +
-                        "        return {6}Mapper.selectByPage({6});\n" +
+                        "    public List<{2}> listByPage({2} {6}) {\n" +
+                        "        return {6}Mapper.listByPage({6});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询单条数据\n" +
+                        "     */\n" +
                         "    @Override\n" +
-                        "    public {2} selectByWhere({2} {6}) {\n" +
-                        "        return {6}Mapper.selectByWhere({6});\n" +
+                        "    public {2} getByWhere({2} {6}) {\n" +
+                        "        return {6}Mapper.getByWhere({6});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询批量数据\n" +
+                        "     */\n" +
                         "    @Override\n" +
-                        "    public List<{2}> selectListByWhere({2} {6}) {\n" +
-                        "        return {6}Mapper.selectListByWhere({6});\n" +
+                        "    public List<{2}> listByWhere({2} {6}) {\n" +
+                        "        return {6}Mapper.listByWhere({6});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询数量\n" +
+                        "     */\n" +
                         "    @Override\n" +
                         "    public int count({2} {6}) {\n" +
                         "        return {6}Mapper.count({6});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}删除数据\n" +
+                        "     */\n" +
                         "    @Override\n" +
                         "    public int deleteBy{3}({4} {5}) {\n" +
                         "        return {6}Mapper.deleteBy{3}({5});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}修改数据\n" +
+                        "     */\n" +
                         "    @Override\n" +
                         "    public int updateBy{3}({2} {6}) {\n" +
                         "        return {6}Mapper.updateBy{3}({6});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}修改不为空的字段\n" +
+                        "     */\n" +
                         "    @Override\n" +
                         "    public int updateBy{3}Selective({2} {6}) {\n" +
                         "        return {6}Mapper.updateBy{3}Selective({6});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 插入数据\n" +
+                        "     */\n" +
                         "    @Override\n" +
                         "    public int insert({2} {6}) {\n" +
                         "        return {6}Mapper.insert({6});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 插入数据（仅赋值不为空的字段）\n" +
+                        "     */\n" +
                         "    @Override\n" +
                         "    public int insertSelective({2} {6}) {\n" +
                         "        return {6}Mapper.insertSelective({6});\n" +
                         "    }\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 批量插入数据\n" +
+                        "     */\n" +
                         "    @Override\n" +
                         "    public void batchInsert(List<{2}> {6}List) {\n" +
                         "        {6}Mapper.batchInsert({6}List);\n" +
@@ -285,7 +392,7 @@ public class GenerateJavaCodeService {
                 KlString.toLowerFirst(vo.getClassName()),
                 vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() : ("List<" + vo.getClassName() + ">"),
                 KlString.format(vo.getPackagePath(), "service"),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "select" : "selectList"))
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "get" : "list"))
         ;
 
         return codeStr.toString();
@@ -333,49 +440,91 @@ public class GenerateJavaCodeService {
                         " */\n" +
                         "public interface {2}Mapper{\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}查询\n" +
+                        "     */\n" +
                         "    @Select(\"select {11} from {8} where {9} = #{{5},jdbcType={12}}\")\n" +
                         "    {7}By{3}({4} {5});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 查询所有数据\n" +
+                        "     */\n" +
                         "    @Select(\"select {11} from {8}\")\n" +
-                        "    List<{2}> selectAll();\n" +
+                        "    List<{2}> listAll();\n" +
                         "\n" +
-                        "    @SelectProvider(type = {2}Provider.class, method = \"selectByPage\")\n" +
-                        "    List<{2}> selectByPage({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询分页数据\n" +
+                        "     */\n" +
+                        "    @SelectProvider(type = {2}Provider.class, method = \"listByPage\")\n" +
+                        "    List<{2}> listByPage({2} {6});\n" +
                         "\n" +
-                        "    @SelectProvider(type = {2}Provider.class, method = \"selectByWhere\")\n" +
-                        "    {2} selectByWhere({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询单条数据\n" +
+                        "     */\n" +
+                        "    @SelectProvider(type = {2}Provider.class, method = \"getByWhere\")\n" +
+                        "    {2} getByWhere({2} {6});\n" +
                         "\n" +
-                        "    @SelectProvider(type = {2}Provider.class, method = \"selectListByWhere\")\n" +
-                        "    List<{2}> selectListByWhere({2} {6});\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询批量数据\n" +
+                        "     */\n" +
+                        "    @SelectProvider(type = {2}Provider.class, method = \"listByWhere\")\n" +
+                        "    List<{2}> listByWhere({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询数量\n" +
+                        "     */\n" +
                         "    @SelectProvider(type = {2}Provider.class, method = \"count\")\n" +
                         "    int count({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}删除数据\n" +
+                        "     */\n" +
                         "    @Delete(\"delete from {8} where {9}=#{{5},jdbcType={12}}\")\n" +
                         "    int deleteBy{3}({4} {5});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过条件删除数据\n" +
+                        "     */\n" +
                         "    @DeleteProvider(type = {2}Provider.class, method = \"deleteByWhere\")\n" +
                         "    int deleteByWhere({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}修改数据\n" +
+                        "     */\n" +
                         "    @UpdateProvider(type = {2}Provider.class, method = \"updateBy{3}\")\n" +
                         "    int updateBy{3}({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}修改不为空的字段\n" +
+                        "     */\n" +
                         "    @UpdateProvider(type = {2}Provider.class, method = \"updateBy{3}Selective\")\n" +
                         "    int updateBy{3}Selective({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 插入数据\n" +
+                        "     */\n" +
                         "    @InsertProvider(type = {2}Provider.class, method = \"insert\")\n" +
                         (isPKIdentity ?
                                 "    @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" : "") +
                         "    int insert({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 插入数据（仅赋值不为空的字段）\n" +
+                        "     */\n" +
                         "    @InsertProvider(type = {2}Provider.class, method = \"insertSelective\")\n" +
                         (isPKIdentity ?
                                 "    @Options(useGeneratedKeys = true, keyProperty = \"{9}\")\n" : "") +
                         "    int insertSelective({2} {6});\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 批量插入数据\n" +
+                        "     */\n" +
                         "    @InsertProvider(type = {2}Provider.class, method = \"batchInsert\")\n" +
                         "    void batchInsert(@Param(\"list\") List<{2}> {6}List);\n" +
                         "\n" +
+                        "    /**\n" +
+                        "     * 通过{5}列表批量修改数据\n" +
+                        "     */\n" +
                         "    @UpdateProvider(type = {2}Provider.class, method = \"batchUpdate\")\n" +
                         "    void batchUpdate(@Param(\"list\") List<{2}> {6}List);\n" +
                         "\n" +
@@ -399,7 +548,7 @@ public class GenerateJavaCodeService {
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " select" : ("List<" + vo.getClassName() + "> selectList"),
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " get" : ("List<" + vo.getClassName() + "> list"),
                 vo.getTable(),
                 field.getName(),
                 field_SqlWhere,
@@ -416,19 +565,19 @@ public class GenerateJavaCodeService {
             fieldParams.append(f.getName().contains("_") ? KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + " as " + f.getSimpleName() + ", " : KlMybatisTypeMap.getSafeParam(f.getName(), vo.getDatabaseType()) + ", ");
         });
         return KlString.format(
-                "        public String selectByPage({1} {2}) {\n" +
+                "        public String listByPage({1} {2}) {\n" +
                         "           return new SQL()\n" +
                         "                   .SELECT(\"{0}\")\n" +
                         "                   .FROM(\"{3}\")\n" +
                         "                   .WHERE(getSqlWhere({2})).toString() + \" LIMIT #{length} OFFSET #{start}\";\n" +
                         "        }\n\n" +
-                        "        public String selectByWhere({1} {2}) {\n" +
+                        "        public String getByWhere({1} {2}) {\n" +
                         "           return new SQL()\n" +
                         "                   .SELECT(\"{0}\")\n" +
                         "                   .FROM(\"{3}\")\n" +
                         "                   .WHERE(getSqlWhere({2})).toString() + \" LIMIT 1\";\n" +
                         "        }\n\n" +
-                        "        public String selectListByWhere({1} {2}) {\n" +
+                        "        public String listByWhere({1} {2}) {\n" +
                         "           return new SQL()\n" +
                         "                   .SELECT(\"{0}\")\n" +
                         "                   .FROM(\"{3}\")\n" +
@@ -678,12 +827,12 @@ public class GenerateJavaCodeService {
                                 "    from {0}\n" +
                                 "    where {5} = #{{2},jdbcType={3}}\n" +
                                 "  </select>\n" +
-                                "  <select id=\"selectAll\" resultMap=\"BaseResultMap\">\n" +
+                                "  <select id=\"listAll\" resultMap=\"BaseResultMap\">\n" +
                                 "    select\n" +
                                 "    <include refid=\"Base_Column_List\" />\n" +
                                 "    from {0}\n" +
                                 "  </select>\n" +
-                                "  <select id=\"selectByPage\" parameterType=\"{7}\" resultMap=\"BaseResultMap\">\n" +
+                                "  <select id=\"listByPage\" parameterType=\"{7}\" resultMap=\"BaseResultMap\">\n" +
                                 "    select\n" +
                                 "    <include refid=\"Base_Column_List\" />\n" +
                                 "    from {0}\n" +
@@ -692,7 +841,7 @@ public class GenerateJavaCodeService {
                                 "    </trim>\n" +
                                 "    LIMIT #{length} OFFSET #{start}\n" +
                                 "  </select>\n" +
-                                "  <select id=\"selectByWhere\" parameterType=\"{7}\" resultMap=\"BaseResultMap\">\n" +
+                                "  <select id=\"getByWhere\" parameterType=\"{7}\" resultMap=\"BaseResultMap\">\n" +
                                 "    select\n" +
                                 "    <include refid=\"Base_Column_List\" />\n" +
                                 "    from {0}\n" +
@@ -701,7 +850,7 @@ public class GenerateJavaCodeService {
                                 "    </trim>\n" +
                                 "    LIMIT 1\n" +
                                 "  </select>\n" +
-                                "  <select id=\"selectListByWhere\" parameterType=\"{7}\" resultMap=\"BaseResultMap\">\n" +
+                                "  <select id=\"listByWhere\" parameterType=\"{7}\" resultMap=\"BaseResultMap\">\n" +
                                 "    select\n" +
                                 "    <include refid=\"Base_Column_List\" />\n" +
                                 "    from {0}\n" +
@@ -718,7 +867,7 @@ public class GenerateJavaCodeService {
                                 "  </select>\n", vo.getTable(), KlString.toUpperFirst(field.getName()),
                         KlString.toLowerFirst(field.getSimpleName()), KlMybatisTypeMap.map4MybatisPostgreSql(field.getDbType()).toUpperCase(),
                         KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()), field.getName(),
-                        vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "select" : "selectList",
+                        vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "get" : "list",
                         KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName()));
             }
             return result.toString();

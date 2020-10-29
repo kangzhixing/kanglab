@@ -20,11 +20,11 @@ public class LogControllerAspect {
     @Around("logController()")
     public Object doAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         long start = System.currentTimeMillis();
-        log.info("[{}.{}] request: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
+        log.info("[REQUEST][{}.{}] param: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
                 proceedingJoinPoint.getSignature().getName(),
                 KlJson.toJSONString(proceedingJoinPoint.getArgs()));
         Object result = proceedingJoinPoint.proceed();
-        log.info("[{}.{}][{}ms] response: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
+        log.info("[RESPONSE][{}.{}][{}ms] result: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
                 proceedingJoinPoint.getSignature().getName(), System.currentTimeMillis() - start,
                 KlJson.toJSONString(result));
         return result;
