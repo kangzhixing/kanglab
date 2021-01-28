@@ -22,11 +22,11 @@ public class LogControllerAspect {
         long start = System.currentTimeMillis();
         log.info("[REQUEST][{}.{}] param: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
                 proceedingJoinPoint.getSignature().getName(),
-                JSON.toJSONString(proceedingJoinPoint.getArgs()));
+                proceedingJoinPoint.getArgs() == null ? "" : JSON.toJSONString(proceedingJoinPoint.getArgs()));
         Object result = proceedingJoinPoint.proceed();
         log.info("[RESPONSE][{}.{}][{}ms] result: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
                 proceedingJoinPoint.getSignature().getName(), System.currentTimeMillis() - start,
-                JSON.toJSONString(result));
+                result == null ? "" : JSON.toJSONString(result));
         return result;
     }
 
