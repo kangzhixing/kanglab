@@ -92,6 +92,11 @@
                 <groupId>com.fasterxml</groupId>
                 <version>1.5.1</version>
             </dependency>
+            <dependency>
+                <artifactId>fastjson</artifactId>
+                <groupId>com.alibaba</groupId>
+                <version>1.2.73</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

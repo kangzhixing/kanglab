@@ -1,6 +1,6 @@
 package com.kang.codetool.aop;
 
-import com.kang.framework.KlJson;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -22,11 +22,11 @@ public class LogControllerAspect {
         long start = System.currentTimeMillis();
         log.info("[REQUEST][{}.{}] param: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
                 proceedingJoinPoint.getSignature().getName(),
-                KlJson.toJSONString(proceedingJoinPoint.getArgs()));
+                JSON.toJSONString(proceedingJoinPoint.getArgs()));
         Object result = proceedingJoinPoint.proceed();
         log.info("[RESPONSE][{}.{}][{}ms] result: {}", proceedingJoinPoint.getSignature().getDeclaringType().getSimpleName(),
                 proceedingJoinPoint.getSignature().getName(), System.currentTimeMillis() - start,
-                KlJson.toJSONString(result));
+                JSON.toJSONString(result));
         return result;
     }
 
