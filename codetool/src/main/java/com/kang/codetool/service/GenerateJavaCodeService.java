@@ -9,6 +9,9 @@ import com.kang.framework.db.KlFieldDescription;
 
 import java.time.LocalDate;
 
+import static com.kang.codetool.common.Constants.ENTITY_PACKAGE_NAME;
+import static com.kang.codetool.common.Constants.ENTITY_CLASS_NAME_SUFFIX;
+
 /**
  *
  */
@@ -28,7 +31,7 @@ public class GenerateJavaCodeService {
                 " * @date " + LocalDate.now().toString() + "\n" +
                 " */\n" +
                 "@Data\n" +
-                "public class {1} {\n\n", vo.getPackagePath().replace("{0}", "entity"), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult()))));
+                "public class {1} {\n\n", vo.getPackagePath().replace("{0}", ENTITY_PACKAGE_NAME), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult())) + ENTITY_CLASS_NAME_SUFFIX));
 
         for (KlFieldDescription f : vo.getFieldDescriptions()) {
             if (!KlString.isBlank(f.getDescription())) {
@@ -67,14 +70,14 @@ public class GenerateJavaCodeService {
                 "\n" +
                 "import javax.sql.rowset.CachedRowSet;\n" +
                 "\n" +
-                "import {2}.{1};\n" +
+                "import {2}.{1}{4};\n" +
                 "import com.jd.codetool.lib.*;\n" +
                 "\n" +
-                "        public class {1}Mapper{\n" +
+                "        public class {1}Mapper {\n" +
                 "        {3}\n" +
                 "\n" +
                 "\n" +
-                "    }", KlString.format(vo.getPackagePath(), "mapper"), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult())), KlString.format(vo.getPackagePath(), "entity"), content));
+                "    }", KlString.format(vo.getPackagePath(), "mapper"), KlString.toUpperFirst(KlString.replaceUnderline(vo.getClassNameResult())), KlString.format(vo.getPackagePath(), "po"), content, ENTITY_CLASS_NAME_SUFFIX));
 
         return result.toString();
     }
@@ -86,7 +89,7 @@ public class GenerateJavaCodeService {
         codeStr.append(KlString.format(
                 "package {0};\n" +
                         "\n" +
-                        "import {1};\n" +
+                        "import {1}.{2};\n" +
                         "import java.util.List;\n" +
                         "\n" +
                         "/**\n" +
@@ -95,7 +98,7 @@ public class GenerateJavaCodeService {
                         " * @author codeTool\n" +
                         " * @date " + LocalDate.now().toString() + "\n" +
                         " */\n" +
-                        "public interface {2}Mapper{\n" +
+                        "public interface {8}Mapper {\n" +
                         "\n" +
                         "    /**\n" +
                         "     * 通过{5}查询\n" +
@@ -159,13 +162,14 @@ public class GenerateJavaCodeService {
                         "\n" +
                         "}",
                 KlString.format(vo.getPackagePath(), "mapper"),
-                KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
-                vo.getClassName(),
+                KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME),
+                vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                 KlString.toUpperFirst(field.getSimpleName()),
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " get" : ("List<" + vo.getClassName() + "> list")))
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX + " get" : ("List<" + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX + "> list"),
+                vo.getClassName()))
         ;
 
         return codeStr.toString();
@@ -178,7 +182,7 @@ public class GenerateJavaCodeService {
         codeStr.append(KlString.format(
                 "package {0};\n" +
                         "\n" +
-                        "import {1};\n" +
+                        "import {1}.{2};\n" +
                         "import java.util.List;\n" +
                         "\n" +
                         "/**\n" +
@@ -187,7 +191,7 @@ public class GenerateJavaCodeService {
                         " * @author codeTool\n" +
                         " * @date " + LocalDate.now().toString() + "\n" +
                         " */\n" +
-                        "public interface I{2}Service {\n" +
+                        "public interface I{8}Service {\n" +
                         "\n" +
                         "    /**\n" +
                         "     * 通过{5}查询\n" +
@@ -251,13 +255,14 @@ public class GenerateJavaCodeService {
                         "\n" +
                         "}",
                 KlString.format(vo.getPackagePath(), "service"),
-                KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
-                vo.getClassName(),
+                KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME),
+                vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                 KlString.toUpperFirst(field.getSimpleName()),
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " get" : ("List<" + vo.getClassName() + "> list")))
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX + " get" : ("List<" + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX + "> list"),
+                vo.getClassName()))
         ;
 
         return codeStr.toString();
@@ -271,6 +276,7 @@ public class GenerateJavaCodeService {
                 "package {0};\n" +
                         "\n" +
                         "import {8}.I{2}Service;\n" +
+                        "import {8}.I{2}Mapper;\n" +
                         "import {1};\n" +
                         "import org.springframework.beans.factory.annotation.Autowired;\n" +
                         "import java.util.List;\n" +
@@ -298,7 +304,7 @@ public class GenerateJavaCodeService {
                         "     * 查询所有数据\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public List<{2}> listAll() {\n" +
+                        "    public List<{10}> listAll() {\n" +
                         "        return {6}Mapper.listAll();\n" +
                         "    }\n" +
                         "\n" +
@@ -306,7 +312,7 @@ public class GenerateJavaCodeService {
                         "     * 通过条件查询分页数据\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public List<{2}> listByPage({2} {6}) {\n" +
+                        "    public List<{10}> listByPage({10} {6}) {\n" +
                         "        return {6}Mapper.listByPage({6});\n" +
                         "    }\n" +
                         "\n" +
@@ -314,7 +320,7 @@ public class GenerateJavaCodeService {
                         "     * 通过条件查询单条数据\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public {2} getByWhere({2} {6}) {\n" +
+                        "    public {10} getByWhere({10} {6}) {\n" +
                         "        return {6}Mapper.getByWhere({6});\n" +
                         "    }\n" +
                         "\n" +
@@ -322,7 +328,7 @@ public class GenerateJavaCodeService {
                         "     * 通过条件查询批量数据\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public List<{2}> listByWhere({2} {6}) {\n" +
+                        "    public List<{10}> listByWhere({10} {6}) {\n" +
                         "        return {6}Mapper.listByWhere({6});\n" +
                         "    }\n" +
                         "\n" +
@@ -330,7 +336,7 @@ public class GenerateJavaCodeService {
                         "     * 通过条件查询数量\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public int count({2} {6}) {\n" +
+                        "    public int count({10} {6}) {\n" +
                         "        return {6}Mapper.count({6});\n" +
                         "    }\n" +
                         "\n" +
@@ -346,7 +352,7 @@ public class GenerateJavaCodeService {
                         "     * 通过{5}修改数据\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public int updateBy{3}({2} {6}) {\n" +
+                        "    public int updateBy{3}({10} {6}) {\n" +
                         "        return {6}Mapper.updateBy{3}({6});\n" +
                         "    }\n" +
                         "\n" +
@@ -354,7 +360,7 @@ public class GenerateJavaCodeService {
                         "     * 通过{5}修改不为空的字段\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public int updateBy{3}Selective({2} {6}) {\n" +
+                        "    public int updateBy{3}Selective({10} {6}) {\n" +
                         "        return {6}Mapper.updateBy{3}Selective({6});\n" +
                         "    }\n" +
                         "\n" +
@@ -362,7 +368,7 @@ public class GenerateJavaCodeService {
                         "     * 插入数据\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public int insert({2} {6}) {\n" +
+                        "    public int insert({10} {6}) {\n" +
                         "        return {6}Mapper.insert({6});\n" +
                         "    }\n" +
                         "\n" +
@@ -370,7 +376,7 @@ public class GenerateJavaCodeService {
                         "     * 插入数据（仅赋值不为空的字段）\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public int insertSelective({2} {6}) {\n" +
+                        "    public int insertSelective({10} {6}) {\n" +
                         "        return {6}Mapper.insertSelective({6});\n" +
                         "    }\n" +
                         "\n" +
@@ -378,22 +384,22 @@ public class GenerateJavaCodeService {
                         "     * 批量插入数据\n" +
                         "     */\n" +
                         "    @Override\n" +
-                        "    public void batchInsert(List<{2}> {6}List) {\n" +
+                        "    public void batchInsert(List<{10}> {6}List) {\n" +
                         "        {6}Mapper.batchInsert({6}List);\n" +
                         "    }\n" +
                         "\n" +
                         "}",
                 KlString.format(vo.getPackagePath(), "service.impl"),
-                KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
+                KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName(),
                 vo.getClassName(),
                 KlString.toUpperFirst(field.getSimpleName()),
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() : ("List<" + vo.getClassName() + ">"),
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX : ("List<" + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX + ">"),
                 KlString.format(vo.getPackagePath(), "service"),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "get" : "list"))
-        ;
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "get" : "list",
+                vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX));
 
         return codeStr.toString();
     }
@@ -438,7 +444,7 @@ public class GenerateJavaCodeService {
                         " * @author codeTool\n" +
                         " * @date " + LocalDate.now().toString() + "\n" +
                         " */\n" +
-                        "public interface {2}Mapper{\n" +
+                        "public interface {13}Mapper{\n" +
                         "\n" +
                         "    /**\n" +
                         "     * 通过{5}查询\n" +
@@ -542,18 +548,19 @@ public class GenerateJavaCodeService {
                         "    }\n" +
                         "}",
                 KlString.format(vo.getPackagePath(), "mapper"),
-                KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
-                vo.getClassName(),
+                KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
+                vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                 KlString.toUpperFirst(field.getSimpleName()),
                 KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
                 KlString.toLowerFirst(field.getSimpleName()),
                 KlString.toLowerFirst(vo.getClassName()),
-                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + " get" : ("List<" + vo.getClassName() + "> list"),
+                vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX + " get" : ("List<" + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX + "> list"),
                 vo.getTable(),
                 field.getName(),
                 field_SqlWhere,
                 fieldParams.substring(0, fieldParams.length() - 2),
-                KlMybatisTypeMap.map4Mybatis(field.getDbType(), vo.getDatabaseType()).toUpperCase()));
+                KlMybatisTypeMap.map4Mybatis(field.getDbType(), vo.getDatabaseType()).toUpperCase(),
+                vo.getClassName()));
 
         return codeStr.toString();
     }
@@ -590,7 +597,7 @@ public class GenerateJavaCodeService {
                         "                   .WHERE(getSqlWhere({2})).toString();\n" +
                         "        }\n\n",
                 fieldParams.substring(0, fieldParams.length() - 2),
-                vo.getClassName(),
+                vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                 KlString.toLowerFirst(vo.getClassName()),
                 vo.getTable());
     }
@@ -608,7 +615,7 @@ public class GenerateJavaCodeService {
                         "                   .WHERE(getSqlWhere({2})).toString();\n" +
                         "        }\n\n",
                 vo.getTable(),
-                vo.getClassName(),
+                vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                 KlString.toLowerFirst(vo.getClassName()));
     }
 
@@ -653,7 +660,7 @@ public class GenerateJavaCodeService {
                         "            return \"update {3} set \" + strSet.substring(0, strSet.length() - 2) + \" where {4} = #{{5},jdbcType={7}}\";\n" +
                         "        }\n\n",
                 KlString.toUpperFirst(field.getSimpleName()),
-                vo.getClassName(),
+                vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                 KlString.toLowerFirst(vo.getClassName()),
                 vo.getTable(),
                 KlMybatisTypeMap.getSafeParam(field.getName(), vo.getDatabaseType()),
@@ -730,7 +737,7 @@ public class GenerateJavaCodeService {
                         "           }\n" +
                         "           return strValues.toString();\n" +
                         "        }\n\n",
-                vo.getClassName(),
+                vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                 KlString.toLowerFirst(vo.getClassName()),
                 KlString.toUpperFirst(field.getSimpleName()),
                 KlString.toLowerFirst(field.getSimpleName()),
@@ -780,7 +787,7 @@ public class GenerateJavaCodeService {
                         "  <sql id=\"Where_Column_List\">{4}\n" +
                         "  </sql>\n" +
                         "{3}\n</mapper>",
-                KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
+                KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                 field_Basic,
                 fieldParams.toString().substring(0, fieldParams.length() - 2),
                 field_SqlContent,
@@ -864,11 +871,15 @@ public class GenerateJavaCodeService {
                                 "    <trim prefix=\"where\" prefixOverrides=\"and | or\">\n" +
                                 "        <include refid = \"Where_Column_List\"></include>\n" +
                                 "    </trim>\n" +
-                                "  </select>\n", vo.getTable(), KlString.toUpperFirst(field.getName()),
-                        KlString.toLowerFirst(field.getSimpleName()), KlMybatisTypeMap.map4MybatisPostgreSql(field.getDbType()).toUpperCase(),
-                        KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()), field.getName(),
+                                "  </select>\n",
+                        vo.getTable(),
+                        KlString.toUpperFirst(field.getName()),
+                        KlString.toLowerFirst(field.getSimpleName()),
+                        KlMybatisTypeMap.map4MybatisPostgreSql(field.getDbType()).toUpperCase(),
+                        KlDbTypeMap.map4J(field.getDbType(), true, vo.getDatabaseType()),
+                        field.getName(),
                         vo.getFieldDescriptions().stream().anyMatch(f -> "PRI".equals(f.getColumnKey())) ? "get" : "list",
-                        KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName()));
+                        KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX));
             }
             return result.toString();
         }
@@ -906,9 +917,14 @@ public class GenerateJavaCodeService {
                             "    <set>\n" +
                             "{5}    </set>\n" +
                             "    where {1} = #{{2},jdbcType={3}}\n" +
-                            "  </update>", vo.getTable(), field.getName(), KlString.toLowerFirst(field.getSimpleName()),
-                    KlMybatisTypeMap.map4MybatisPostgreSql(field.getDbType()).toUpperCase(), KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName(),
-                    field_UpdateParamsSelective, field_UpdateParams.toString().trim().substring(0, field_UpdateParams.toString().trim().length() - 1), KlString.toUpperFirst(field.getSimpleName())))
+                            "  </update>",
+                    vo.getTable(),
+                    field.getName(),
+                    KlString.toLowerFirst(field.getSimpleName()),
+                    KlMybatisTypeMap.map4MybatisPostgreSql(field.getDbType()).toUpperCase(),
+                    KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
+                    field_UpdateParamsSelective,
+                    field_UpdateParams.toString().trim().substring(0, field_UpdateParams.toString().trim().length() - 1), KlString.toUpperFirst(field.getSimpleName())))
             ;
             return result.toString();
         }
@@ -957,7 +973,7 @@ public class GenerateJavaCodeService {
                     vo.getTable(),
                     field_Params.toString().substring(0, field_Params.length() - 2),
                     field_InsertParams.toString().trim().substring(0, field_InsertParams.toString().trim().length() - 1),
-                    KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName()));
+                    KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX));
 
             result.append(KlString.format(
                     "  <insert id=\"insertSelective\" parameterType=\"{3}\" useGeneratedKeys=\"true\" keyProperty=\"id\">\n" +
@@ -970,7 +986,7 @@ public class GenerateJavaCodeService {
                     vo.getTable(),
                     field_InsertSelectiveParams.toString(),
                     field_InsertSelectiveValues.toString(),
-                    KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName()));
+                    KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX));
 
             result.append(KlString.format(
                     "  <insert id=\"batchInsert\" parameterType=\"java.util.List\">\n" +
@@ -984,7 +1000,7 @@ public class GenerateJavaCodeService {
                     vo.getTable(),
                     field_Params.toString().substring(0, field_Params.length() - 2),
                     field_InsertParams_Batch.toString().trim().substring(0, field_InsertParams_Batch.toString().trim().length() - 1).trim(),
-                    KlString.format(vo.getPackagePath(), "entity") + "." + vo.getClassName()));
+                    KlString.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX));
             return result.toString();
         }
 

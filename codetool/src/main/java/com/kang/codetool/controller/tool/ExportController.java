@@ -5,6 +5,7 @@ import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kang.codetool.common.Common;
+import com.kang.codetool.common.Constants;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
 import com.kang.framework.KlString;
 import com.kang.framework.KlUuid;
@@ -42,7 +43,7 @@ public class ExportController {
             // 清空response
             response.reset();
             // 设置response的Header
-            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + "." + extension);
+            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + Constants.ENTITY_CLASS_NAME_SUFFIX + "." + extension);
             OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/octet-stream");
             toClient.write(buffer);
@@ -96,7 +97,7 @@ public class ExportController {
                 //下载文件到文件夹内
                 String fileName = "";
 
-                if (lang.toLowerCase() == "dotnet") {
+                if (lang.toLowerCase() == "ngxi") {
                     if (type.toLowerCase().startsWith("dao")) {
                         fileName = className + "Dao.cs";
                     } else {
@@ -112,7 +113,7 @@ public class ExportController {
                     } else if (type.toLowerCase().equals("serviceimpl")) {
                         fileName = className + "ServiceImpl.java";
                     } else {
-                        fileName = className + ".java";
+                        fileName = className + Constants.ENTITY_CLASS_NAME_SUFFIX + ".java";
                     }
                 }
 
