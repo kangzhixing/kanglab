@@ -1,11 +1,10 @@
 package com.kang.codetool.service;
 
-
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
-import com.kang.framework.KlDbTypeMap;
 import com.kang.framework.KlMybatisTypeMap;
-import com.kang.framework.KlString;
 import com.kang.framework.db.KlFieldDescription;
+import com.kang.framework.KlDbTypeMap;
+import com.kang.framework.KlString;
 
 import java.time.LocalDate;
 
@@ -90,6 +89,8 @@ public class GenerateJavaCodeService {
                 "package {0};\n" +
                         "\n" +
                         "import {1}.{2};\n" +
+                        "import com.wangyin.industry.fund.app.plugin.page.domain.PageBounds;\n" +
+                        "import com.wangyin.industry.fund.app.plugin.page.domain.PageList;\n" +
                         "import java.util.List;\n" +
                         "\n" +
                         "/**\n" +
@@ -124,6 +125,11 @@ public class GenerateJavaCodeService {
                         "     * 通过条件查询批量数据\n" +
                         "     */\n" +
                         "    List<{2}> listByWhere({2} {6});\n" +
+                        "\n" +
+                        "    /**\n" +
+                        "     * 通过条件查询分页数据\n" +
+                        "     */\n" +
+                        "    PageList<{2}> listByWhere({2} {6}, PageBounds pageBounds);\n" +
                         "\n" +
                         "    /**\n" +
                         "     * 通过条件查询数量\n" +

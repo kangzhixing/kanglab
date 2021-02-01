@@ -1,5 +1,6 @@
 package com.kang.framework;
 
+
 import com.kang.framework.db.KlDatabaseType;
 
 public class KlDbTypeMap {
@@ -37,9 +38,8 @@ public class KlDbTypeMap {
                 return isNullable ? "Long" : "long";
             case "int":
             case "smallint":
-                return isNullable ? "Integer" : "int";
             case "tinyint":
-                return isNullable ? "Short" : "short";
+                return isNullable ? "Integer" : "int";
             case "bit":
                 return isNullable ? "Boolean" : "boolean";
             case "smalldatetime":
@@ -74,6 +74,7 @@ public class KlDbTypeMap {
             case "boolean":
                 return isNullable ? "Boolean" : "boolean";
             case "date":
+            case "timestamp":
             case "timestamp with time zone":
             case "timestamp without time zone":
                 return "Date";
