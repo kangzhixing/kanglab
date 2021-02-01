@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LogControllerAspect {
 
-    @Pointcut("execution(public * com.kang.codetool.controller..*.*(..))")
+    @Pointcut("execution(public * com.kang.codetool.controller..*.*(..)) && !@annotation(com.kang.codetool.aop.annotation.NoLog)")
     private void logController() {
     }
 

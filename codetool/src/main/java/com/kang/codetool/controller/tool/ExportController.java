@@ -4,6 +4,7 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
+import com.kang.codetool.aop.annotation.NoLog;
 import com.kang.codetool.common.Common;
 import com.kang.codetool.common.Constants;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
@@ -30,6 +31,7 @@ import java.util.Map;
 @RequestMapping("export")
 public class ExportController {
 
+    @NoLog
     @RequestMapping("exportFile")
     public void exportFile(@RequestParam("content") String content, @RequestParam("fileName") String fileName, @RequestParam("extension") String extension,
                            HttpServletResponse response) {
@@ -54,6 +56,7 @@ public class ExportController {
         }
     }
 
+    @NoLog
     @RequestMapping("exportAllFile")
     public void exportAllFile(@RequestParam("connectionString") String connectionString, @RequestParam("dbType") String dbType, @RequestParam("packagePath") String packagePath,
                               @RequestParam("lang") String lang, @RequestParam("type") String type,
