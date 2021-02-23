@@ -5,6 +5,7 @@ import com.kang.codetool.common.KlResponse;
 import com.kang.framework.HttpClientUtil;
 import com.kang.framework.net.KlPing;
 import com.kang.framework.net.KlPingResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,7 +19,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @RestController
 @RequestMapping("tool")
+@Slf4j
 public class ToolController {
+
+    private static final ReentrantLock LOCK = new ReentrantLock();
+
+    private ThreadPoolExecutor executor = new ThreadPoolExecutor(100, 84600,
+            0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
 
     @ViewPage(description = "RGB颜色值")
     @RequestMapping("color")
@@ -115,7 +122,7 @@ public class ToolController {
     }
 
     @RequestMapping("get")
-    public KlResponse get(String url, Integer count, Boolean method, String postData) throws InterruptedException {
+    public KlResponse get(String url, Integer count, Boolean method, String postData) {
         try {
             if (!LOCK.tryLock()) {
                 return KlResponse.fail("正在发送请求，请稍后再试");
@@ -124,24 +131,29 @@ public class ToolController {
             sw.start();
             String postDataDecode = URLDecoder.decode(postData);
             String finalUrl = URLDecoder.decode(url);
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(1000, 86400,
-                    0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+
+            CountDownLatch cdl = new CountDownLatch(count);
             for (int i = 0; i < count; i++) {
                 executor.execute(() -> {
+                    try {
+                        cdl.await(5, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     if (method) {
                         HttpClientUtil.doGet(finalUrl);
                     } else {
                         HttpClientUtil.doPost(finalUrl, postDataDecode);
                     }
                 });
+                cdl.countDown();
+                log.info("还剩{}个请求", cdl.getCount());
             }
-            executor.shutdown();
+
             sw.stop();
             return KlResponse.success("共用时" + sw.getTotalTimeSeconds() + "秒");
         } finally {
             LOCK.unlock();
         }
     }
-
-    private static final ReentrantLock LOCK = new ReentrantLock();
 }
