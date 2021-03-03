@@ -271,7 +271,7 @@ public class Common {
             model.setName(map.get("COLUMN_NAME").toString());
             model.setDbType(map.get("DATA_TYPE").toString());
             model.setLength(KlConvert.tryToInteger(map.get("CHARACTER_MAXIMUM_LENGTH")));
-            model.setIsNullable(KlConvert.tryToBoolean("YES".equals(map.get("IS_NULLABLE").toString().toLowerCase())));
+            model.setIsNullable(KlConvert.tryToBoolean("YES".equals(map.get("IS_NULLABLE").toString().toUpperCase())));
             model.setIsIdentity(KlConvert.tryToBoolean(map.get("EXTRA").toString().contains("auto_increment")));
             model.setDescription(KlConvert.tryToString(map.get("COLUMN_COMMENT")));
             model.setColumnKey(map.get("COLUMN_KEY").toString());
