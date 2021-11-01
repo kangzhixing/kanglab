@@ -83,26 +83,26 @@ public class Common {
     public static List<Map<String, Object>> getDatabaseTables(String connectionString, KlDatabaseType dbType) throws Exception {
         switch (dbType) {
             case MySql: {
-                return KlDatabase.fill(connectionString, getDatabaseTables_MySql(connectionString));
+                return KlDatabase.fill(connectionString, getDatabaseTablesMySql(connectionString));
             }
             case SqlServer: {
-                return KlDatabase.fill(connectionString, getDatabaseTables_SqlServer());
+                return KlDatabase.fill(connectionString, getDatabaseTablesSqlServer());
             }
             case PostgreSql: {
-                return KlDatabase.fill(connectionString, getDatabaseTables_PostgreSql());
+                return KlDatabase.fill(connectionString, getDatabaseTablesPostgreSql());
             }
             default:
                 return null;
         }
     }
 
-    private static String getDatabaseTables_SqlServer() {
+    private static String getDatabaseTablesSqlServer() {
         String sql = "SELECT name as TABLE_NAME, '' as TABLE_COMMENT FROM SYSOBJECTS WHERE XTYPE IN ('V','U') AND NAME<>'DTPROPERTIES' ORDER BY Name ASC";
 
         return sql;
     }
 
-    private static String getDatabaseTables_MySql(String connectionString) {
+    private static String getDatabaseTablesMySql(String connectionString) {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
         String sql = "SELECT TABLE_NAME, TABLE_COMMENT, ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dbName + "' AND TABLE_TYPE = 'BASE TABLE'";
@@ -110,7 +110,7 @@ public class Common {
         return sql;
     }
 
-    private static String getDatabaseTables_PostgreSql() {
+    private static String getDatabaseTablesPostgreSql() {
         String sql = "select relname as TABLE_NAME,cast(obj_description(relfilenode,'pg_class') as varchar) as TABLE_COMMENT from pg_class c \n" +
                 "where relkind = 'r' and relname not like 'pg_%' and relname not like 'sql_%' order by relname";
 
