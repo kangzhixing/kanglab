@@ -2,10 +2,10 @@ package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.common.Common;
-import com.kang.codetool.common.KlResponse;
-import com.kang.framework.db.KlDatabase;
-import com.kang.framework.db.KlDatabaseType;
-import com.kang.framework.db.KlFieldDescription;
+import com.kang.codetool.common.RestResponse;
+import com.kang.lab.utils.db.DatabaseUtil;
+import com.kang.lab.utils.enums.DatabaseTypeEnum;
+import com.kang.lab.utils.db.FieldDescriptionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,13 +31,13 @@ public class DbController {
 
     @RequestMapping("getDbFile")
     @ResponseBody
-    public KlResponse<List<Map<String, Object>>> getDbFile(String connection, String dbType) {
+    public RestResponse<List<Map<String, Object>>> getDbFile(String connection, String dbType) {
         connection = URLDecoder.decode(connection);
         List<Map<String, Object>> result = new CopyOnWriteArrayList<>();
 
         try {
-            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, KlDatabaseType.getByName(dbType));
-            List<KlFieldDescription> columnList = Common.getDatabaseColumns(connection, null, KlDatabaseType.getByName(dbType));
+            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, DatabaseTypeEnum.getByName(dbType));
+            List<FieldDescriptionUtil> columnList = Common.getDatabaseColumns(connection, null, DatabaseTypeEnum.getByName(dbType));
 
             for (Map<String, Object> dbTable : databaseTables) {
                 try {
@@ -51,15 +51,15 @@ public class DbController {
                 }
             }
             result.sort(Comparator.comparing(li -> li.get("dbName").toString()));
-            return KlResponse.success(result);
+            return RestResponse.success(result);
         } catch (Exception ex) {
             log.error("打印数据库文档失败", ex);
-            return KlResponse.fail("打印数据库文档失败:" + ex.getMessage());
+            return RestResponse.fail("打印数据库文档失败:" + ex.getMessage());
         }
     }
 
     @PostMapping("getDbData")
-    public KlResponse<List<Map<String, Object>>> getDbData(String connection, String dbType, String tableName) {
+    public RestResponse<List<Map<String, Object>>> getDbData(String connection, String dbType, String tableName) {
         connection = URLDecoder.decode(connection);
         if (connection.indexOf("zeroDateTimeBehavior") == -1) {
             connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
@@ -68,19 +68,19 @@ public class DbController {
 
         try {
             String sql = "";
-            if (KlDatabaseType.MySql.name().equals(dbType) || KlDatabaseType.PostgreSql.name().equals(dbType)) {
+            if (DatabaseTypeEnum.MySql.name().equals(dbType) || DatabaseTypeEnum.PostgreSql.name().equals(dbType)) {
                 sql = "SELECT * FROM " + tableName + " LIMIT 5";
-            } else if (KlDatabaseType.SqlServer.name().equals(dbType)) {
+            } else if (DatabaseTypeEnum.SqlServer.name().equals(dbType)) {
                 sql = "SELECT TOP 5 * FROM " + tableName;
             } else {
-                return KlResponse.fail("不支持该数据库");
+                return RestResponse.fail("不支持该数据库");
             }
-            List<Map<String, Object>> dataList = KlDatabase.fill(connection, sql);
+            List<Map<String, Object>> dataList = DatabaseUtil.fill(connection, sql);
 
-            return KlResponse.success(dataList);
+            return RestResponse.success(dataList);
         } catch (Exception ex) {
             log.error("打印数据库文档失败", ex);
-            return KlResponse.fail("打印数据库文档失败:" + ex.getMessage());
+            return RestResponse.fail("打印数据库文档失败:" + ex.getMessage());
         }
     }
 }

@@ -31,3 +31,9 @@ springfox:
   documentation:
     swagger-ui:
       enabled: true
+
+kanglab:
+  log:
+    packages: com.kang.codetool.controller
+  validator:
+    packages: com.kang.codetool.controller

@@ -4,15 +4,15 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.kang.codetool.aop.annotation.NoLog;
 import com.kang.codetool.common.Common;
 import com.kang.codetool.common.Constants;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
-import com.kang.framework.KlString;
-import com.kang.framework.KlUuid;
-import com.kang.framework.KlZip;
-import com.kang.framework.db.KlDatabaseType;
-import com.kang.framework.db.KlFieldDescription;
+import com.kang.lab.plugins.log.annotations.NoLog;
+import com.kang.lab.utils.StringUtil;
+import com.kang.lab.utils.UUIDUtil;
+import com.kang.lab.utils.ZipUtil;
+import com.kang.lab.utils.db.FieldDescriptionUtil;
+import com.kang.lab.utils.enums.DatabaseTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,13 +63,13 @@ public class ExportController {
                               HttpServletResponse response) throws Exception {
         try {
             connectionString = URLDecoder.decode(connectionString);
-            KlDatabaseType databaseType = KlDatabaseType.getByName(dbType);
+            DatabaseTypeEnum databaseType = DatabaseTypeEnum.getByName(dbType);
 
-            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
+            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, DatabaseTypeEnum.getByName(dbType));
 
             String zipDirPath = this.getClass().getResource("/").getPath() + "zip/";
 
-            String zipFileName = KlUuid.newUuid();
+            String zipFileName = UUIDUtil.newUuid();
             String fullPathName = zipDirPath + zipFileName + "/";
 
             File zipDir = new File(zipDirPath);
@@ -83,8 +83,8 @@ public class ExportController {
             }
             for (Map<String, Object> table : databaseTables) {
                 String tableName = table.get("TABLE_NAME").toString();
-                List<KlFieldDescription> databaseColumns = Common.getDatabaseColumns(connectionString, tableName, KlDatabaseType.getByName(dbType));
-                String className = KlString.toUpperFirst(KlString.replaceUnderline(tableName.startsWith("t_") ? tableName.replace("t_", "") : tableName));
+                List<FieldDescriptionUtil> databaseColumns = Common.getDatabaseColumns(connectionString, tableName, DatabaseTypeEnum.getByName(dbType));
+                String className = StringUtil.toUpperFirst(StringUtil.replaceUnderline(tableName.startsWith("t_") ? tableName.replace("t_", "") : tableName));
                 CodeMakerGeneratCodeVO outModel = new CodeMakerGeneratCodeVO();
                 outModel.setPackagePath(packagePath);
                 outModel.setFieldDescriptions(databaseColumns);
@@ -132,7 +132,7 @@ public class ExportController {
             }
 
             if (databaseTables.size() > 0) {
-                KlZip.compress(fullPathName, zipDir + "\\" + zipFileName + ".zip");
+                ZipUtil.compress(fullPathName, zipDir + "\\" + zipFileName + ".zip");
                 zipDirFullPath.delete();
             }
             InputStream fis = new BufferedInputStream(new FileInputStream(zipDir + "/" + zipFileName + ".zip"));

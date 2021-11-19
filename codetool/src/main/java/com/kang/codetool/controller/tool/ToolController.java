@@ -1,10 +1,10 @@
 package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.annotation.ViewPage;
-import com.kang.codetool.common.KlResponse;
-import com.kang.framework.HttpClientUtil;
-import com.kang.framework.net.KlPing;
-import com.kang.framework.net.KlPingResult;
+import com.kang.codetool.common.RestResponse;
+import com.kang.lab.utils.HttpClientUtil;
+import com.kang.lab.utils.net.PingUtil;
+import com.kang.lab.utils.net.PingResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,8 +77,8 @@ public class ToolController {
 
     @RequestMapping("encodeString")
     @ResponseBody
-    public KlResponse encodeString(String str, String encoding) {
-        KlResponse result = new KlResponse();
+    public RestResponse encodeString(String str, String encoding) {
+        RestResponse result = new RestResponse();
         try {
             result.setBody(URLEncoder.encode(str, encoding));
             return result;
@@ -92,8 +92,8 @@ public class ToolController {
 
     @RequestMapping("decodeString")
     @ResponseBody
-    public KlResponse decodeString(String str, String encoding) {
-        KlResponse result = new KlResponse();
+    public RestResponse decodeString(String str, String encoding) {
+        RestResponse result = new RestResponse();
         try {
             result.setBody(URLDecoder.decode(str, encoding));
             return result;
@@ -107,10 +107,10 @@ public class ToolController {
 
     @RequestMapping("pingIp")
     @ResponseBody
-    public KlResponse pingIp(String ip, Integer times) {
-        KlResponse result = new KlResponse();
+    public RestResponse pingIp(String ip, Integer times) {
+        RestResponse result = new RestResponse();
         try {
-            KlPingResult pingResult = KlPing.get(ip, times);
+            PingResult pingResult = PingUtil.get(ip, times);
             result.setBody(pingResult);
             return result;
 
@@ -122,10 +122,10 @@ public class ToolController {
     }
 
     @RequestMapping("get")
-    public KlResponse get(String url, Integer count, Boolean method, String postData) {
+    public RestResponse get(String url, Integer count, Boolean method, String postData) {
         try {
             if (!LOCK.tryLock()) {
-                return KlResponse.fail("正在发送请求，请稍后再试");
+                return RestResponse.fail("正在发送请求，请稍后再试");
             }
             StopWatch sw = new StopWatch();
             sw.start();
@@ -151,7 +151,7 @@ public class ToolController {
             }
 
             sw.stop();
-            return KlResponse.success("共用时" + sw.getTotalTimeSeconds() + "秒");
+            return RestResponse.success("共用时" + sw.getTotalTimeSeconds() + "秒");
         } finally {
             LOCK.unlock();
         }

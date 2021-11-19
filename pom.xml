@@ -11,10 +11,26 @@
 
     <modules>
         <module>codetool</module>
-        <module>kanglib</module>
+        <module>kanglab-utils</module>
+        <module>kanglab-plugins</module>
     </modules>
+    <properties>
+        <spring.boot.version>2.2.9.RELEASE</spring.boot.version>
+        <spring.version>5.2.8.RELEASE</spring.version>
+        <aspectj.version>1.9.2</aspectj.version>
+    </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.kang.lab</groupId>
+                <artifactId>kanglab-utils</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.11</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.plugin</groupId>
                 <artifactId>spring-plugin-core</artifactId>
@@ -97,9 +113,83 @@
                 <groupId>com.alibaba</groupId>
                 <version>1.2.73</version>
             </dependency>
+            <dependency>
+                <artifactId>byte-buddy</artifactId>
+                <groupId>net.bytebuddy</groupId>
+                <version>1.10.11</version>
+            </dependency>
+            <dependency>
+                <artifactId>spring-beans</artifactId>
+                <groupId>org.springframework</groupId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>spring-context</artifactId>
+                <groupId>org.springframework</groupId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>spring-aop</artifactId>
+                <groupId>org.springframework</groupId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.5.20</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.10.11</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.13</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>29.0-jre</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
     <build>
         <plugins>
             <plugin>

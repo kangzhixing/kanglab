@@ -1,9 +1,9 @@
 package com.kang.codetool.controller.index;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.kang.codetool.common.Common;
-import com.kang.framework.KlJson;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,17 +54,17 @@ public class indexController {
         Map<String, Method> pages = Common.getAllPageMethod();
         Map<String, Method> sortMap = new TreeMap<String, Method>(Comparator.naturalOrder());
         sortMap.putAll(pages);
-        JsonArray result = new JsonArray();
+        JSONArray result = new JSONArray();
         for (Map.Entry entry : sortMap.entrySet()) {
             if (isall == 1 || entry.getKey().toString().contains(URLDecoder.decode(keyword))) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("text", entry.getKey().toString());
-                obj.addProperty("url", Common.getUrlByControllerMethod((Method) entry.getValue()));
+                JSONObject obj = new JSONObject();
+                obj.put("text", entry.getKey().toString());
+                obj.put("url", Common.getUrlByControllerMethod((Method) entry.getValue()));
                 result.add(obj);
             }
         }
 
-        return KlJson.toJSONString(result);
+        return JSON.toJSONString(result);
     }
 
 }

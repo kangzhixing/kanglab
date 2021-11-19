@@ -2,10 +2,10 @@ package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.common.Common;
-import com.kang.codetool.common.KlResponse;
+import com.kang.codetool.common.RestResponse;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
-import com.kang.framework.db.KlDatabaseType;
-import com.kang.framework.db.KlFieldDescription;
+import com.kang.lab.utils.enums.DatabaseTypeEnum;
+import com.kang.lab.utils.db.FieldDescriptionUtil;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,8 +32,8 @@ public class CodeMakerController {
 
     @GetMapping("getCodeTypeSlt")
     @ResponseBody
-    public KlResponse<List<String>> getCodeTypeSlt(String lang) throws ClassNotFoundException {
-        KlResponse result = new KlResponse();
+    public RestResponse<List<String>> getCodeTypeSlt(String lang) throws ClassNotFoundException {
+        RestResponse result = new RestResponse();
         Class clazz = Class.forName("com.kang.codetool.service.Generate" + lang + "CodeService");
 
         List<String> methodNameList = new ArrayList<>();
@@ -50,38 +50,38 @@ public class CodeMakerController {
 
     @RequestMapping("getTables")
     @ResponseBody
-    public KlResponse getTables(String connectionString, String dbType) throws Exception {
+    public RestResponse getTables(String connectionString, String dbType) throws Exception {
         connectionString = URLDecoder.decode(connectionString.trim());
 
-        List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, KlDatabaseType.getByName(dbType));
+        List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, DatabaseTypeEnum.getByName(dbType));
         if (databaseTables != null) {
-            return KlResponse.success(databaseTables);
+            return RestResponse.success(databaseTables);
         }
 
-        return KlResponse.fail("连接数据库失败");
+        return RestResponse.fail("连接数据库失败");
     }
 
     @RequestMapping("generatCode")
     @ResponseBody
-    public KlResponse generatCode(CodeMakerGeneratCodeVO vo) throws Exception {
-        KlResponse result = new KlResponse();
+    public RestResponse generatCode(CodeMakerGeneratCodeVO vo) throws Exception {
+        RestResponse result = new RestResponse();
         vo.setConnectionString(URLDecoder.decode(vo.getConnectionString()).trim());
 
         switch (vo.getDbType().toLowerCase()) {
             case "mysql":
-                vo.setDatabaseType(KlDatabaseType.MySql);
+                vo.setDatabaseType(DatabaseTypeEnum.MySql);
                 break;
             case "postgresql":
-                vo.setDatabaseType(KlDatabaseType.PostgreSql);
+                vo.setDatabaseType(DatabaseTypeEnum.PostgreSql);
                 break;
             case "sqlserver":
-                vo.setDatabaseType(KlDatabaseType.SqlServer);
+                vo.setDatabaseType(DatabaseTypeEnum.SqlServer);
                 break;
             default:
-                vo.setDatabaseType(KlDatabaseType.MySql);
+                vo.setDatabaseType(DatabaseTypeEnum.MySql);
         }
 
-        List<KlFieldDescription> databaseColumns = Common.getDatabaseColumns(vo.getConnectionString(), vo.getTable(), KlDatabaseType.getByName(vo.getDbType()));
+        List<FieldDescriptionUtil> databaseColumns = Common.getDatabaseColumns(vo.getConnectionString(), vo.getTable(), DatabaseTypeEnum.getByName(vo.getDbType()));
         vo.setFieldDescriptions(databaseColumns);
 
         Class clazz = Class.forName("com.kang.codetool.service.Generate" + vo.getLang() + "CodeService");

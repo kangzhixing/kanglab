@@ -2,10 +2,10 @@ package com.kang.codetool.common;
 
 import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.util.ClassUtil;
-import com.kang.framework.KlConvert;
-import com.kang.framework.db.KlDatabase;
-import com.kang.framework.db.KlDatabaseType;
-import com.kang.framework.db.KlFieldDescription;
+import com.kang.lab.utils.ConvertUtil;
+import com.kang.lab.utils.db.DatabaseUtil;
+import com.kang.lab.utils.enums.DatabaseTypeEnum;
+import com.kang.lab.utils.db.FieldDescriptionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,16 +80,16 @@ public class Common {
     }
 
 
-    public static List<Map<String, Object>> getDatabaseTables(String connectionString, KlDatabaseType dbType) throws Exception {
+    public static List<Map<String, Object>> getDatabaseTables(String connectionString, DatabaseTypeEnum dbType) throws Exception {
         switch (dbType) {
             case MySql: {
-                return KlDatabase.fill(connectionString, getDatabaseTablesMySql(connectionString));
+                return DatabaseUtil.fill(connectionString, getDatabaseTablesMySql(connectionString));
             }
             case SqlServer: {
-                return KlDatabase.fill(connectionString, getDatabaseTablesSqlServer());
+                return DatabaseUtil.fill(connectionString, getDatabaseTablesSqlServer());
             }
             case PostgreSql: {
-                return KlDatabase.fill(connectionString, getDatabaseTablesPostgreSql());
+                return DatabaseUtil.fill(connectionString, getDatabaseTablesPostgreSql());
             }
             default:
                 return null;
@@ -118,7 +118,7 @@ public class Common {
     }
 
 
-    public static List<KlFieldDescription> getDatabaseColumns(String connectionString, String tableName, KlDatabaseType dbType) throws Exception {
+    public static List<FieldDescriptionUtil> getDatabaseColumns(String connectionString, String tableName, DatabaseTypeEnum dbType) throws Exception {
         switch (dbType) {
             case MySql: {
                 return GetDatabaseColumns_MySql(connectionString, tableName);
@@ -134,7 +134,7 @@ public class Common {
         }
     }
 
-    public static List<KlFieldDescription> GetDatabaseColumns_SqlServer(String connectionString, String tableName) throws Exception {
+    public static List<FieldDescriptionUtil> GetDatabaseColumns_SqlServer(String connectionString, String tableName) throws Exception {
         String sql =
                 "        SELECT TableName=O.name, Name=C.name, DbType=T.name, PrimaryKey=ISNULL(IDX.PrimaryKey,N'')," +
                         "        IsIdentity=CASE WHEN C.is_identity=1 THEN N'true'ELSE N'false' END," +
@@ -193,17 +193,17 @@ public class Common {
                         (StringUtils.isBlank(tableName) ? "" : (" where O.name = '" + tableName + "'")) +
                         "       order by c.column_id";
 
-        List<Map<String, Object>> queryResult = KlDatabase.fill(connectionString, sql);
+        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, sql);
 
-        List<KlFieldDescription> result = new ArrayList<>();
+        List<FieldDescriptionUtil> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
-            KlFieldDescription model = new KlFieldDescription();
+            FieldDescriptionUtil model = new FieldDescriptionUtil();
             model.setName(map.get("name").toString());
             model.setDbType(map.get("dbtype").toString());
-            model.setLength(KlConvert.tryToInteger(map.get("length")));
-            model.setIsNullable(KlConvert.tryToBoolean(map.get("isnullable").toString()));
-            model.setIsIdentity(KlConvert.tryToBoolean(map.get("isidentity").toString()));
-            model.setDescription(KlConvert.tryToString(map.get("description")));
+            model.setLength(ConvertUtil.tryToInteger(map.get("length")));
+            model.setIsNullable(ConvertUtil.tryToBoolean(map.get("isnullable").toString()));
+            model.setIsIdentity(ConvertUtil.tryToBoolean(map.get("isidentity").toString()));
+            model.setDescription(ConvertUtil.tryToString(map.get("description")));
             model.setColumnKey(map.get("primarykey").toString());
             model.setTableName(map.get("TableName").toString());
             result.add(model);
@@ -212,7 +212,7 @@ public class Common {
         return result;
     }
 
-    public static List<KlFieldDescription> GetDatabaseColumns_PostgreSql(String connectionString, String tableName) throws Exception {
+    public static List<FieldDescriptionUtil> GetDatabaseColumns_PostgreSql(String connectionString, String tableName) throws Exception {
         String sql =
                 "select ordinal_position as Colorder,column_name as Name,data_type as DbType,\n" +
                         "coalesce(character_maximum_length,numeric_precision,-1) as Length,numeric_scale as Scale,\n" +
@@ -236,17 +236,17 @@ public class Common {
                         ")c on c.attname = information_schema.columns.column_name\n" +
                         "where table_schema='public'" + (StringUtils.isBlank(tableName) ? "" : (" and table_name='" + tableName + "'")) + " order by ispk desc,isidentity desc,ordinal_position asc";
 
-        List<Map<String, Object>> queryResult = KlDatabase.fill(connectionString, sql);
+        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, sql);
 
-        List<KlFieldDescription> result = new ArrayList<>();
+        List<FieldDescriptionUtil> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
-            KlFieldDescription model = new KlFieldDescription();
+            FieldDescriptionUtil model = new FieldDescriptionUtil();
             model.setName(map.get("name").toString());
             model.setDbType(map.get("dbtype").toString());
-            model.setLength(KlConvert.tryToInteger(map.get("length")));
-            model.setIsNullable(KlConvert.tryToBoolean("1".equals(map.get("isnullable").toString())));
-            model.setIsIdentity(KlConvert.tryToBoolean("1".equals(map.get("isidentity").toString())));
-            model.setDescription(KlConvert.tryToString(map.get("description")));
+            model.setLength(ConvertUtil.tryToInteger(map.get("length")));
+            model.setIsNullable(ConvertUtil.tryToBoolean("1".equals(map.get("isnullable").toString())));
+            model.setIsIdentity(ConvertUtil.tryToBoolean("1".equals(map.get("isidentity").toString())));
+            model.setDescription(ConvertUtil.tryToString(map.get("description")));
             model.setColumnKey("1".equals(map.get("ispk").toString()) ? "PRI" : "");
             model.setTableName(map.get("table_name").toString());
             result.add(model);
@@ -255,7 +255,7 @@ public class Common {
         return result;
     }
 
-    public static List<KlFieldDescription> GetDatabaseColumns_MySql(String connectionString, String tableName) throws Exception {
+    public static List<FieldDescriptionUtil> GetDatabaseColumns_MySql(String connectionString, String tableName) throws Exception {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
         String sql =
@@ -263,20 +263,20 @@ public class Common {
                         "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + dbName + "'"
                         + (StringUtils.isBlank(tableName) ? "" : (" AND TABLE_NAME = '" + tableName + "'"));
 
-        List<Map<String, Object>> queryResult = KlDatabase.fill(connectionString, sql);
+        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, sql);
 
-        List<KlFieldDescription> result = new ArrayList<>();
+        List<FieldDescriptionUtil> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
-            KlFieldDescription model = new KlFieldDescription();
+            FieldDescriptionUtil model = new FieldDescriptionUtil();
             model.setName(map.get("COLUMN_NAME").toString());
             model.setDbType(map.get("DATA_TYPE").toString());
-            model.setLength(KlConvert.tryToInteger(map.get("CHARACTER_MAXIMUM_LENGTH")));
-            model.setIsNullable(KlConvert.tryToBoolean("YES".equals(map.get("IS_NULLABLE").toString().toUpperCase())));
-            model.setIsIdentity(KlConvert.tryToBoolean(map.get("EXTRA").toString().contains("auto_increment")));
-            model.setDescription(KlConvert.tryToString(map.get("COLUMN_COMMENT")));
+            model.setLength(ConvertUtil.tryToInteger(map.get("CHARACTER_MAXIMUM_LENGTH")));
+            model.setIsNullable(ConvertUtil.tryToBoolean("YES".equals(map.get("IS_NULLABLE").toString().toUpperCase())));
+            model.setIsIdentity(ConvertUtil.tryToBoolean(map.get("EXTRA").toString().contains("auto_increment")));
+            model.setDescription(ConvertUtil.tryToString(map.get("COLUMN_COMMENT")));
             model.setColumnKey(map.get("COLUMN_KEY").toString());
             model.setTableName(map.get("TABLE_NAME").toString());
-            model.setDefaultValue(KlConvert.tryToString(map.get("COLUMN_DEFAULT")));
+            model.setDefaultValue(ConvertUtil.tryToString(map.get("COLUMN_DEFAULT")));
             result.add(model);
         }
 

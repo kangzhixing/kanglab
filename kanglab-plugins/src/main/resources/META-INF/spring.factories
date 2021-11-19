@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.kang.lab.plugins.log.LogAdvisorConfig,\
+com.kang.lab.plugins.validator.ValidatorAdvisorConfig
