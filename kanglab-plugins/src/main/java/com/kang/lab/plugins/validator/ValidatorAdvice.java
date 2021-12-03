@@ -1,9 +1,9 @@
 package com.kang.lab.plugins.validator;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.ConstraintViolation;
