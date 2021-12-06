@@ -103,7 +103,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-
         <!--swagger /swagger-ui/index.html -->
         <dependency>
             <groupId>io.springfox</groupId>
@@ -118,7 +117,14 @@
             <groupId>com.kang</groupId>
             <artifactId>kanglab-plugins</artifactId>
             <version>1.0.1</version>
-            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
         </dependency>
     </dependencies>
 
