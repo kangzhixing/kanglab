@@ -1,6 +1,6 @@
 package com.kang.lab.utils.jar;
 
-import com.kang.codetool.vo.request.JarInfo;
+import com.kang.codetool.vo.request.Dependency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,24 +24,20 @@ import java.util.List;
 public class ApiListRequest {
 
     /**
-     * jar包在maven仓库中的groupId
+     * 依赖信息
      */
-    @NotEmpty
-    @Valid
-    private List<JarInfo> jarInfoList;
+    @NotBlank
+    private String dependencies;
     /**
      * 远程maven仓库的URL地址，默认使用bw30的远程maven-public库
      */
-    @NotBlank
     private String repository;
     /**
      * 登录远程maven仓库的用户名，若远程仓库不需要权限，设为null，默认为null
      */
-    @NotBlank
     private String username;
     /**
      * 登录远程maven仓库的密码，若远程仓库不需要权限，设为null，默认为null
      */
-    @NotBlank
     private String password;
 }

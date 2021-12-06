@@ -52,7 +52,7 @@ public class ApiDocService {
                         result.put(clazz.getName(), getApiInfo(clazz));
                     }
                 } catch (NoClassDefFoundError | ClassNotFoundException ex) {
-                    System.err.println("couldn't find " + className);
+                    log.warn("couldn't find " + className);
                 }
             }
         }

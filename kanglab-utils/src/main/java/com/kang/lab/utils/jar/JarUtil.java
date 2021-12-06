@@ -37,12 +37,14 @@ import java.util.List;
  */
 public class JarUtil {
 
-    public static String DEFAULT_TARGET = "./target/repo";
+    public static final String DEFAULT_TARGET = "./target/repo";
+
+    public static final String DEFAULT_REPO = "https://repo1.maven.org/maven2/";
 
     /**
      * 从指定maven地址下载指定jar包
      *
-     * @param jarDownloadParams      相关信息
+     * @param jarDownloadParams 相关信息
      * @throws ArtifactResolutionException
      * @throws DependencyCollectionException
      * @throws DependencyResolutionException
@@ -51,7 +53,7 @@ public class JarUtil {
         String groupId = jarDownloadParams.getGroupId();
         String artifactId = jarDownloadParams.getArtifactId();
         String version = jarDownloadParams.getVersion();
-        String repositoryUrl = jarDownloadParams.getRepository();
+        String repositoryUrl = jarDownloadParams.getRepository() == null ? DEFAULT_REPO : jarDownloadParams.getRepository();
         String target = jarDownloadParams.getTarget() == null ? DEFAULT_TARGET : jarDownloadParams.getTarget();
         String username = jarDownloadParams.getUsername();
         String password = jarDownloadParams.getPassword();

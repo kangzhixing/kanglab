@@ -17,7 +17,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JarInfo {
+public class Dependency {
 
     /**
      * jar包在maven仓库中的groupId

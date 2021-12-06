@@ -5,17 +5,21 @@ import com.google.common.collect.Lists;
 import com.kang.codetool.common.RestResponse;
 import com.kang.codetool.controller.tool.ApiController;
 import com.kang.codetool.service.ApiDocService;
-import com.kang.codetool.vo.request.JarInfo;
+import com.kang.codetool.vo.request.Dependency;
 import com.kang.codetool.vo.response.ApiInfo;
 import com.kang.lab.utils.UUIDUtil;
+import com.kang.lab.utils.XmlUtil;
 import com.kang.lab.utils.jar.ApiListRequest;
 import com.kang.lab.utils.jar.JarDownloadParams;
 import com.kang.lab.utils.jar.JarUtil;
 import junit.framework.TestCase;
 import lombok.SneakyThrows;
+import org.dom4j.DocumentException;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class JarUtilTest extends TestCase {
 
@@ -48,27 +52,29 @@ public class JarUtilTest extends TestCase {
 
     @Test
     public void testCtrl() {
+        String xml2 = "<dependency>\n" +
+                "            <groupId>com.jdt.tradecenter</groupId>\n" +
+                "            <artifactId>trade-center-api</artifactId>\n" +
+                "            <version>1.11.1-SNAPSHOT</version>\n" +
+                "        </dependency>";
+        String xml = "<dependency>\n" +
+                "                <artifactId>fastjson</artifactId>\n" +
+                "                <groupId>com.alibaba</groupId>\n" +
+                "                <version>1.2.73</version>\n" +
+                "            </dependency>";
         long start = System.currentTimeMillis();
         ApiController c = new ApiController();
         ApiListRequest req = ApiListRequest.builder()
-                .jarInfoList(Lists.newArrayList(
-                        JarInfo.builder()
-                                .artifactId("trade-center-api")
-                                .groupId("com.jdt.tradecenter")
-                                .version("1.11.1-SNAPSHOT")
-                                .build(),
-                        JarInfo.builder()
-                                .artifactId("member-api")
-                                .groupId("com.jdt.tradecenter")
-                                .version("1.14.0-SNAPSHOT")
-                                .build()))
-                .repository("http://nexus.cbpmgt.com/nexus/content/groups/public/")
-                .username("snapshot")
-                .password("4AC8EMK#FrykJfG7")
+                .dependencies(xml)
+                .repository("https://repo1.maven.org/maven2/")
+//                .repository("http://nexus.cbpmgt.com/nexus/content/groups/public/")
+//                .username("snapshot")
+//                .password("4AC8EMK#FrykJfG7")
                 .build();
         RestResponse<List<ApiInfo>> list = c.list(req);
         System.out.println(JSON.toJSONString(list));
         System.out.println(System.currentTimeMillis() - start);
     }
+
 
 }
