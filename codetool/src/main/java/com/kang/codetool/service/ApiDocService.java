@@ -3,11 +3,13 @@ package com.kang.codetool.service;
 import com.kang.codetool.vo.response.ApiInfo;
 import com.kang.codetool.vo.response.MethodInfo;
 import com.kang.lab.utils.FileUtil;
+import com.kang.lab.utils.StringUtil;
 import com.kang.lab.utils.UUIDUtil;
 import com.kang.lab.utils.jar.JarDownloadParams;
 import com.kang.lab.utils.jar.JarUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,18 +67,33 @@ public class ApiDocService {
 
         for (Method method : clazz.getMethods()) {
             List<String> parameterTypeList = new ArrayList<>();
+            String methodParameterSignature = "";
             for (Type genericParameterType : method.getGenericParameterTypes()) {
                 parameterTypeList.add(genericParameterType.getTypeName());
+                methodParameterSignature += getSimpleClassName(genericParameterType.getTypeName()) + " " + StringUtil.toLowerFirst(getSimpleClassName(genericParameterType.getTypeName())) + ", ";
+
             }
             MethodInfo methodInfo = MethodInfo.builder()
                     .methodName(method.getName())
                     .returnType(method.getGenericReturnType().getTypeName())
+                    .returnTypeSimpleName(method.getReturnType().getSimpleName())
                     .parameterTypeList(parameterTypeList)
                     .build();
+            methodInfo.setMethodSignature(method.getGenericReturnType().getTypeName()
+                    + " " + method.getName() + "("
+                    + (methodParameterSignature.length() > 0 ? methodParameterSignature.substring(0, methodParameterSignature.length() - 2) : "")
+                    + ")");
             methodInfoList.add(methodInfo);
         }
         apiInfo.setMethodInfoList(methodInfoList);
         return apiInfo;
+    }
+
+    private static String getSimpleClassName(String className) {
+        if (className.indexOf(".") < 0) {
+            return className;
+        }
+        return className.substring(className.lastIndexOf(".") + 1);
     }
 
     public static <T> T downloadJar(JarDownloadParams params, Function<List<File>, T> function, boolean isDelete) {

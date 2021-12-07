@@ -1,0 +1,194 @@
+<#import "../main.html" as page>
+<@page.main current="/api" title="RPC接口定义">
+<style type="text/css">
+    .divApi {
+        border-radius: 10px;
+        box-shadow: 0 0 5px grey;
+        margin: 20px 10px;
+        padding: 20px;
+    }
+
+    .divApiName {
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .divApiName:hover {
+        font-weight: bolder;
+    }
+
+    .divMethod {
+        margin: 5px 0;
+    }
+</style>
+
+<div id="pageMSSQL" class="divPage" style="width:90%">
+    <div class="divTitleText"></div>
+    <div class="divCondition">
+        <div>
+            <button id="btnSearch" class="jk-button mr10">查询</button>
+        </div>
+        <table style="margin-top: 10px;width:100%">
+            <tr>
+                <td style="width:100px">仓库地址:</td>
+                <td>
+                    <input type="text" id="txtRepo" style="max-width: 686px;width: 100%"
+                           placeholder="http:// or https://"/>
+                </td>
+            </tr>
+            <tr>
+                <td>用户名:</td>
+                <td>
+                    <input type="text" id="txtUsername" style="max-width: 686px;width: 100%"/>
+                </td>
+            </tr>
+            <tr>
+                <td>密码:</td>
+                <td>
+                    <input type="text" id="txtPassword" style="max-width: 686px;width: 100%"/>
+                </td>
+            </tr>
+            <tr>
+                <td>依赖信息:</td>
+                <td>
+                    <textarea type="text" id="txtDependencies" style="max-width: 686px;min-height:200px;width: 100%"
+                              placeholder=
+                                      "<dependency>
+    <groupId>xxxxxx</groupId>
+    <artifactId>xxxxxx</artifactId>
+    <version>xxxxxx</version>
+</dependency>
+<dependency>
+    <groupId>xxxxxx</groupId>
+    <artifactId>xxxxxx</artifactId>
+    <version>xxxxxx</version>
+</dependency>"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="divDatas" class="eleHide dn" style="overflow-x:auto">
+    </div>
+    <div id="divTableNameListTemp" class="dn">
+        <div class="divTableList rd5 eleDb" db="{3}" onclick="findTable('{1}');" title="{2}">{0}</div>
+    </div>
+    <div id="divTableTemp" class="dn">
+        <div class="dbName dib"></div>
+        <img src="/static/images/search.png" title="查询数据" class="btnGetData cp mr5">
+        <table class="tbTemp tbDatas">
+            <thead>
+            <tr>
+                <td>名称</td>
+                <td>类型</td>
+                <td>长度</td>
+                <td>是否为Null</td>
+                <td>默认值</td>
+                <td>是否为主键</td>
+                <td>是否自增</td>
+                <td>说明</td>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <form method="post" id="fmExport" style="display: none" action="/tool/Export2File">
+        <input name="sql"/>
+        <input name="Connection"/>
+        <input name="fileName"/>
+        <input name="DbType"/>
+        <input name="excelType"/>
+    </form>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        if (localStorage.getItem("txtRepo") != null) {
+            $("#txtRepo").val(localStorage.getItem("txtRepo"));
+        }
+        if (localStorage.getItem("txtUsername") != null) {
+            $("#txtUsername").val(localStorage.getItem("txtUsername"));
+        }
+        if (localStorage.getItem("txtPassword") != null) {
+            $("#txtPassword").val(localStorage.getItem("txtPassword"));
+        }
+        if (localStorage.getItem("txtDependencies") != null) {
+            $("#txtDependencies").val(localStorage.getItem("txtDependencies"));
+        }
+    });
+
+    $("#btnSearch").bind("click", function () {
+        const dependencies = $("#txtDependencies").val().trim();
+        if (!dependencies) {
+            return;
+        }
+        localStorage.setItem("txtDependencies", dependencies);
+        const repo = $("#txtRepo").val();
+        if (repo) {
+            localStorage.setItem("txtRepo", repo);
+        }
+        const username = $("#txtUsername").val();
+        if (username) {
+            localStorage.setItem("txtUsername", username);
+        }
+        const password = $("#txtPassword").val();
+        if (password) {
+            localStorage.setItem("txtPassword", password);
+        }
+
+        $("#divDatas").html('');
+        $(".eleHide").hide();
+        $("#btnSearch").attr("disabled", "disabled");
+        $("#btnSearch").removeClass("jk-button").addClass("jk-button-disabled").attr("disabled", "disabled");
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/list",
+            cache: false,
+            timeout: 60 * 60 * 1000,
+            dataType: "json",
+            data: {
+                dependencies: encodeURIComponent(dependencies),
+                repository: encodeURIComponent(repo),
+                username: username,
+                password: password
+            },
+            success: function (result) {
+                if (result != null && result.code == '0') {
+                    alert(result.msg);
+                    $(".eleHide").hide();
+                } else {
+                    $(".eleHide").fadeIn(200);
+                    $("#divDatas").scrollLeft(0);
+                    let divInterface = "";
+                    for (let i = 0; i < result.body.length; i++) {
+                        divInterface += "<div class='divApi'><div class='divApiName'>" + result.body[i].apiName + "</div><div class='divMethodContent dn'><hr/>";
+                        for (let k = 0; k < result.body[i].methodInfoList.length; k++) {
+                            divInterface += "<div class='divMethod'><pre>"
+                                + result.body[i].methodInfoList[k].methodSignature.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+                                + "</pre></div>";
+                        }
+                        divInterface += "</div></div>";
+                    }
+                    $("#divDatas").append(divInterface);
+
+                }
+                $("#btnSearch").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
+                $(".divApiName").bind("click", function () {
+                    if ($(this).parent().find(".divMethodContent").hasClass("dn")) {
+                        $(this).parent().find(".divMethodContent").removeClass("dn");
+                    } else {
+                        $(this).parent().find(".divMethodContent").addClass("dn");
+                    }
+                });
+            },
+            error: function (result) {
+                alert("查询失败");
+                $("#btnSearch").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
+            }
+        });
+
+    });
+
+</script>
+
+</@page.main>

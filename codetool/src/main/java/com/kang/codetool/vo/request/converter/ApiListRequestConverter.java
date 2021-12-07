@@ -7,6 +7,7 @@ import com.kang.lab.utils.jar.ApiListRequest;
 import com.kang.lab.utils.jar.JarDownloadParams;
 import org.dom4j.DocumentException;
 
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,14 +15,14 @@ import java.util.Map;
 public class ApiListRequestConverter {
 
     public static List<JarDownloadParams> toJarDownloadParamsList(ApiListRequest request, String target) {
-        List<Dependency> dependencies = parseXmlToEntity(request.getDependencies());
+        List<Dependency> dependencies = parseXmlToEntity(URLDecoder.decode(request.getDependencies()));
         List<JarDownloadParams> result = new ArrayList(dependencies.size());
         for (Dependency jarInfo : dependencies) {
             result.add(JarDownloadParams.builder()
                     .artifactId(jarInfo.getArtifactId())
                     .groupId(jarInfo.getGroupId())
                     .version(jarInfo.getVersion())
-                    .repository(request.getRepository())
+                    .repository(URLDecoder.decode(request.getRepository()))
                     .username(request.getUsername())
                     .password(request.getPassword())
                     .target(target)

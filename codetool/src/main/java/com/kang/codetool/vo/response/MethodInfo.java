@@ -1,5 +1,6 @@
 package com.kang.codetool.vo.response;
 
+import com.kang.lab.utils.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,4 +33,13 @@ public class MethodInfo {
      * 返回类
      */
     private String returnType;
+    /**
+     * 返回类简称
+     */
+    private String returnTypeSimpleName;
+
+    /**
+     * 方法签名
+     */
+    private String methodSignature;
 }
