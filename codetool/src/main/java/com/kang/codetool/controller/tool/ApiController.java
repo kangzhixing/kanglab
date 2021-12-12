@@ -59,7 +59,7 @@ public class ApiController {
                 cdl.countDown();
             });
         }
-        cdl.await(10, TimeUnit.SECONDS);
+        cdl.await(1, TimeUnit.MINUTES);
         return RestResponse.success(result.stream().sorted(Comparator.comparing(ApiInfo::getApiName)).collect(Collectors.toList()));
     }
 

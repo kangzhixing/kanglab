@@ -18,10 +18,7 @@ import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -119,6 +116,14 @@ public class ApiDocService {
     }
 
     private static ParameterInfo getParameterInfoByType(Type type, String paramName, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+        if (type instanceof TypeVariable) {
+            TypeVariable typeVariable = (TypeVariable<?>) type;
+            return ParameterInfo.builder()
+                    .parameterName(paramName == null ? StringUtil.toLowerFirst(typeVariable.getName()) : paramName)
+                    .className(typeVariable.getName())
+                    .simpleClassName(typeVariable.getName())
+                    .build();
+        }
         ParameterInfo.ParameterInfoBuilder builder = ParameterInfo.builder();
         Class<?> rawType;
         if (type instanceof ParameterizedType) {
@@ -130,7 +135,7 @@ public class ApiDocService {
                 rawTypeParams.add(parameterByType);
             }
             builder.childParamList(rawTypeParams);
-        } else {
+        }else {
             // 获取原始类
             if (type instanceof Class) {
                 rawType = (Class) type;
@@ -146,12 +151,6 @@ public class ApiDocService {
                 }
             }
             builder.childParamList(childParameters);
-        }
-        // 判断泛型是否是集合或者数据
-        if (isSignByCollection(rawType)) {
-            builder.type(ParameterTypeEnum.ARRAY.name());
-        } else {
-            builder.type(ParameterTypeEnum.OBJECT.name());
         }
         return builder.parameterName(paramName == null ? rawType.getSimpleName() : paramName)
                 .className(rawType.isArray() ? rawType.getComponentType().getName() + "[]" : rawType.getName())
