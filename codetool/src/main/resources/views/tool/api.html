@@ -14,11 +14,22 @@
     }
 
     .divApiName:hover {
-        font-weight: bolder;
+        text-shadow: 0 0 1px grey;
     }
 
-    .divMethod {
+    .divMethod pre {
         margin: 5px 0;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .divMethod pre:hover {
+        text-shadow: 0 0 1px grey;
+    }
+
+    .divApiDoc {
+        padding: 10px 20px;
+        border: 1px solid lightgrey;
     }
 </style>
 
@@ -27,6 +38,7 @@
     <div class="divCondition">
         <div>
             <button id="btnSearch" class="jk-button mr10">查询</button>
+            <button id="btnOpenAll" class="jk-button mr10" i="o">展开</button>
         </div>
         <table style="margin-top: 10px;width:100%">
             <tr>
@@ -51,7 +63,7 @@
             <tr>
                 <td>依赖信息:</td>
                 <td>
-                    <textarea type="text" id="txtDependencies" style="max-width: 686px;min-height:200px;width: 100%"
+                    <textarea type="text" id="txtDependencies" style="width: 694px;min-height:200px;resize:vertical"
                               placeholder=
                                       "<dependency>
     <groupId>xxxxxx</groupId>
@@ -116,6 +128,20 @@
         }
     });
 
+    $("#btnOpenAll").bind("click", function () {
+        if ($(this).text() == "展开") {
+            $(".divMethodContent").show(200);
+            $(this).text("折叠");
+        } else {
+            $(".divMethodContent").hide(200);
+            $(this).text("展开");
+        }
+    });
+
+    $("#btnOffAll").bind("click", function () {
+        $(".divMethodContent").hide(200);
+    });
+
     $("#btnSearch").bind("click", function () {
         const dependencies = $("#txtDependencies").val().trim();
         if (!dependencies) {
@@ -136,6 +162,7 @@
         }
 
         $("#divDatas").html('');
+        $("#btnOpenAll").text("展开");
         $(".eleHide").hide();
         $("#btnSearch").attr("disabled", "disabled");
         $("#btnSearch").removeClass("jk-button").addClass("jk-button-disabled").attr("disabled", "disabled");
@@ -161,11 +188,27 @@
                     $("#divDatas").scrollLeft(0);
                     let divInterface = "";
                     for (let i = 0; i < result.body.length; i++) {
-                        divInterface += "<div class='divApi'><div class='divApiName'>" + result.body[i].apiName + "</div><div class='divMethodContent dn'><hr/>";
+                        divInterface += "<div class='divApi'><div class='divApiName'>" + result.body[i].apiName + "</div><div class='divMethodContent' style='display: none'><hr/>";
                         for (let k = 0; k < result.body[i].methodInfoList.length; k++) {
                             divInterface += "<div class='divMethod'><pre>"
                                 + result.body[i].methodInfoList[k].methodSignature.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
-                                + "</pre></div>";
+                                + "</pre><div class='divApiDoc dn'>";
+                            divInterface += "<h3>入参</h3><table>";
+                            let paramTypeList = result.body[i].methodInfoList[k].parameterTypeList;
+                            if (paramTypeList && paramTypeList.length > 0) {
+                                for (let j = 0; j < paramTypeList.length; j++) {
+                                    divInterface += getParamTr(paramTypeList[j], 0);
+                                }
+                            } else {
+                                divInterface += "<tr><td>无</td></tr>";
+                            }
+                            divInterface += "</table><h3>出参</h3><table>";
+                            if (result.body[i].methodInfoList[k].returnType) {
+                                divInterface += getParamTr(result.body[i].methodInfoList[k].returnType, 0);
+                            } else {
+                                divInterface += "<tr><td>无</td></tr>";
+                            }
+                            divInterface += "</table></div></div>";
                         }
                         divInterface += "</div></div>";
                     }
@@ -174,11 +217,11 @@
                 }
                 $("#btnSearch").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
                 $(".divApiName").bind("click", function () {
-                    if ($(this).parent().find(".divMethodContent").hasClass("dn")) {
-                        $(this).parent().find(".divMethodContent").removeClass("dn");
-                    } else {
-                        $(this).parent().find(".divMethodContent").addClass("dn");
-                    }
+                    $(this).parent().find(".divMethodContent").toggle(200);
+                });
+
+                $(".divMethod").bind("click", function () {
+                    $(this).find(".divApiDoc").toggle(300);
                 });
             },
             error: function (result) {
@@ -188,6 +231,18 @@
         });
 
     });
+
+    function getParamTr(paramType, count) {
+        let result = "<tr>";
+        result += "<td><label style='padding:2px 100px 2px " + (count * 10) + "px'>" + paramType.parameterName + "</label></td><td>" + paramType.simpleClassName + "</td>";
+        result += "</tr>";
+        if (paramType.childParamList) {
+            for (let i = 0; i < paramType.childParamList.length; i++) {
+                result += getParamTr(paramType.childParamList[i], count + 1);
+            }
+        }
+        return result;
+    }
 
 </script>
 

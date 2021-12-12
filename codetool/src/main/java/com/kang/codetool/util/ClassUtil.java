@@ -183,4 +183,18 @@ public class ClassUtil {
         return classes;
     }
 
+    public static boolean isWarpClass(Class clazz) {
+        try {
+            return ((Class) clazz.getField("TYPE").get(null)).isPrimitive();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean isBasic(Class clazz) {
+        return clazz.getName().startsWith("java.lang")
+                || clazz.getName().startsWith("java.math")
+                || clazz.getName().startsWith("java.util")
+                || clazz.getName().startsWith("sun.util");
+    }
 }

@@ -28,11 +28,12 @@ public class MethodInfo {
     /**
      * 入参列表
      */
-    private List<String> parameterTypeList;
+    private List<ParameterInfo> parameterTypeList;
     /**
-     * 返回类
+     * 入参列表
      */
-    private String returnType;
+    private ParameterInfo returnType;
+
     /**
      * 返回类简称
      */

@@ -71,7 +71,12 @@ public class JarUtilTest extends TestCase {
 //                .username("snapshot")
 //                .password("4AC8EMK#FrykJfG7")
                 .build();
-        RestResponse<List<ApiInfo>> list = c.list(req);
+        RestResponse<List<ApiInfo>> list = null;
+        try {
+            list = c.list(req);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         System.out.println(JSON.toJSONString(list));
         System.out.println(System.currentTimeMillis() - start);
     }
