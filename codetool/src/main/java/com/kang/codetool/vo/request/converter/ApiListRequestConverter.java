@@ -1,9 +1,9 @@
 package com.kang.codetool.vo.request.converter;
 
+import com.kang.codetool.vo.request.ApiListRequest;
 import com.kang.codetool.vo.request.Dependency;
 import com.kang.lab.utils.XmlUtil;
 import com.kang.lab.utils.exception.BizException;
-import com.kang.lab.utils.jar.ApiListRequest;
 import com.kang.lab.utils.jar.JarDownloadParams;
 import org.dom4j.DocumentException;
 

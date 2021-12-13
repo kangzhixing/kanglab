@@ -28,7 +28,7 @@
     }
 
     .divApiDoc {
-        padding: 10px 20px;
+        padding: 5px 20px 10px 20px;
         border: 1px solid lightgrey;
     }
 </style>
@@ -133,6 +133,7 @@
             $(".divMethodContent").show(200);
             $(this).text("折叠");
         } else {
+            $(".divApiDoc").hide(200);
             $(".divMethodContent").hide(200);
             $(this).text("展开");
         }
@@ -151,6 +152,8 @@
         const repo = $("#txtRepo").val();
         if (repo) {
             localStorage.setItem("txtRepo", repo);
+        }else{
+
         }
         const username = $("#txtUsername").val();
         if (username) {
@@ -220,8 +223,8 @@
                     $(this).parent().find(".divMethodContent").toggle(200);
                 });
 
-                $(".divMethod").bind("click", function () {
-                    $(this).find(".divApiDoc").toggle(300);
+                $(".divMethod pre").bind("click", function () {
+                    $(this).parent().find(".divApiDoc").toggle(300);
                 });
             },
             error: function (result) {

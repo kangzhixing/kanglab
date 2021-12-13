@@ -1,15 +1,11 @@
-package com.kang.lab.utils.jar;
+package com.kang.codetool.vo.request;
 
-import com.kang.codetool.vo.request.Dependency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 /**
  * jar包工具类下载参数
@@ -29,7 +25,7 @@ public class ApiListRequest {
     @NotBlank
     private String dependencies;
     /**
-     * 远程maven仓库的URL地址，默认使用bw30的远程maven-public库
+     * 远程maven仓库的URL地址，默认使用远程maven-public库
      */
     private String repository;
     /**

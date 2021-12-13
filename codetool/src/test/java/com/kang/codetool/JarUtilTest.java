@@ -1,25 +1,19 @@
 package com.kang.codetool;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
 import com.kang.codetool.common.RestResponse;
 import com.kang.codetool.controller.tool.ApiController;
 import com.kang.codetool.service.ApiDocService;
-import com.kang.codetool.vo.request.Dependency;
+import com.kang.codetool.vo.request.ApiListRequest;
 import com.kang.codetool.vo.response.ApiInfo;
 import com.kang.lab.utils.UUIDUtil;
-import com.kang.lab.utils.XmlUtil;
-import com.kang.lab.utils.jar.ApiListRequest;
 import com.kang.lab.utils.jar.JarDownloadParams;
 import com.kang.lab.utils.jar.JarUtil;
 import junit.framework.TestCase;
 import lombok.SneakyThrows;
-import org.dom4j.DocumentException;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class JarUtilTest extends TestCase {
 
