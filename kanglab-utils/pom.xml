@@ -24,6 +24,11 @@
             </plugin>
         </plugins>
     </build>
+    <properties>
+        <aether.version>1.0.0.v20140518</aether.version>
+        <mavenVersion>3.1.0</mavenVersion>
+        <wagonVersion>1.0</wagonVersion>
+    </properties>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
@@ -84,6 +89,120 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-connector-basic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-transport-file</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-transport-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
+            <artifactId>aether-transport-wagon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-aether-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-ssh</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>1.1.1</version>
+        </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-api</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-spi</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-util</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-impl</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-connector-basic</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-transport-file</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-transport-http</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.aether</groupId>
+                <artifactId>aether-transport-wagon</artifactId>
+                <version>${aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-aether-provider</artifactId>
+                <version>${mavenVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-model</artifactId>
+                <version>${mavenVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>${wagonVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>3.0.10</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

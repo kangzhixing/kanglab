@@ -7,7 +7,7 @@
 */target*
 
 *.iml
-
+repo/*
 codetool/target*
 codetool/src/main/java/com/kang/codetool/controller/test*
 codetool/src/main/resources/views/test*

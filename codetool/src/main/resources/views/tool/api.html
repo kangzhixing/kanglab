@@ -1,0 +1,249 @@
+<#import "../main.html" as page>
+<@page.main current="/api" title="RPC接口定义">
+<style type="text/css">
+    .divApi {
+        border-radius: 10px;
+        box-shadow: 0 0 5px grey;
+        margin: 20px 10px;
+        padding: 20px;
+    }
+
+    .divApiName {
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .divApiName:hover {
+        text-shadow: 0 0 1px grey;
+    }
+
+    .divMethod pre {
+        margin: 5px 0;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .divMethod pre:hover {
+        text-shadow: 0 0 1px grey;
+    }
+
+    .divApiDoc {
+        padding: 10px 20px;
+        border: 1px solid lightgrey;
+    }
+</style>
+
+<div id="pageMSSQL" class="divPage" style="width:90%">
+    <div class="divTitleText"></div>
+    <div class="divCondition">
+        <div>
+            <button id="btnSearch" class="jk-button mr10">查询</button>
+            <button id="btnOpenAll" class="jk-button mr10" i="o">展开</button>
+        </div>
+        <table style="margin-top: 10px;width:100%">
+            <tr>
+                <td style="width:100px">仓库地址:</td>
+                <td>
+                    <input type="text" id="txtRepo" style="max-width: 686px;width: 100%"
+                           placeholder="http:// or https://"/>
+                </td>
+            </tr>
+            <tr>
+                <td>用户名:</td>
+                <td>
+                    <input type="text" id="txtUsername" style="max-width: 686px;width: 100%"/>
+                </td>
+            </tr>
+            <tr>
+                <td>密码:</td>
+                <td>
+                    <input type="text" id="txtPassword" style="max-width: 686px;width: 100%"/>
+                </td>
+            </tr>
+            <tr>
+                <td>依赖信息:</td>
+                <td>
+                    <textarea type="text" id="txtDependencies" style="width: 694px;min-height:200px;resize:vertical"
+                              placeholder=
+                                      "<dependency>
+    <groupId>xxxxxx</groupId>
+    <artifactId>xxxxxx</artifactId>
+    <version>xxxxxx</version>
+</dependency>
+<dependency>
+    <groupId>xxxxxx</groupId>
+    <artifactId>xxxxxx</artifactId>
+    <version>xxxxxx</version>
+</dependency>"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="divDatas" class="eleHide dn" style="overflow-x:auto">
+    </div>
+    <div id="divTableNameListTemp" class="dn">
+        <div class="divTableList rd5 eleDb" db="{3}" onclick="findTable('{1}');" title="{2}">{0}</div>
+    </div>
+    <div id="divTableTemp" class="dn">
+        <div class="dbName dib"></div>
+        <img src="/static/images/search.png" title="查询数据" class="btnGetData cp mr5">
+        <table class="tbTemp tbDatas">
+            <thead>
+            <tr>
+                <td>名称</td>
+                <td>类型</td>
+                <td>长度</td>
+                <td>是否为Null</td>
+                <td>默认值</td>
+                <td>是否为主键</td>
+                <td>是否自增</td>
+                <td>说明</td>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <form method="post" id="fmExport" style="display: none" action="/tool/Export2File">
+        <input name="sql"/>
+        <input name="Connection"/>
+        <input name="fileName"/>
+        <input name="DbType"/>
+        <input name="excelType"/>
+    </form>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        if (localStorage.getItem("txtRepo") != null) {
+            $("#txtRepo").val(localStorage.getItem("txtRepo"));
+        }
+        if (localStorage.getItem("txtUsername") != null) {
+            $("#txtUsername").val(localStorage.getItem("txtUsername"));
+        }
+        if (localStorage.getItem("txtPassword") != null) {
+            $("#txtPassword").val(localStorage.getItem("txtPassword"));
+        }
+        if (localStorage.getItem("txtDependencies") != null) {
+            $("#txtDependencies").val(localStorage.getItem("txtDependencies"));
+        }
+    });
+
+    $("#btnOpenAll").bind("click", function () {
+        if ($(this).text() == "展开") {
+            $(".divMethodContent").show(200);
+            $(this).text("折叠");
+        } else {
+            $(".divMethodContent").hide(200);
+            $(this).text("展开");
+        }
+    });
+
+    $("#btnOffAll").bind("click", function () {
+        $(".divMethodContent").hide(200);
+    });
+
+    $("#btnSearch").bind("click", function () {
+        const dependencies = $("#txtDependencies").val().trim();
+        if (!dependencies) {
+            return;
+        }
+        localStorage.setItem("txtDependencies", dependencies);
+        const repo = $("#txtRepo").val();
+        if (repo) {
+            localStorage.setItem("txtRepo", repo);
+        }
+        const username = $("#txtUsername").val();
+        if (username) {
+            localStorage.setItem("txtUsername", username);
+        }
+        const password = $("#txtPassword").val();
+        if (password) {
+            localStorage.setItem("txtPassword", password);
+        }
+
+        $("#divDatas").html('');
+        $("#btnOpenAll").text("展开");
+        $(".eleHide").hide();
+        $("#btnSearch").attr("disabled", "disabled");
+        $("#btnSearch").removeClass("jk-button").addClass("jk-button-disabled").attr("disabled", "disabled");
+        $.ajax({
+            async: true,
+            type: "POST",
+            url: "/api/list",
+            cache: false,
+            timeout: 60 * 60 * 1000,
+            dataType: "json",
+            data: {
+                dependencies: encodeURIComponent(dependencies),
+                repository: encodeURIComponent(repo),
+                username: username,
+                password: password
+            },
+            success: function (result) {
+                if (result != null && result.code == '0') {
+                    alert(result.msg);
+                    $(".eleHide").hide();
+                } else {
+                    $(".eleHide").fadeIn(200);
+                    $("#divDatas").scrollLeft(0);
+                    let divInterface = "";
+                    for (let i = 0; i < result.body.length; i++) {
+                        divInterface += "<div class='divApi'><div class='divApiName'>" + result.body[i].apiName + "</div><div class='divMethodContent' style='display: none'><hr/>";
+                        for (let k = 0; k < result.body[i].methodInfoList.length; k++) {
+                            divInterface += "<div class='divMethod'><pre>"
+                                + result.body[i].methodInfoList[k].methodSignature.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+                                + "</pre><div class='divApiDoc dn'>";
+                            divInterface += "<h3>入参</h3><table>";
+                            let paramTypeList = result.body[i].methodInfoList[k].parameterTypeList;
+                            if (paramTypeList && paramTypeList.length > 0) {
+                                for (let j = 0; j < paramTypeList.length; j++) {
+                                    divInterface += getParamTr(paramTypeList[j], 0);
+                                }
+                            } else {
+                                divInterface += "<tr><td>无</td></tr>";
+                            }
+                            divInterface += "</table><h3>出参</h3><table>";
+                            if (result.body[i].methodInfoList[k].returnType) {
+                                divInterface += getParamTr(result.body[i].methodInfoList[k].returnType, 0);
+                            } else {
+                                divInterface += "<tr><td>无</td></tr>";
+                            }
+                            divInterface += "</table></div></div>";
+                        }
+                        divInterface += "</div></div>";
+                    }
+                    $("#divDatas").append(divInterface);
+
+                }
+                $("#btnSearch").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
+                $(".divApiName").bind("click", function () {
+                    $(this).parent().find(".divMethodContent").toggle(200);
+                });
+
+                $(".divMethod").bind("click", function () {
+                    $(this).find(".divApiDoc").toggle(300);
+                });
+            },
+            error: function (result) {
+                alert("查询失败");
+                $("#btnSearch").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
+            }
+        });
+
+    });
+
+    function getParamTr(paramType, count) {
+        let result = "<tr>";
+        result += "<td><label style='padding:2px 100px 2px " + (count * 10) + "px'>" + paramType.parameterName + "</label></td><td>" + paramType.simpleClassName + "</td>";
+        result += "</tr>";
+        if (paramType.childParamList) {
+            for (let i = 0; i < paramType.childParamList.length; i++) {
+                result += getParamTr(paramType.childParamList[i], count + 1);
+            }
+        }
+        return result;
+    }
+
+</script>
+
+</@page.main>
