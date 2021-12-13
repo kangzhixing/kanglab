@@ -81,35 +81,6 @@
     </div>
     <div id="divDatas" class="eleHide dn" style="overflow-x:auto">
     </div>
-    <div id="divTableNameListTemp" class="dn">
-        <div class="divTableList rd5 eleDb" db="{3}" onclick="findTable('{1}');" title="{2}">{0}</div>
-    </div>
-    <div id="divTableTemp" class="dn">
-        <div class="dbName dib"></div>
-        <img src="/static/images/search.png" title="查询数据" class="btnGetData cp mr5">
-        <table class="tbTemp tbDatas">
-            <thead>
-            <tr>
-                <td>名称</td>
-                <td>类型</td>
-                <td>长度</td>
-                <td>是否为Null</td>
-                <td>默认值</td>
-                <td>是否为主键</td>
-                <td>是否自增</td>
-                <td>说明</td>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-    <form method="post" id="fmExport" style="display: none" action="/tool/Export2File">
-        <input name="sql"/>
-        <input name="Connection"/>
-        <input name="fileName"/>
-        <input name="DbType"/>
-        <input name="excelType"/>
-    </form>
 </div>
 <script type="text/javascript">
 
