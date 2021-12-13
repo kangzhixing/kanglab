@@ -1,11 +1,10 @@
 package com.kang.codetool.service;
 
 import com.google.common.collect.Lists;
-import com.kang.codetool.util.ClassUtil;
+import com.kang.lab.utils.ClassUtil;
 import com.kang.codetool.vo.response.ApiInfo;
 import com.kang.codetool.vo.response.MethodInfo;
 import com.kang.codetool.vo.response.ParameterInfo;
-import com.kang.codetool.vo.response.ParameterTypeEnum;
 import com.kang.lab.utils.FileUtil;
 import com.kang.lab.utils.StringUtil;
 import com.kang.lab.utils.UUIDUtil;

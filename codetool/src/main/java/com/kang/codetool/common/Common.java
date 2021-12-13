@@ -1,7 +1,7 @@
 package com.kang.codetool.common;
 
 import com.kang.codetool.aop.annotation.ViewPage;
-import com.kang.codetool.util.ClassUtil;
+import com.kang.lab.utils.ClassUtil;
 import com.kang.lab.utils.ConvertUtil;
 import com.kang.lab.utils.db.DatabaseUtil;
 import com.kang.lab.utils.enums.DatabaseTypeEnum;
