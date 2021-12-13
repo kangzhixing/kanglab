@@ -116,6 +116,7 @@ public class ApiDocService {
     }
 
     private static ParameterInfo getParameterInfoByType(Type type, String paramName, URLClassLoader urlClassLoader) throws ClassNotFoundException {
+        // 属性属于泛型，直接创建对象体
         if (type instanceof TypeVariable) {
             TypeVariable typeVariable = (TypeVariable<?>) type;
             return ParameterInfo.builder()
@@ -126,9 +127,11 @@ public class ApiDocService {
         }
         ParameterInfo.ParameterInfoBuilder builder = ParameterInfo.builder();
         Class<?> rawType;
+        // 如果类属于泛型
         if (type instanceof ParameterizedType) {
             rawType = ((ParameterizedTypeImpl) type).getRawType();
             List<ParameterInfo> childParameters = new ArrayList<>();
+            // 如果是数组或者集合，直接进入下一层级，并解析其泛型对象
             if (isSignByCollection(rawType)) {
                 List<ParameterInfo> innerParamChildList = new ArrayList<>();
                 // 获取泛型内部类型的参数列表
@@ -143,6 +146,7 @@ public class ApiDocService {
                         .build();
                 childParameters.add(innerParam);
             } else {
+                // 非数组，则遍历其属性，如果属性中碰到泛型，则进入下一层级，解析泛型对象
                 for (Field declaredField : rawType.getDeclaredFields()) {
                     if (declaredField.getGenericType() instanceof TypeVariable) {
                         List<ParameterInfo> innerParamChildList = new ArrayList<>();
@@ -181,10 +185,8 @@ public class ApiDocService {
             builder.childParamList(childParameters);
         }
         return builder.parameterName(paramName == null ? rawType.getSimpleName() : paramName)
-                .className(rawType.isArray() ? rawType.getComponentType()
-                        .getName() + "[]" : rawType.getName())
-                .simpleClassName(rawType.isArray() ? rawType.getComponentType()
-                        .getSimpleName() + "[]" : rawType.getSimpleName())
+                .className(rawType.isArray() ? rawType.getComponentType().getName() + "[]" : rawType.getName())
+                .simpleClassName(rawType.isArray() ? rawType.getComponentType().getSimpleName() + "[]" : rawType.getSimpleName())
                 .build();
 
     }
