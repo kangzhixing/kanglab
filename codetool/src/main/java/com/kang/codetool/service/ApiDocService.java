@@ -88,6 +88,7 @@ public class ApiDocService {
         apiInfo.setMethodInfoList(methodInfoList);
         return apiInfo;
     }
+
     private static String getReturnTypeSignature(String returnFullName) {
         if (StringUtils.isBlank(returnFullName)) {
             return "";
@@ -127,14 +128,42 @@ public class ApiDocService {
         Class<?> rawType;
         if (type instanceof ParameterizedType) {
             rawType = ((ParameterizedTypeImpl) type).getRawType();
-            // 获取泛型内部类型的参数列表
-            List<ParameterInfo> rawTypeParams = new ArrayList<>();
-            for (Type actualTypeArgument : ((ParameterizedType) type).getActualTypeArguments()) {
-                ParameterInfo parameterByType = getParameterInfoByType(actualTypeArgument, "$item", urlClassLoader);
-                rawTypeParams.add(parameterByType);
+            List<ParameterInfo> childParameters = new ArrayList<>();
+            if (isSignByCollection(rawType)) {
+                List<ParameterInfo> innerParamChildList = new ArrayList<>();
+                // 获取泛型内部类型的参数列表
+                for (Type actualTypeArgument : ((ParameterizedType) type).getActualTypeArguments()) {
+                    innerParamChildList.add(getParameterInfoByType(actualTypeArgument, "$item", urlClassLoader));
+                }
+                ParameterInfo innerParam = ParameterInfo.builder()
+                        .parameterName(rawType.getName())
+                        .className(rawType.getName())
+                        .simpleClassName(rawType.getSimpleName())
+                        .childParamList(innerParamChildList)
+                        .build();
+                childParameters.add(innerParam);
+            } else {
+                for (Field declaredField : rawType.getDeclaredFields()) {
+                    if (declaredField.getGenericType() instanceof TypeVariable) {
+                        List<ParameterInfo> innerParamChildList = new ArrayList<>();
+                        // 获取泛型内部类型的参数列表
+                        for (Type actualTypeArgument : ((ParameterizedType) type).getActualTypeArguments()) {
+                            innerParamChildList.add(getParameterInfoByType(actualTypeArgument, "$item", urlClassLoader));
+                        }
+                        ParameterInfo innerParam = ParameterInfo.builder()
+                                .parameterName(declaredField.getName())
+                                .className(declaredField.getType().getName())
+                                .simpleClassName(declaredField.getType().getSimpleName())
+                                .childParamList(innerParamChildList)
+                                .build();
+                        childParameters.add(innerParam);
+                    } else {
+                        childParameters.add(getParameterInfoByType(declaredField.getGenericType(), declaredField.getName(), urlClassLoader));
+                    }
+                }
             }
-            builder.childParamList(rawTypeParams);
-        }else {
+            builder.childParamList(childParameters);
+        } else {
             // 获取原始类
             if (type instanceof Class) {
                 rawType = (Class) type;
@@ -152,9 +181,12 @@ public class ApiDocService {
             builder.childParamList(childParameters);
         }
         return builder.parameterName(paramName == null ? rawType.getSimpleName() : paramName)
-                .className(rawType.isArray() ? rawType.getComponentType().getName() + "[]" : rawType.getName())
-                .simpleClassName(rawType.isArray() ? rawType.getComponentType().getSimpleName() + "[]" : rawType.getSimpleName())
+                .className(rawType.isArray() ? rawType.getComponentType()
+                        .getName() + "[]" : rawType.getName())
+                .simpleClassName(rawType.isArray() ? rawType.getComponentType()
+                        .getSimpleName() + "[]" : rawType.getSimpleName())
                 .build();
+
     }
 
     private static boolean isSignByCollection(Class clazz) {
