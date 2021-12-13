@@ -12,4 +12,4 @@ codetool/src/main/java/com/kang/codetool/controller/test*
 codetool/src/main/resources/views/test*
 codetool/src/main/resources/application.properties
 *.properties
-/codetool/repo/
+repo
