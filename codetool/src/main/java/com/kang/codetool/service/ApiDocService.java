@@ -65,25 +65,44 @@ public class ApiDocService {
         List<MethodInfo> methodInfoList = new ArrayList<>();
 
         for (Method method : clazz.getMethods()) {
-            List<ParameterInfo> parameterTypeList = new ArrayList<>();
-            String methodParameterSignature = "";
-            for (Type genericParameterType : method.getGenericParameterTypes()) {
-                parameterTypeList.add(getParameterInfoByType(genericParameterType, null, urlClassLoader));
-                methodParameterSignature += getSimpleClassName(genericParameterType.getTypeName()) + " " + StringUtil.toLowerFirst(getSimpleClassName(genericParameterType.getTypeName())) + ", ";
-            }
-            MethodInfo methodInfo = MethodInfo.builder()
-                    .methodName(method.getName())
-                    .returnType(getParameterInfoByType(method.getGenericReturnType(), null, urlClassLoader))
-                    .returnTypeSimpleName(method.getReturnType().getSimpleName())
-                    .parameterTypeList(Lists.newArrayList(ParameterInfo.builder().build()))
-                    .build();
+            try {
+                List<ParameterInfo> parameterTypeList = new ArrayList<>();
+                String methodParameterSignature = "";
+                for (Type genericParameterType : method.getGenericParameterTypes()) {
+                    try {
+                        parameterTypeList.add(getParameterInfoByType(genericParameterType, null, urlClassLoader));
+                    } catch (StackOverflowError t) {
+                        parameterTypeList.add(ParameterInfo.builder()
+                                .parameterName(getReturnTypeSignature(genericParameterType.getTypeName()))
+                                .simpleClassName("参数解析有误，存在属性声明嵌套情况")
+                                .build());
+                    }
+                    methodParameterSignature += getSimpleClassName(genericParameterType.getTypeName()) + " " + StringUtil.toLowerFirst(getSimpleClassName(genericParameterType.getTypeName())) + ", ";
+                }
+                ParameterInfo returnType;
+                try {
+                    returnType = getParameterInfoByType(method.getGenericReturnType(), null, urlClassLoader);
+                } catch (StackOverflowError t) {
+                    returnType = ParameterInfo.builder()
+                            .parameterName(getReturnTypeSignature(method.getGenericReturnType().getTypeName()))
+                            .simpleClassName("参数解析有误，存在属性声明嵌套情况")
+                            .build();
+                }
+                MethodInfo methodInfo = MethodInfo.builder()
+                        .methodName(method.getName())
+                        .returnType(returnType)
+                        .returnTypeSimpleName(method.getReturnType().getSimpleName())
+                        .build();
 
-            methodInfo.setMethodSignature(getReturnTypeSignature(method.getGenericReturnType().getTypeName())
-                    + " " + method.getName() + "("
-                    + (methodParameterSignature.length() > 0 ? methodParameterSignature.substring(0, methodParameterSignature.length() - 2) : "")
-                    + ")");
-            methodInfo.setParameterTypeList(parameterTypeList);
-            methodInfoList.add(methodInfo);
+                methodInfo.setMethodSignature(getReturnTypeSignature(method.getGenericReturnType().getTypeName())
+                        + " " + method.getName() + "("
+                        + (methodParameterSignature.length() > 0 ? methodParameterSignature.substring(0, methodParameterSignature.length() - 2) : "")
+                        + ")");
+                methodInfo.setParameterTypeList(parameterTypeList);
+                methodInfoList.add(methodInfo);
+            } catch (Throwable t) {
+                log.error("方法解析异常: {}.{}()", method.getDeclaringClass().getName(), method.getName(), t);
+            }
         }
         apiInfo.setMethodInfoList(methodInfoList);
         return apiInfo;

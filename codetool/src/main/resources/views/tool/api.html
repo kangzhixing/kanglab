@@ -208,7 +208,7 @@
 
     function getParamTr(paramType, count) {
         let result = "<tr>";
-        result += "<td><label style='padding:2px 100px 2px " + (count * 10) + "px'>" + paramType.parameterName + "</label></td><td>" + paramType.simpleClassName + "</td>";
+        result += "<td><label style='padding:2px 100px 2px " + (count * 10) + "px'>" + paramType.parameterName.replaceAll('<', '&lt;') + "</label></td><td>" + paramType.simpleClassName.replaceAll('<', '&lt;') + "</td>";
         result += "</tr>";
         if (paramType.childParamList) {
             for (let i = 0; i < paramType.childParamList.length; i++) {
