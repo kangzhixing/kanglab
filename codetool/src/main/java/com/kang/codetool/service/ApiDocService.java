@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ApiDocService {
 
+    private static final String STACK_OVER_FLOW_MESSAGE = "参数解析有误，可能存在属性声明嵌套情况";
+
     public static List<ApiInfo> getInterfaceList(List<File> fileList) throws IOException {
         if (CollectionUtils.isEmpty(fileList)) {
             return new ArrayList();
@@ -74,7 +76,7 @@ public class ApiDocService {
                     } catch (StackOverflowError t) {
                         parameterTypeList.add(ParameterInfo.builder()
                                 .parameterName(getReturnTypeSignature(genericParameterType.getTypeName()))
-                                .simpleClassName("参数解析有误，存在属性声明嵌套情况")
+                                .simpleClassName(STACK_OVER_FLOW_MESSAGE)
                                 .build());
                     }
                     methodParameterSignature += getSimpleClassName(genericParameterType.getTypeName()) + " " + StringUtil.toLowerFirst(getSimpleClassName(genericParameterType.getTypeName())) + ", ";
@@ -85,7 +87,7 @@ public class ApiDocService {
                 } catch (StackOverflowError t) {
                     returnType = ParameterInfo.builder()
                             .parameterName(getReturnTypeSignature(method.getGenericReturnType().getTypeName()))
-                            .simpleClassName("参数解析有误，存在属性声明嵌套情况")
+                            .simpleClassName(STACK_OVER_FLOW_MESSAGE)
                             .build();
                 }
                 MethodInfo methodInfo = MethodInfo.builder()
