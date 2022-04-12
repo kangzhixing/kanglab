@@ -8,6 +8,7 @@ import com.kang.codetool.common.Common;
 import com.kang.codetool.common.Constants;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
 import com.kang.lab.plugins.log.annotations.NoLog;
+import com.kang.lab.utils.FileUtil;
 import com.kang.lab.utils.StringUtil;
 import com.kang.lab.utils.UUIDUtil;
 import com.kang.lab.utils.ZipUtil;
@@ -99,12 +100,9 @@ public class ExportController {
                 Class clazz = Class.forName("com.kang.codetool.service.Generate" + lang + "CodeService");
                 //声明创建当前类实例
                 Method method = clazz.getMethod("ref" + type, CodeMakerGeneratCodeVO.class);
-
                 String result = method.invoke(clazz.newInstance(), new Object[]{outModel}).toString();
-
                 //下载文件到文件夹内
                 String fileName = "";
-
                 if (lang.toLowerCase() == "ngxi") {
                     if (type.toLowerCase().startsWith("dao")) {
                         fileName = className + "Dao.cs";
@@ -124,36 +122,33 @@ public class ExportController {
                         fileName = className + Constants.ENTITY_CLASS_NAME_SUFFIX + ".java";
                     }
                 }
-
                 String fullName = zipDirFullPath + "/" + fileName;
                 File f = new File(fullName);
                 if (!f.exists()) {
                     f.createNewFile();
-                    FileWriter fw = new FileWriter(f.getAbsoluteFile());
-                    BufferedWriter bw = new BufferedWriter(fw);
-                    bw.write(result);
-                    bw.close();
+                    try (FileWriter fw = new FileWriter(f.getAbsoluteFile()); BufferedWriter bw = new BufferedWriter(fw)) {
+                        bw.write(result);
+                    }
                 }
             }
-
             if (databaseTables.size() > 0) {
                 ZipUtil.compress(fullPathName, zipDir + "/" + zipFileName + ".zip");
-                zipDirFullPath.delete();
+                log.info("压缩完成");
+                FileUtil.delete(zipDirFullPath);
             }
-            InputStream fis = new BufferedInputStream(new FileInputStream(zipDir + "/" + zipFileName + ".zip"));
-            byte[] buffer = new byte[fis.available()];
-            fis.read(buffer);
-            fis.close();
             // 清空response
             response.reset();
             // 设置response的Header
             response.addHeader("Content-Disposition", "attachment;filename=" + zipFileName + ".zip");
-            OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
-            response.setContentType("application/octet-stream");
-            toClient.write(buffer);
-            toClient.flush();
-            toClient.close();
-
+            try (InputStream fis = new BufferedInputStream(new FileInputStream(zipDir + "/" + zipFileName + ".zip"));
+                 OutputStream toClient = new BufferedOutputStream(response.getOutputStream())) {
+                byte[] buffer = new byte[fis.available()];
+                fis.read(buffer);
+                response.setContentType("application/octet-stream");
+                toClient.write(buffer);
+                toClient.flush();
+            }
+            FileUtil.delete(new File(zipDir + "/" + zipFileName + ".zip"));
         } catch (IOException ex) {
             log.error("系统异常", ex);
         }

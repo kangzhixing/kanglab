@@ -24,7 +24,7 @@ public class ZipUtil {
             CheckedOutputStream cos = new CheckedOutputStream(fos, new CRC32());
             ZipOutputStream zos = new ZipOutputStream(cos);
             String baseDir = "";
-            compressbyType(src, zos, baseDir);
+            compressByType(src, zos, baseDir);
             zos.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -32,7 +32,7 @@ public class ZipUtil {
     }
 
 
-    private static void compressbyType(File src, ZipOutputStream zos,String baseDir) {
+    private static void compressByType(File src, ZipOutputStream zos, String baseDir) {
 
         if (!src.exists())
         {return;}
@@ -88,7 +88,7 @@ public class ZipUtil {
         }
         for (File file : files) {
 
-            compressbyType(file, zos, baseDir + dir.getName() + File.separator);
+            compressByType(file, zos, baseDir + dir.getName() + File.separator);
         }
     }
 
