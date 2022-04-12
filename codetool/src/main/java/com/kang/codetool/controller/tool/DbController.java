@@ -79,7 +79,7 @@ public class DbController {
             } else {
                 return RestResponse.fail("不支持该数据库");
             }
-            List<Map<String, Object>> dataList = DatabaseUtil.fill(connection, sql);
+            List<Map<String, Object>> dataList = DatabaseUtil.fill(connection, username, password, sql);
 
             return RestResponse.success(dataList);
         } catch (Exception ex) {
