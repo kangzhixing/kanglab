@@ -130,14 +130,14 @@
                     postData: encodeURIComponent($("#txtPostData").val())
                 },
                 success: function (result) {
-                    if (result != null && result.code == '0') {
+                    if (result != null && result.code != '00000') {
                         alert(result.msg);
                         $(".eleHide").hide();
                     }
                     else {
                         $(".eleHide").fadeIn(200);
                         $("#divDatas").scrollLeft(0);
-                        $("#divDatas").text(result.body);
+                        $("#divDatas").text(result.data);
 
                     }
                 }

@@ -154,21 +154,21 @@
                 password: password
             },
             success: function (result) {
-                if (result != null && result.code == '0') {
+                if (result != null && result.code != '00000') {
                     alert(result.msg);
                     $(".eleHide").hide();
                 } else {
                     $(".eleHide").fadeIn(200);
                     $("#divDatas").scrollLeft(0);
                     let divInterface = "";
-                    for (let i = 0; i < result.body.length; i++) {
-                        divInterface += "<div class='divApi'><div class='divApiName'>" + result.body[i].apiName + "</div><div class='divMethodContent' style='display: none'><hr/>";
-                        for (let k = 0; k < result.body[i].methodInfoList.length; k++) {
+                    for (let i = 0; i < result.data.length; i++) {
+                        divInterface += "<div class='divApi'><div class='divApiName'>" + result.data[i].apiName + "</div><div class='divMethodContent' style='display: none'><hr/>";
+                        for (let k = 0; k < result.data[i].methodInfoList.length; k++) {
                             divInterface += "<div class='divMethod'><pre>"
-                                + result.body[i].methodInfoList[k].methodSignature.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+                                + result.data[i].methodInfoList[k].methodSignature.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
                                 + "</pre><div class='divApiDoc dn'>";
                             divInterface += "<h3>入参</h3><table>";
-                            let paramTypeList = result.body[i].methodInfoList[k].parameterTypeList;
+                            let paramTypeList = result.data[i].methodInfoList[k].parameterTypeList;
                             if (paramTypeList && paramTypeList.length > 0) {
                                 for (let j = 0; j < paramTypeList.length; j++) {
                                     divInterface += getParamTr(paramTypeList[j], 0);
@@ -177,8 +177,8 @@
                                 divInterface += "<tr><td>无</td></tr>";
                             }
                             divInterface += "</table><h3>出参</h3><table>";
-                            if (result.body[i].methodInfoList[k].returnType) {
-                                divInterface += getParamTr(result.body[i].methodInfoList[k].returnType, 0);
+                            if (result.data[i].methodInfoList[k].returnType) {
+                                divInterface += getParamTr(result.data[i].methodInfoList[k].returnType, 0);
                             } else {
                                 divInterface += "<tr><td>无</td></tr>";
                             }

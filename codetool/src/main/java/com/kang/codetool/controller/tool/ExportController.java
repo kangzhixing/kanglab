@@ -66,6 +66,8 @@ public class ExportController {
                               HttpServletResponse response) throws Exception {
         try {
             connectionString = URLDecoder.decode(connectionString);
+            username = URLDecoder.decode(username);
+            password = URLDecoder.decode(password);
             DatabaseTypeEnum databaseType = DatabaseTypeEnum.getByName(dbType);
 
             List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, username, password, DatabaseTypeEnum.getByName(dbType));
@@ -114,9 +116,9 @@ public class ExportController {
                         fileName = className + "Mapper.xml";
                     } else if (type.toLowerCase().endsWith("mapper") || type.toLowerCase().endsWith("Annotation")) {
                         fileName = className + "Mapper.java";
-                    } else if (type.toLowerCase().equals("service")) {
+                    } else if (type.equalsIgnoreCase("service")) {
                         fileName = className + "Service.java";
-                    } else if (type.toLowerCase().equals("serviceimpl")) {
+                    } else if (type.equalsIgnoreCase("serviceimpl")) {
                         fileName = className + "ServiceImpl.java";
                     } else {
                         fileName = className + Constants.ENTITY_CLASS_NAME_SUFFIX + ".java";
@@ -135,7 +137,7 @@ public class ExportController {
             }
 
             if (databaseTables.size() > 0) {
-                ZipUtil.compress(fullPathName, zipDir + "\\" + zipFileName + ".zip");
+                ZipUtil.compress(fullPathName, zipDir + "/" + zipFileName + ".zip");
                 zipDirFullPath.delete();
             }
             InputStream fis = new BufferedInputStream(new FileInputStream(zipDir + "/" + zipFileName + ".zip"));

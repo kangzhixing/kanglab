@@ -161,10 +161,10 @@
                     times: times
                 },
                 success: function (result) {
-                    $("#" + id).find(".divColor").text(result.body.averageTime);
+                    $("#" + id).find(".divColor").text(result.data.averageTime);
                     $("#" + id).find(".divColor").attr('class', function (i, cls) {
                         return cls.replaceAll(/level\d+/g, '');
-                    }).addClass("level" + getRgbByPing(result.body.averageTime));
+                    }).addClass("level" + getRgbByPing(result.data.averageTime));
                     setTimeout(pingIp, 5000, ip, times, 1);
                     ipMap.set(ip, times);
                 },

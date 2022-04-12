@@ -1,7 +1,7 @@
 package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.annotation.ViewPage;
-import com.kang.codetool.common.RestResponse;
+import com.kang.lab.utils.vo.RestResponse;
 import com.kang.codetool.service.ApiDocService;
 import com.kang.codetool.vo.request.ApiListRequest;
 import com.kang.codetool.vo.request.converter.ApiListRequestConverter;

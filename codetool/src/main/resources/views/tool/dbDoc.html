@@ -59,11 +59,71 @@
         top: 20px;
         float: right;
     }
+
+    #mask {
+        position: fixed;
+        padding: 50px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999;
+        background: white;
+        transition: 0.3s;
+    }
+
+    /* basic style */
+    .close {
+        /* still bad on picking color */
+        background: white;
+        color: grey;
+        /* make a round button */
+        border-radius: 12px;
+        /* center text */
+        line-height: 20px;
+        text-align: center;
+        height: 20px;
+        width: 20px;
+        font-size: 18px;
+        padding: 1px;
+        cursor: pointer;
+    }
+
+    /* use cross as close button */
+    .close::before {
+        content: "\2716";
+    }
+
+    /* place the button on top-right */
+    .close {
+        top: 15px;
+        right: 115px;
+        position: absolute;
+    }
+
+    .divActTitle {
+        width: 100%;
+        font-weight: bold;
+        text-align: center;
+        font-size: 30px;
+        margin-bottom: 30px;
+    }
+
+    .divTableDetailContent {
+        height: 80%;
+        overflow-y: auto;
+        padding-bottom: 30px;
+    }
+
+    .txtLight {
+        color: lightgrey;
+    }
+
 </style>
 
 <div id="pageMSSQL" class="divPage">
     <div class="divTitleText"></div>
-    <div class="divCondition">
+    <div class="divAct">
         <div>
             <button id="btnSearch" class="jk-button mr10">查询</button>
         </div>
@@ -139,6 +199,52 @@
         <input name="DbType"/>
         <input name="excelType"/>
     </form>
+
+    <div id="mask" class="dn">
+        <div class="divActTitle"><label id="lblActTitle"></label></div>
+        <div id="btnClose" class="close"
+             onclick="$('.divActTitle').fadeOut(100);$('#mask').css('width','0%');$('#mask').fadeOut(200)"></div>
+        <div class="divTableDetailContent">
+            <div class="">
+                <table>
+                    <tr>
+                        <td>执行方式</td>
+                        <td colspan="3">
+                            <div id="cboCondition">
+                                <label for="radioSearch">查询</label>
+                                <input type="radio" name="cboActType" id="radioSearch" checked value="s"/>
+                                <label for="radioAdd">新增</label>
+                                <input type="radio" name="cboActType" id="radioAdd" value="a"/>
+                                <label for="radioEdit">编辑</label>
+                                <input type="radio" name="cboActType" id="radioEdit" value="e"/>
+                            </div>
+                        </td>
+                        <td>
+                            <button id="btnGo" class="jk-button">GO</button>
+                        </td>
+                    </tr>
+                    <tr class="actSearchShow">
+                        <td style="width:100px">页数</td>
+                        <td><input type="text" value="1" id="txtPageNum" style="width:100px"/></td>
+                        <td style="width:100px">查询条数</td>
+                        <td><input type="text" value="10" id="txtPageSize" style="width:100px"/></td>
+                    </tr>
+                    <tr>
+                        <td>字段</td>
+                        <td colspan="4">
+                            <div id="divCondition"></div>
+                        </td>
+                    </tr>
+                </table>
+                <div class="divQueryResult dn actSearchShow" style="width:90%;overflow-x: auto">
+                    <table class="tbDatas" style="min-width: 100%">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
 
@@ -155,6 +261,11 @@
         if (localStorage.getItem("docdbtype") != null) {
             $("input[value=" + localStorage.getItem("docdbtype") + "]").prop("checked", "checked");
         }
+
+        $("input[name=cboActType]").checkboxradio({
+            icon: false
+        });
+        $("#cboCondition").controlgroup();
     });
 
     function findTable(id) {
@@ -193,7 +304,7 @@
             return;
         }
 
-        const dbType = $("input:radio[checked=checked]").val();
+        const dbType = $("input[name=dbType]:radio[checked=checked]").val();
         localStorage.setItem("docconn", connectionString);
         localStorage.setItem("docusername", username);
         localStorage.setItem("docpwd", password);
@@ -216,49 +327,49 @@
                 dbType: dbType
             },
             success: function (result) {
-                if (result != null && result.code == '0') {
+                if (result != null && result.code != '00000') {
                     alert(result.msg);
                     $(".eleHide").hide();
-                } else {
-                    $(".eleHide").fadeIn(200);
-                    $("#divDatas").scrollLeft(0);
+                    return;
+                }
+                $(".eleHide").fadeIn(200);
+                $("#divDatas").scrollLeft(0);
 
-                    let divTableListHtml = "";
-                    let divTableFilesHtml = "";
-                    for (let i = 0; i < result.body.length; i++) {
-                        const row = result.body[i];
-                        const idStr = "divTableName_" + row.dbName;
-                        const showName = row.dbName.length > 25 ? row.dbName.substring(0, 22) + "..." : row.dbName;
-                        const tableNameTitle = row.dbName + (row.comment == '' ? '' : ' (' + row.comment + ")");
-                        $("#divTableTemp").find(".dbName").attr("id", idStr).text(tableNameTitle);
-                        const tbListHtml = $("#divTableNameListTemp").html();
-                        divTableListHtml +=
-                            tbListHtml
-                                .replace("{0}", showName)
-                                .replace("{1}", idStr)
-                                .replace("{2}", tableNameTitle)
-                                .replace("{3}", row.dbName);
+                let divTableListHtml = "";
+                let divTableFilesHtml = "";
+                for (let i = 0; i < result.data.length; i++) {
+                    const row = result.data[i];
+                    const idStr = "divTableName_" + row.dbName;
+                    const showName = row.dbName.length > 25 ? row.dbName.substring(0, 22) + "..." : row.dbName;
+                    const tableNameTitle = row.dbName + (row.comment == '' ? '' : ' (' + row.comment + ")");
+                    $("#divTableTemp").find(".dbName").attr("id", idStr).text(tableNameTitle);
+                    const tbListHtml = $("#divTableNameListTemp").html();
+                    divTableListHtml +=
+                        tbListHtml
+                            .replace("{0}", showName)
+                            .replace("{1}", idStr)
+                            .replace("{2}", tableNameTitle)
+                            .replace("{3}", row.dbName);
 
-                        let tdHtml = '';
-                        for (let j = 0; j < row.fieldDescriptions.length; j++) {
-                            const field = row.fieldDescriptions;
-                            tdHtml += "<tr><td class='dbColumn'>" + field[j].name + "</td>"
-                                + "<td>" + field[j].dbType + "</td>"
-                                + "<td>" + (field[j].length == null ? "" : field[j].length) + "</td>"
-                                + "<td>" + (field[j].isNullable ? "是" : "否") + "</td>"
-                                + "<td>" + (field[j].defaultValue == null ? "" : field[j].defaultValue) + "</td>"
-                                + "<td>" + (field[j].columnKey == "PRI" ? "是" : "否") + "</td>"
-                                + "<td>" + (field[j].isIdentity ? "是" : "否") + "</td>"
-                                + "<td>" + (field[j].description == null ? "" : field[j].description) + "</td>"
-                                + "</tr>";
-                        }
-                        $("#divTableTemp tbody").html(tdHtml);
-                        divTableFilesHtml += "<div class='eleDb' db='" + row.dbName + "'>" + $("#divTableTemp").html() + "</div>";
-
+                    let tdHtml = '';
+                    for (let j = 0; j < row.fieldDescriptions.length; j++) {
+                        const field = row.fieldDescriptions;
+                        tdHtml += "<tr><td class='dbColumn'>" + field[j].name + "</td>"
+                            + "<td>" + field[j].dbType + "</td>"
+                            + "<td>" + (field[j].length == null ? "" : field[j].length) + "</td>"
+                            + "<td>" + (field[j].isNullable ? "是" : "否") + "</td>"
+                            + "<td>" + (field[j].defaultValue == null ? "" : field[j].defaultValue) + "</td>"
+                            + "<td>" + (field[j].columnKey == "PRI" ? "是" : "否") + "</td>"
+                            + "<td>" + (field[j].isIdentity ? "是" : "否") + "</td>"
+                            + "<td>" + (field[j].description == null ? "" : field[j].description) + "</td>"
+                            + "</tr>";
                     }
-                    $("#divDatas").append(divTableListHtml + divTableFilesHtml);
+                    $("#divTableTemp tbody").html(tdHtml);
+                    divTableFilesHtml += "<div class='eleDb' db='" + row.dbName + "'>" + $("#divTableTemp").html() + "</div>";
 
                 }
+                $("#divDatas").append(divTableListHtml + divTableFilesHtml);
+
             },
             error: function (result) {
                 alert("查询失败");
@@ -268,6 +379,7 @@
     });
 
     $("#pageMSSQL").on("click", '.btnGetData', function () {
+
         const connectionString = $("#txtConnectionString").val().trim();
         if (!connectionString) {
             return;
@@ -280,36 +392,147 @@
         if (!password) {
             return;
         }
-        let div = $(this).parent();
-        const dbType = $("input:radio[checked=checked]").val();
+
+        const dbType = $("input[name=dbType]:radio[checked=checked]").val();
+        const tableName = $(this).parent().attr('db');
+
+        $("#lblActTitle").text(tableName);
+
+        // 初始化查询条件
+        initQueryCondition(connectionString, username, password, dbType, tableName);
+        $('.divActTitle').fadeIn(200);
+        $('#mask').show(0);
+        $('#mask').css('width', '100%');
+    });
+
+    $("#btnGo").bind("click", function () {
+        const connectionString = $("#txtConnectionString").val().trim();
+        if (!connectionString) {
+            return;
+        }
+        const username = $("#txtUsername").val().trim();
+        if (!username) {
+            return;
+        }
+        const password = $("#txtPassword").val().trim();
+        if (!password) {
+            return;
+        }
+
+        const dbType = $("input[name=dbType]:radio[checked=checked]").val();
+
+        let actType = $("input[name=cboActType]:radio[checked=checked]").val();
+        switch (actType) {
+            case "s":
+                query(connectionString, username, password, dbType, $("#lblActTitle").text());
+                break;
+            case "e":
+                edit(connectionString, username, password, dbType, $("#lblActTitle").text());
+                break;
+            case "a":
+                add(connectionString, username, password, dbType, $("#lblActTitle").text());
+                break;
+        }
+
+    });
+
+    function query(connectionString, username, password, dbType, tableName) {
         $.post("/db/getDbData", {
             connection: encodeURIComponent(connectionString),
             username: encodeURIComponent(username),
             password: encodeURIComponent(password),
             dbType: dbType,
-            tableName: $(this).parent().attr('db')
+            tableName: tableName,
+            pageNum: $("#txtPageNum").val() ? $("#txtPageNum").val() - 1 : 0,
+            pageSize: $("#txtPageSize").val() ? $("#txtPageSize").val() : 10,
+            condition: JSON.stringify($("#fmCondition").serializeArray())
         }, function (data) {
-            if(data.body.length == 0){
+            if (data.code != '00000') {
+                alert(data.msg);
+                return;
+            }
+            if (data.data.length == 0) {
                 alert("无数据");
                 return;
             }
-            let tHead = '';
             let tBody = '';
-            div.children('.topData').remove();
-            div.find('.dbColumn').each(function () {
-                tHead += "<td>" + $(this).text() + "</td>";
-            });
-
-            for (let i = 0; i < data.body.length; i++) {
+            for (let i = 0; i < data.data.length; i++) {
                 let tBodyTr = '';
-                div.find('.dbColumn').each(function () {
-                    tBodyTr += "<td>" + data.body[i][$(this).text()] + "</td>";
+                $("#divCondition").find('.lblCol').each(function () {
+                    tBodyTr += "<td>" + (data.data[i][$(this).attr("i")] == null ? "<i class='txtLight'>null</i>" : data.data[i][$(this).attr("i")].toString().replaceAll("<", "&lt;").replaceAll(">", "&gt;")) + "</td>";
                 });
                 tBody += "<tr>" + tBodyTr + "</tr>";
             }
-            div.append('<table class="topData tbDatas mt20"><thead><tr>' + tHead +'</tr></thead><tbody>' + tBody + '</tbody></table>');
+            $(".divQueryResult tbody").html(tBody);
+            $(".divQueryResult").show();
         });
-    });
+    }
+
+    function edit(connectionString, username, password, dbType, tableName) {
+        $.post("/db/editData", {
+            connection: encodeURIComponent(connectionString),
+            username: encodeURIComponent(username),
+            password: encodeURIComponent(password),
+            dbType: dbType,
+            tableName: tableName,
+            condition: JSON.stringify($("#fmCondition").serializeArray())
+        }, function (data) {
+            if (data.code != '00000') {
+                alert(data.msg);
+                return;
+            }
+            alert("修改成功");
+            query(connectionString, dbType, $("#lblActTitle").text());
+        });
+    }
+
+    function add(connectionString, username, password, dbType, tableName) {
+        $.post("/db/addData", {
+            connection: encodeURIComponent(connectionString),
+            username: encodeURIComponent(username),
+            password: encodeURIComponent(password),
+            dbType: dbType,
+            tableName: tableName,
+            condition: JSON.stringify($("#fmCondition").serializeArray())
+        }, function (data) {
+            if (data.code != '00000') {
+                alert(data.msg);
+                return;
+            }
+            alert("添加成功");
+            query(connectionString, dbType, $("#lblActTitle").text());
+        });
+    }
+
+    function initQueryCondition(connectionString, username, password, dbType, tableName) {
+        $("#divCondition").html('');
+        $(".divQueryResult").hide();
+        $(".divQueryResult tbody").html('');
+        $.post("/db/getDbFile", {
+            connection: encodeURIComponent(connectionString),
+            username: encodeURIComponent(username),
+            password: encodeURIComponent(password),
+            dbType: dbType,
+            tableName: tableName
+        }, function (data) {
+            if (data.data.length == 0) {
+                alert("查询表结构异常");
+                return;
+            }
+            let html = '';
+            let thead = '';
+            for (let i = 0; i < data.data[0].fieldDescriptions.length; i++) {
+                let field = data.data[0].fieldDescriptions[i];
+                html += '<tr><td><label class=\"lblCol\" i=\"' + field.name + '\">' + field.name + (field.description != null && field.description != '' ? '(' + field.description + ')' : '') + '</label></td>'
+                    + '<td><input type=\'text\' name=\'' + field.name + '\' /></td></tr>';
+                thead += '<td>' + field.name + '</td>';
+            }
+            $("#divCondition").html('<form id=\'fmCondition\'><table>' + html + '</table></form>');
+
+            $(".divQueryResult thead").html(thead);
+        });
+
+    }
 
     $("#btnExport").bind("click", function () {
         const connectionString = $("#txtConnectionString").val();
@@ -325,9 +548,10 @@
     });
 
     $("input:radio").bind("change", function () {
-        const sqlserver = "jdbc:sqlserver://xxxxxxxxxxxx:xxxx;DatabaseName=xxx";
-        const mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxx";
-        const postgresql = "jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx";
+        const connectionString = $("#txtConnectionString").val();
+        const sqlserver = "data source=xxxxxxxxxx;database=xxxxxxxxxx;";
+        const mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxxxxxxxxx";
+        const postgresql = "server=xxxxxxxxxx;database=xxxxxxxxxx;port=xxxx;";
 
         if (this.value == 'SqlServer') {
             if ($("#txtConnectionString").val() == postgresql || $("#txtConnectionString").val() == mysql || $("#txtConnectionString").val() == "") {
@@ -343,6 +567,7 @@
             }
         }
     });
+
 
 </script>
 

@@ -1,7 +1,7 @@
 package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.annotation.ViewPage;
-import com.kang.codetool.common.RestResponse;
+import com.kang.lab.utils.vo.RestResponse;
 import com.kang.lab.utils.HttpClientUtil;
 import com.kang.lab.utils.net.PingUtil;
 import com.kang.lab.utils.net.PingResult;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.concurrent.*;
@@ -77,55 +78,27 @@ public class ToolController {
 
     @RequestMapping("encodeString")
     @ResponseBody
-    public RestResponse encodeString(String str, String encoding) {
-        RestResponse result = new RestResponse();
-        try {
-            result.setBody(URLEncoder.encode(str, encoding));
-            return result;
-
-        } catch (Exception ex) {
-            result.setCode(0);
-            result.setMsg(ex.getMessage());
-            return result;
-        }
+    public RestResponse encodeString(String str, String encoding) throws UnsupportedEncodingException {
+            return RestResponse.success(URLEncoder.encode(str, encoding));
     }
 
     @RequestMapping("decodeString")
     @ResponseBody
-    public RestResponse decodeString(String str, String encoding) {
-        RestResponse result = new RestResponse();
-        try {
-            result.setBody(URLDecoder.decode(str, encoding));
-            return result;
-
-        } catch (Exception ex) {
-            result.setCode(0);
-            result.setMsg(ex.getMessage());
-            return result;
-        }
+    public RestResponse decodeString(String str, String encoding) throws UnsupportedEncodingException {
+        return RestResponse.success(URLDecoder.decode(str, encoding));
     }
 
     @RequestMapping("pingIp")
     @ResponseBody
     public RestResponse pingIp(String ip, Integer times) {
-        RestResponse result = new RestResponse();
-        try {
-            PingResult pingResult = PingUtil.get(ip, times);
-            result.setBody(pingResult);
-            return result;
-
-        } catch (Exception ex) {
-            result.setCode(0);
-            result.setMsg(ex.getMessage());
-            return result;
-        }
+        return RestResponse.success(PingUtil.get(ip, times));
     }
 
     @RequestMapping("get")
     public RestResponse get(String url, Integer count, Boolean method, String postData) {
         try {
             if (!LOCK.tryLock()) {
-                return RestResponse.fail("正在发送请求，请稍后再试");
+                return RestResponse.error("正在发送请求，请稍后再试");
             }
             StopWatch sw = new StopWatch();
             sw.start();

@@ -1,6 +1,6 @@
 package com.kang.codetool.aop;
 
-import com.kang.codetool.common.RestResponse;
+import com.kang.lab.utils.vo.RestResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +14,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public RestResponse customException(Exception e) {
         log.error("系统异常", e);
-        return RestResponse.fail(e.getMessage());
+        return RestResponse.error(e.getMessage());
     }
 }

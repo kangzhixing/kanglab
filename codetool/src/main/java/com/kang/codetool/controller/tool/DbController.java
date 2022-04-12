@@ -2,7 +2,7 @@ package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.common.Common;
-import com.kang.codetool.common.RestResponse;
+import com.kang.lab.utils.vo.RestResponse;
 import com.kang.lab.utils.db.DatabaseUtil;
 import com.kang.lab.utils.enums.DatabaseTypeEnum;
 import com.kang.lab.utils.db.FieldDescriptionUtil;
@@ -56,7 +56,7 @@ public class DbController {
             return RestResponse.success(result);
         } catch (Exception ex) {
             log.error("打印数据库文档失败", ex);
-            return RestResponse.fail("打印数据库文档失败:" + ex.getMessage());
+            return RestResponse.error("打印数据库文档失败:" + ex.getMessage());
         }
     }
 
@@ -77,14 +77,14 @@ public class DbController {
             } else if (DatabaseTypeEnum.SqlServer.name().equals(dbType)) {
                 sql = "SELECT TOP 5 * FROM " + tableName;
             } else {
-                return RestResponse.fail("不支持该数据库");
+                return RestResponse.error("不支持该数据库");
             }
             List<Map<String, Object>> dataList = DatabaseUtil.fill(connection, username, password, sql);
 
             return RestResponse.success(dataList);
         } catch (Exception ex) {
             log.error("打印数据库文档失败", ex);
-            return RestResponse.fail("打印数据库文档失败:" + ex.getMessage());
+            return RestResponse.error("打印数据库文档失败:" + ex.getMessage());
         }
     }
 }

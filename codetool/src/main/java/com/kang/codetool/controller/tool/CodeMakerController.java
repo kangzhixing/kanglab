@@ -2,7 +2,7 @@ package com.kang.codetool.controller.tool;
 
 import com.kang.codetool.aop.annotation.ViewPage;
 import com.kang.codetool.common.Common;
-import com.kang.codetool.common.RestResponse;
+import com.kang.lab.utils.vo.RestResponse;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
 import com.kang.lab.utils.enums.DatabaseTypeEnum;
 import com.kang.lab.utils.db.FieldDescriptionUtil;
@@ -33,7 +33,6 @@ public class CodeMakerController {
     @GetMapping("getCodeTypeSlt")
     @ResponseBody
     public RestResponse<List<String>> getCodeTypeSlt(String lang) throws ClassNotFoundException {
-        RestResponse result = new RestResponse();
         Class clazz = Class.forName("com.kang.codetool.service.Generate" + lang + "CodeService");
 
         List<String> methodNameList = new ArrayList<>();
@@ -43,9 +42,7 @@ public class CodeMakerController {
                 methodNameList.add(method.getName().replace("ref", ""));
             }
         }
-
-        result.setBody(methodNameList.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList()));
-        return result;
+        return RestResponse.success(methodNameList.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList()));
     }
 
     @RequestMapping("getTables")
@@ -60,13 +57,12 @@ public class CodeMakerController {
             return RestResponse.success(databaseTables);
         }
 
-        return RestResponse.fail("连接数据库失败");
+        return RestResponse.error("连接数据库失败");
     }
 
     @RequestMapping("generatCode")
     @ResponseBody
     public RestResponse generatCode(CodeMakerGeneratCodeVO vo) throws Exception {
-        RestResponse result = new RestResponse();
         vo.setConnectionString(URLDecoder.decode(vo.getConnectionString()).trim());
         vo.setUsername(URLDecoder.decode(vo.getUsername()).trim());
         vo.setPassword(URLDecoder.decode(vo.getPassword()).trim());
@@ -95,9 +91,7 @@ public class CodeMakerController {
 
         Object model = clazz.newInstance();
         String methodResult = method.invoke(model, new Object[]{vo}).toString();
-
-        result.setBody(methodResult);
-        return result;
+        return RestResponse.success(methodResult);
     }
 
 }

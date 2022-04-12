@@ -91,6 +91,8 @@
             <input name="lang"/>
             <input name="className"/>
             <input name="connectionString"/>
+            <input name="username"/>
+            <input name="password"/>
             <input name="packagePath"/>
             <input name="dbType"/>
             <input name="type"/>
@@ -119,8 +121,8 @@
             $.getJSON("/codeMaker/getCodeTypeSlt?lang=Java&r=" + new Date().getTime(), function (data) {
                 $("#sltDataType").html('');
                 let html = '';
-                for (let i = 0; i < data.body.length; i++) {
-                    html += "<option value='" + data.body[i] + "'>" + data.body[i].replaceAll("ref", "") + "</option>";
+                for (let i = 0; i < data.data.length; i++) {
+                    html += "<option value='" + data.data[i] + "'>" + data.data[i].replaceAll("ref", "") + "</option>";
                 }
                 $("#sltDataType").html(html);
             });
@@ -177,12 +179,12 @@
                 className: className,
                 random: new Date().getTime()
             }, function (result) {
-                if (result != null && result.code != '1') {
+                if (result != null && result.code != '00000') {
                     alert(result.msg);
                 }
                 else {
                     $("#divCode").fadeIn(200);
-                    $("#divCode").text(result.body);
+                    $("#divCode").text(result.data);
                     $("#btnExport").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
                     $("#btnExportAll").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
                     if (type.indexOf('Xml') > 0) {
@@ -263,7 +265,7 @@
                     dbType: dbType
                 },
                 success: function (result) {
-                    if (result != null && result.code != '1') {
+                    if (result != null && result.code != '00000') {
                         alert(result.msg);
                         $(".eleHide").hide();
                     }
@@ -272,11 +274,11 @@
                         $("#btnGenerat").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
                         $("#btnExportAll").addClass("jk-button").removeClass("jk-button-disabled").removeAttr("disabled", "");
                         let html = "";
-                        if (result.body.length > 0) {
-                            for (let i = 0; i < result.body.length; i++) {
-                                html = html + "<option value='" + result.body[i]["TABLE_NAME"] + "'>" + result.body[i]["TABLE_NAME"] + "</option>";
+                        if (result.data.length > 0) {
+                            for (let i = 0; i < result.data.length; i++) {
+                                html = html + "<option value='" + result.data[i]["TABLE_NAME"] + "'>" + result.data[i]["TABLE_NAME"] + "</option>";
                             }
-                            $("#txtClassName").val(GetClassName(result.body[0]["TABLE_NAME"]));
+                            $("#txtClassName").val(GetClassName(result.data[0]["TABLE_NAME"]));
                         }
                         $("#sltTables").html(html);
                     }

@@ -1,7 +1,7 @@
 package com.kang.codetool;
 
 import com.alibaba.fastjson.JSON;
-import com.kang.codetool.common.RestResponse;
+import com.kang.lab.utils.vo.RestResponse;
 import com.kang.codetool.controller.tool.ApiController;
 import com.kang.codetool.service.ApiDocService;
 import com.kang.codetool.vo.request.ApiListRequest;

@@ -58,6 +58,10 @@ public class RestResponse<T> {
         return new RestResponse(codeEnum.getCode(), msg, null);
     }
 
+    public static <T> RestResponse<T> error(String msg) {
+        return new RestResponse(ResponseCodeEnum.ERROR, msg, null);
+    }
+
     public static <T> RestResponse<T> error(String code, String msg) {
         return new RestResponse(code, msg, null);
     }
