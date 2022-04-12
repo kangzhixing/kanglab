@@ -83,7 +83,21 @@
                 <td>连接字符串:</td>
                 <td>
                     <input type="text" id="txtConnectionString" style="max-width: 686px;width: 100%"
-                           value="data source=xxxxxxxxxx;database=xxxxxxxxxx;uid=xxxxxxxxxx;pwd=xxxxxxxxxx;"/>
+                           value="jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx"/>
+                </td>
+            </tr>
+            <tr>
+                <td>用户名:</td>
+                <td>
+                    <input type="text" id="txtUsername" style="max-width: 686px;width: 100%"
+                           value="xxxxxxxxxx"/>
+                </td>
+            </tr>
+            <tr>
+                <td>密码:</td>
+                <td>
+                    <input type="text" id="txtPassword" style="max-width: 686px;width: 100%"
+                           value="xxxxxxxxxx"/>
                 </td>
             </tr>
             <tr class="eleHide dn">
@@ -132,7 +146,12 @@
         if (localStorage.getItem("docconn") != null) {
             $("#txtConnectionString").val(localStorage.getItem("docconn"));
         }
-
+        if (localStorage.getItem("docusername") != null) {
+            $("#txtUsername").val(localStorage.getItem("docusername"));
+        }
+        if (localStorage.getItem("docpwd") != null) {
+            $("#txtPassword").val(localStorage.getItem("docpwd"));
+        }
         if (localStorage.getItem("docdbtype") != null) {
             $("input[value=" + localStorage.getItem("docdbtype") + "]").prop("checked", "checked");
         }
@@ -165,9 +184,19 @@
         if (!connectionString) {
             return;
         }
+        const username = $("#txtUsername").val().trim();
+        if (!username) {
+            return;
+        }
+        const password = $("#txtPassword").val().trim();
+        if (!password) {
+            return;
+        }
 
         const dbType = $("input:radio[checked=checked]").val();
         localStorage.setItem("docconn", connectionString);
+        localStorage.setItem("docusername", username);
+        localStorage.setItem("docpassword", password);
         localStorage.setItem("docdbtype", dbType);
 
         $("#divDatas").html('');
@@ -182,6 +211,8 @@
             dataType: "json",
             data: {
                 connection: encodeURIComponent(connectionString),
+                username: encodeURIComponent(username),
+                password: encodeURIComponent(password),
                 dbType: dbType
             },
             success: function (result) {
@@ -237,17 +268,24 @@
     });
 
     $("#pageMSSQL").on("click", '.btnGetData', function () {
-
         const connectionString = $("#txtConnectionString").val().trim();
         if (!connectionString) {
             return;
         }
-
+        const username = $("#txtUsername").val().trim();
+        if (!username) {
+            return;
+        }
+        const password = $("#txtPassword").val().trim();
+        if (!password) {
+            return;
+        }
         let div = $(this).parent();
-
         const dbType = $("input:radio[checked=checked]").val();
         $.post("/db/getDbData", {
             connection: encodeURIComponent(connectionString),
+            username: encodeURIComponent(username),
+            password: encodeURIComponent(password),
             dbType: dbType,
             tableName: $(this).parent().attr('db')
         }, function (data) {
@@ -287,10 +325,9 @@
     });
 
     $("input:radio").bind("change", function () {
-        const connectionString = $("#txtConnectionString").val();
-        const sqlserver = "data source=xxxxxxxxxx;database=xxxxxxxxxx;uid=xxxxxxxxxx;pwd=xxxxxxxxxx;";
-        const mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxxxxxxxxx?user=xxxxxxxxxx&password=xxxxxxxxxx";
-        const postgresql = "server=xxxxxxxxxx;database=xxxxxxxxxx;uid=xxxxxxxxxx;pwd=xxxxxxxxxx;port=xxxx;";
+        const sqlserver = "jdbc:sqlserver://xxxxxxxxxxxx:xxxx;DatabaseName=xxx";
+        const mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxx";
+        const postgresql = "jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx";
 
         if (this.value == 'SqlServer') {
             if ($("#txtConnectionString").val() == postgresql || $("#txtConnectionString").val() == mysql || $("#txtConnectionString").val() == "") {

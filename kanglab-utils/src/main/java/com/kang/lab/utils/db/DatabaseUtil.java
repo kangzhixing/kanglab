@@ -13,53 +13,42 @@ import java.util.Map;
 
 public class DatabaseUtil {
 
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-
-    public static int executeNonQuery(String connectionString, String sentence,
-                                      HashMap<String, Object> parameters) throws Exception {
-        Connection connection = null;
-        NamedParameterStatementUtil namedParameterStatement = null;
-        try {
-            connection = DriverManager.getConnection(connectionString);
-            namedParameterStatement = new NamedParameterStatementUtil(connection,
-                    sentence);
+    public static int executeNonQuery(String connectionString, String sentence, HashMap<String, Object> parameters) throws Exception {
+        try (Connection connection = DriverManager.getConnection(connectionString)) {
+            NamedParameterStatementUtil namedParameterStatement = new NamedParameterStatementUtil(connection, sentence);
             namedParameterStatement.setParameterStatementValue(parameters);
             return namedParameterStatement.executeUpdate();
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
         }
     }
 
 
-    public static int executeNonQuery(String connectionString, String sentence)
-            throws Exception {
+    public static int executeNonQuery(String connectionString, String sentence) throws Exception {
         return executeNonQuery(connectionString, sentence, null);
     }
 
-
-    public static Object executeScalar(String connectionString,
-                                       String sentence, HashMap<String, Object> parameters)
-            throws Exception {
-        Connection connection = null;
-        NamedParameterStatementUtil namedParameterStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = DriverManager.getConnection(connectionString);
-            namedParameterStatement = new NamedParameterStatementUtil(connection,
-                    sentence);
-
+    public static int executeNonQuery(String connectionString, String username, String password, String sentence, HashMap<String, Object> parameters) throws Exception {
+        try (Connection connection = DriverManager.getConnection(connectionString, username, password)) {
+            NamedParameterStatementUtil namedParameterStatement = new NamedParameterStatementUtil(connection, sentence);
             namedParameterStatement.setParameterStatementValue(parameters);
-            resultSet = namedParameterStatement.executeQuery();
+            return namedParameterStatement.executeUpdate();
+        }
+    }
+
+    public static int executeNonQuery(String connectionString, String username, String password, String sentence)
+            throws Exception {
+        return executeNonQuery(connectionString, username, password, sentence, null);
+    }
+
+    public static Object executeScalar(String connectionString, String sentence, HashMap<String, Object> parameters)
+            throws Exception {
+        try (Connection connection = DriverManager.getConnection(connectionString)) {
+            NamedParameterStatementUtil namedParameterStatement = new NamedParameterStatementUtil(connection, sentence);
+            namedParameterStatement.setParameterStatementValue(parameters);
+            ResultSet resultSet = namedParameterStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getObject(1);
             } else {
                 return null;
-            }
-        } finally {
-            if (connection != null) {
-                connection.close();
             }
         }
     }
@@ -70,27 +59,33 @@ public class DatabaseUtil {
     }
 
 
-    public static List fill(String connectionString, String sentence,
-                            HashMap<String, Object> parameters) throws Exception {
-        Connection connection = null;
-        NamedParameterStatementUtil namedParameterStatement;
-        ResultSet resultSet;
-        List result;
-        try {
-            connection = DriverManager.getConnection(connectionString);
-            namedParameterStatement = new NamedParameterStatementUtil(connection,
+    public static Object executeScalar(String connectionString, String username, String password, String sentence, HashMap<String, Object> parameters) throws Exception {
+        try (Connection connection = DriverManager.getConnection(connectionString, username, password)) {
+            NamedParameterStatementUtil namedParameterStatement = new NamedParameterStatementUtil(connection, sentence);
+            namedParameterStatement.setParameterStatementValue(parameters);
+            ResultSet resultSet = namedParameterStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getObject(1);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public static Object executeScalar(String connectionString, String username, String password, String sentence)
+            throws Exception {
+        return executeScalar(connectionString, username, password, sentence, null);
+    }
+
+    public static List fill(String connectionString, String sentence, HashMap<String, Object> parameters) throws Exception {
+        try (Connection connection = DriverManager.getConnection(connectionString)) {
+            NamedParameterStatementUtil namedParameterStatement = new NamedParameterStatementUtil(connection,
                     sentence);
 
             namedParameterStatement.setParameterStatementValue(parameters);
-            resultSet = namedParameterStatement.executeQuery();
-            result = resultSet2List(resultSet);
+            ResultSet resultSet = namedParameterStatement.executeQuery();
+            return resultSet2List(resultSet);
         }
-        finally {
-            if (connection != null) {
-                connection.close();
-            }
-        }
-        return result;
     }
 
 
@@ -98,14 +93,27 @@ public class DatabaseUtil {
         return fill(connectionString, sentence, null);
     }
 
+    public static List fill(String connectionString, String username, String password, String sentence, HashMap<String, Object> parameters) throws Exception {
+        try (Connection connection = DriverManager.getConnection(connectionString, username, password)) {
+            NamedParameterStatementUtil namedParameterStatement = new NamedParameterStatementUtil(connection,
+                    sentence);
+
+            namedParameterStatement.setParameterStatementValue(parameters);
+            ResultSet resultSet = namedParameterStatement.executeQuery();
+            return resultSet2List(resultSet);
+        }
+    }
+
+
+    public static List fill(String connectionString, String username, String password, String sentence) throws Exception {
+        return fill(connectionString, username, password, sentence, null);
+    }
+
 
     public static List resultSet2List(ResultSet rs) throws SQLException {
-
         List list = new ArrayList();
-
         ResultSetMetaData md = rs.getMetaData();
         int columnCount = md.getColumnCount();
-
         while (rs.next()) {
             Map rowData = new HashMap();
             for (int i = 1; i <= columnCount; i++) {
@@ -145,10 +153,10 @@ public class DatabaseUtil {
         }
     }
 
-    /*
+    /**
      * 验证SQL安全性
      *
-     * @param String input
+     * @param input
      *
      * @return boolean
      */
@@ -166,10 +174,10 @@ public class DatabaseUtil {
         return true;
     }
 
-    /*
-     * ذȫַ
+    /**
+     * 获取安全SQL
      *
-     * @param String input
+     * @param input
      *
      * @return boolean
      */

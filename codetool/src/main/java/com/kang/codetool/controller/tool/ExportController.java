@@ -58,14 +58,17 @@ public class ExportController {
 
     @NoLog
     @RequestMapping("exportAllFile")
-    public void exportAllFile(@RequestParam("connectionString") String connectionString, @RequestParam("dbType") String dbType, @RequestParam("packagePath") String packagePath,
+    public void exportAllFile(@RequestParam("connectionString") String connectionString,
+                              @RequestParam("username") String username,
+                              @RequestParam("password") String password,
+                              @RequestParam("dbType") String dbType, @RequestParam("packagePath") String packagePath,
                               @RequestParam("lang") String lang, @RequestParam("type") String type,
                               HttpServletResponse response) throws Exception {
         try {
             connectionString = URLDecoder.decode(connectionString);
             DatabaseTypeEnum databaseType = DatabaseTypeEnum.getByName(dbType);
 
-            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, DatabaseTypeEnum.getByName(dbType));
+            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, username, password, DatabaseTypeEnum.getByName(dbType));
 
             String zipDirPath = this.getClass().getResource("/").getPath() + "zip/";
 
@@ -83,7 +86,7 @@ public class ExportController {
             }
             for (Map<String, Object> table : databaseTables) {
                 String tableName = table.get("TABLE_NAME").toString();
-                List<FieldDescriptionUtil> databaseColumns = Common.getDatabaseColumns(connectionString, tableName, DatabaseTypeEnum.getByName(dbType));
+                List<FieldDescriptionUtil> databaseColumns = Common.getDatabaseColumns(connectionString, username, password, tableName, DatabaseTypeEnum.getByName(dbType));
                 String className = StringUtil.toUpperFirst(StringUtil.replaceUnderline(tableName.startsWith("t_") ? tableName.replace("t_", "") : tableName));
                 CodeMakerGeneratCodeVO outModel = new CodeMakerGeneratCodeVO();
                 outModel.setPackagePath(packagePath);

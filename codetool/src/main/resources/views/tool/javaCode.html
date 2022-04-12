@@ -37,7 +37,21 @@
                     <td>连接字符串：</td>
                     <td>
                         <input type="text" id="txtConnectionString" style="max-width: 686px;width: 100%"
-                               value="jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx"/>
+                               value="jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>用户名：</td>
+                    <td>
+                        <input type="text" id="txtUsername" style="max-width: 686px;width: 100%"
+                               value="xxxxxxxx"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>密码：</td>
+                    <td>
+                        <input type="text" id="txtPassword" style="max-width: 686px;width: 100%"
+                               value="xxxxxxxx"/>
                     </td>
                 </tr>
                 <tr class="eleHide">
@@ -89,7 +103,12 @@
             if (localStorage.getItem("conn") != null) {
                 $("#txtConnectionString").val(localStorage.getItem("conn"));
             }
-
+            if (localStorage.getItem("username") != null) {
+                $("#txtUsername").val(localStorage.getItem("username"));
+            }
+            if (localStorage.getItem("pwd") != null) {
+                $("#txtPassword").val(localStorage.getItem("pwd"));
+            }
             if (localStorage.getItem("dbtype") != null) {
                 $("input[value=" + localStorage.getItem("dbtype") + "]").prop("checked", "checked");
             }
@@ -118,6 +137,8 @@
 
         $("#btnExportAll").bind("click", function () {
             $("#fmExportAll").find("input[name=connectionString]").val(encodeURIComponent($("#txtConnectionString").val()));
+            $("#fmExportAll").find("input[name=username]").val(encodeURIComponent($("#txtUsername").val()));
+            $("#fmExportAll").find("input[name=password]").val(encodeURIComponent($("#txtPassword").val()));
             $("#fmExportAll").find("input[name=packagePath]").val($("#txtPackage").val());
             $("#fmExportAll").find("input[name=dbType]").val($("input:radio[checked=checked]").val());
             $("#fmExportAll").find("input[name=lang]").val("Java");
@@ -138,6 +159,8 @@
 
         $("#btnGenerat").bind("click", function () {
             const connectionString = $("#txtConnectionString").val();
+            const username = $("#txtUsername").val();
+            const password = $("#txtPassword").val();
             const table = $("#sltTables").val();
             const pkg = $("#txtPackage").val();
             const className = $("#txtClassName").val();
@@ -146,6 +169,8 @@
                 lang: "Java",
                 dbType: $("input:radio[checked=checked]").val(),
                 connectionString: encodeURIComponent(connectionString),
+                username: encodeURIComponent(username),
+                password: encodeURIComponent(password),
                 table: table,
                 packagePath: pkg,
                 type: type,
@@ -171,10 +196,9 @@
         });
 
         $("input:radio").bind("change", function () {
-            const connectionString = $("#txtConnectionString").val();
-            const sqlserver = "jdbc:sqlserver://xxxxxxxxxxxx:xxxx;DatabaseName=xxx?user=xxxxxx&password=xxxxxx";
-            const mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx";
-            const postgresql = "jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx?user=xxxxxx&password=xxxxxx";
+            const sqlserver = "jdbc:sqlserver://xxxxxxxxxxxx:xxxx;DatabaseName=xxx";
+            const mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxx";
+            const postgresql = "jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx";
 
             if (this.value == 'SqlServer') {
                 if ($("#txtConnectionString").val() == postgresql || $("#txtConnectionString").val() == mysql || $("#txtConnectionString").val() == "") {
@@ -211,8 +235,18 @@
             if (connectionString.trim() == "") {
                 return;
             }
+            const username = $("#txtUsername").val().trim();
+            if (username.trim() == "") {
+                return;
+            }
+            const password = $("#txtPassword").val().trim();
+            if (password.trim() == "") {
+                return;
+            }
             const dbType = $("input:radio[checked=checked]").val();
             localStorage.setItem("conn", connectionString);
+            localStorage.setItem("username", username);
+            localStorage.setItem("pwd", password);
             localStorage.setItem("dbtype", dbType);
             $.ajax({
                 async: true,
@@ -223,6 +257,8 @@
                 dataType: "json",
                 data: {
                     connectionString: encodeURIComponent(connectionString),
+                    username: encodeURIComponent(username),
+                    password: encodeURIComponent(password),
                     random: new Date(),
                     dbType: dbType
                 },

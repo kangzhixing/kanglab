@@ -50,10 +50,12 @@ public class CodeMakerController {
 
     @RequestMapping("getTables")
     @ResponseBody
-    public RestResponse getTables(String connectionString, String dbType) throws Exception {
+    public RestResponse getTables(String connectionString, String username, String password, String dbType) throws Exception {
         connectionString = URLDecoder.decode(connectionString.trim());
+        username = URLDecoder.decode(username.trim());
+        password = URLDecoder.decode(password.trim());
 
-        List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, DatabaseTypeEnum.getByName(dbType));
+        List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connectionString, username, password, DatabaseTypeEnum.getByName(dbType));
         if (databaseTables != null) {
             return RestResponse.success(databaseTables);
         }
@@ -66,6 +68,8 @@ public class CodeMakerController {
     public RestResponse generatCode(CodeMakerGeneratCodeVO vo) throws Exception {
         RestResponse result = new RestResponse();
         vo.setConnectionString(URLDecoder.decode(vo.getConnectionString()).trim());
+        vo.setUsername(URLDecoder.decode(vo.getUsername()).trim());
+        vo.setPassword(URLDecoder.decode(vo.getPassword()).trim());
 
         switch (vo.getDbType().toLowerCase()) {
             case "mysql":
@@ -81,7 +85,8 @@ public class CodeMakerController {
                 vo.setDatabaseType(DatabaseTypeEnum.MySql);
         }
 
-        List<FieldDescriptionUtil> databaseColumns = Common.getDatabaseColumns(vo.getConnectionString(), vo.getTable(), DatabaseTypeEnum.getByName(vo.getDbType()));
+        List<FieldDescriptionUtil> databaseColumns = Common.getDatabaseColumns(vo.getConnectionString(), vo.getUsername(), vo.getPassword(),
+                vo.getTable(), DatabaseTypeEnum.getByName(vo.getDbType()));
         vo.setFieldDescriptions(databaseColumns);
 
         Class clazz = Class.forName("com.kang.codetool.service.Generate" + vo.getLang() + "CodeService");

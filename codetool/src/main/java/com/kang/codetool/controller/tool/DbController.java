@@ -31,13 +31,15 @@ public class DbController {
 
     @RequestMapping("getDbFile")
     @ResponseBody
-    public RestResponse<List<Map<String, Object>>> getDbFile(String connection, String dbType) {
+    public RestResponse<List<Map<String, Object>>> getDbFile(String connection, String username, String password, String dbType) {
         connection = URLDecoder.decode(connection);
+        username = URLDecoder.decode(username.trim());
+        password = URLDecoder.decode(password.trim());
         List<Map<String, Object>> result = new CopyOnWriteArrayList<>();
 
         try {
-            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, DatabaseTypeEnum.getByName(dbType));
-            List<FieldDescriptionUtil> columnList = Common.getDatabaseColumns(connection, null, DatabaseTypeEnum.getByName(dbType));
+            List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, username, password, DatabaseTypeEnum.getByName(dbType));
+            List<FieldDescriptionUtil> columnList = Common.getDatabaseColumns(connection, username, password, null, DatabaseTypeEnum.getByName(dbType));
 
             for (Map<String, Object> dbTable : databaseTables) {
                 try {
@@ -59,8 +61,10 @@ public class DbController {
     }
 
     @PostMapping("getDbData")
-    public RestResponse<List<Map<String, Object>>> getDbData(String connection, String dbType, String tableName) {
+    public RestResponse<List<Map<String, Object>>> getDbData(String connection, String username, String password, String dbType, String tableName) {
         connection = URLDecoder.decode(connection);
+        username = URLDecoder.decode(username.trim());
+        password = URLDecoder.decode(password.trim());
         if (connection.indexOf("zeroDateTimeBehavior") == -1) {
             connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
         }

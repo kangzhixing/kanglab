@@ -80,16 +80,16 @@ public class Common {
     }
 
 
-    public static List<Map<String, Object>> getDatabaseTables(String connectionString, DatabaseTypeEnum dbType) throws Exception {
+    public static List<Map<String, Object>> getDatabaseTables(String connectionString, String username, String password, DatabaseTypeEnum dbType) throws Exception {
         switch (dbType) {
             case MySql: {
-                return DatabaseUtil.fill(connectionString, getDatabaseTablesMySql(connectionString));
+                return DatabaseUtil.fill(connectionString, username, password, getDatabaseTablesMySql(connectionString));
             }
             case SqlServer: {
-                return DatabaseUtil.fill(connectionString, getDatabaseTablesSqlServer());
+                return DatabaseUtil.fill(connectionString, username, password, getDatabaseTablesSqlServer());
             }
             case PostgreSql: {
-                return DatabaseUtil.fill(connectionString, getDatabaseTablesPostgreSql());
+                return DatabaseUtil.fill(connectionString, username, password, getDatabaseTablesPostgreSql());
             }
             default:
                 return null;
@@ -118,23 +118,23 @@ public class Common {
     }
 
 
-    public static List<FieldDescriptionUtil> getDatabaseColumns(String connectionString, String tableName, DatabaseTypeEnum dbType) throws Exception {
+    public static List<FieldDescriptionUtil> getDatabaseColumns(String connectionString, String username, String password, String tableName, DatabaseTypeEnum dbType) throws Exception {
         switch (dbType) {
             case MySql: {
-                return GetDatabaseColumns_MySql(connectionString, tableName);
+                return GetDatabaseColumns_MySql(connectionString, username, password, tableName);
             }
             case SqlServer: {
-                return GetDatabaseColumns_SqlServer(connectionString, tableName);
+                return GetDatabaseColumns_SqlServer(connectionString, username, password, tableName);
             }
             case PostgreSql: {
-                return GetDatabaseColumns_PostgreSql(connectionString, tableName);
+                return GetDatabaseColumns_PostgreSql(connectionString, username, password, tableName);
             }
             default:
                 return null;
         }
     }
 
-    public static List<FieldDescriptionUtil> GetDatabaseColumns_SqlServer(String connectionString, String tableName) throws Exception {
+    public static List<FieldDescriptionUtil> GetDatabaseColumns_SqlServer(String connectionString, String username, String password, String tableName) throws Exception {
         String sql =
                 "        SELECT TableName=O.name, Name=C.name, DbType=T.name, PrimaryKey=ISNULL(IDX.PrimaryKey,N'')," +
                         "        IsIdentity=CASE WHEN C.is_identity=1 THEN N'true'ELSE N'false' END," +
@@ -193,7 +193,7 @@ public class Common {
                         (StringUtils.isBlank(tableName) ? "" : (" where O.name = '" + tableName + "'")) +
                         "       order by c.column_id";
 
-        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, sql);
+        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, username, password, sql);
 
         List<FieldDescriptionUtil> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
@@ -212,7 +212,7 @@ public class Common {
         return result;
     }
 
-    public static List<FieldDescriptionUtil> GetDatabaseColumns_PostgreSql(String connectionString, String tableName) throws Exception {
+    public static List<FieldDescriptionUtil> GetDatabaseColumns_PostgreSql(String connectionString, String username, String password, String tableName) throws Exception {
         String sql =
                 "select ordinal_position as Colorder,column_name as Name,data_type as DbType,\n" +
                         "coalesce(character_maximum_length,numeric_precision,-1) as Length,numeric_scale as Scale,\n" +
@@ -236,7 +236,7 @@ public class Common {
                         ")c on c.attname = information_schema.columns.column_name\n" +
                         "where table_schema='public'" + (StringUtils.isBlank(tableName) ? "" : (" and table_name='" + tableName + "'")) + " order by ispk desc,isidentity desc,ordinal_position asc";
 
-        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, sql);
+        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, username, password, sql);
 
         List<FieldDescriptionUtil> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
@@ -255,7 +255,7 @@ public class Common {
         return result;
     }
 
-    public static List<FieldDescriptionUtil> GetDatabaseColumns_MySql(String connectionString, String tableName) throws Exception {
+    public static List<FieldDescriptionUtil> GetDatabaseColumns_MySql(String connectionString, String username, String password, String tableName) throws Exception {
         String[] vars = connectionString.split("\\?")[0].split("/");
         String dbName = vars[vars.length - 1];
         String sql =
@@ -263,7 +263,7 @@ public class Common {
                         "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + dbName + "'"
                         + (StringUtils.isBlank(tableName) ? "" : (" AND TABLE_NAME = '" + tableName + "'"));
 
-        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, sql);
+        List<Map<String, Object>> queryResult = DatabaseUtil.fill(connectionString, username, password, sql);
 
         List<FieldDescriptionUtil> result = new ArrayList<>();
         for (Map<String, Object> map : queryResult) {
