@@ -83,7 +83,7 @@ public class DbController {
                 req.getPageNum() == null ? 0 : req.getPageNum(), req.getPageSize() == null ? 10 : req.getPageSize());
         log.info("查询sql为: {}", sql);
         try {
-            List<Map<String, Object>> dataList = DatabaseUtil.fill(connection, sql);
+            List<Map<String, Object>> dataList = DatabaseUtil.fill(connection, username, password, sql);
 
             return RestResponse.success(dataList);
         } catch (Exception ex) {
