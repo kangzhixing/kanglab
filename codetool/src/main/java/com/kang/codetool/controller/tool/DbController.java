@@ -105,7 +105,7 @@ public class DbController {
         String sql = getEditSql(connection, username, password, DatabaseTypeEnum.getByName(req.getDbType()), tableName, JSON.parseArray(req.getCondition(), GetDbDataConditionReq.class));
         log.info("修改sql为: {}", sql);
         try {
-            int count = DatabaseUtil.executeNonQuery(connection, sql);
+            int count = DatabaseUtil.executeNonQuery(connection, username, password, sql);
 
             return RestResponse.success(count);
         } catch (Exception ex) {
@@ -126,7 +126,7 @@ public class DbController {
         }
         String sql = getAddSql(connection, username, password, DatabaseTypeEnum.getByName(req.getDbType()), tableName, JSON.parseArray(req.getCondition(), GetDbDataConditionReq.class));
         try {
-            int count = DatabaseUtil.executeNonQuery(connection, sql);
+            int count = DatabaseUtil.executeNonQuery(connection, username, password, sql);
 
             return RestResponse.success(count);
         } catch (Exception ex) {
