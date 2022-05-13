@@ -112,7 +112,7 @@ public class ExportController {
                 } else {
                     if (type.toLowerCase().endsWith("xml")) {
                         fileName = className + "Mapper.xml";
-                    } else if (type.toLowerCase().endsWith("mapper") || type.toLowerCase().endsWith("Annotation")) {
+                    } else if (type.toLowerCase().endsWith("mapper") || type.toLowerCase().endsWith("annotation")) {
                         fileName = className + "Mapper.java";
                     } else if (type.equalsIgnoreCase("service")) {
                         fileName = className + "Service.java";

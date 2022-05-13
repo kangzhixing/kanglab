@@ -27,7 +27,7 @@ public class GenerateJavaCodeService {
                 " * " + vo.getTable() + "表实体类\n" +
                 " *\n" +
                 " * @author codeTool\n" +
-                " * @date " + LocalDate.now().toString() + "\n" +
+                " * @date " + LocalDate.now() + "\n" +
                 " */\n" +
                 "@Data\n" +
                 "public class {1} {\n\n", vo.getPackagePath().replace("{0}", ENTITY_PACKAGE_NAME), StringUtil.toUpperFirst(StringUtil.replaceUnderline(vo.getClassNameResult())) + ENTITY_CLASS_NAME_SUFFIX));
