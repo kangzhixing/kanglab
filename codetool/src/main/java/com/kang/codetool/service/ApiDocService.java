@@ -78,7 +78,7 @@ public class ApiDocService {
                                 .simpleClassName(STACK_OVER_FLOW_MESSAGE)
                                 .build());
                     }
-                    methodParameterSignature += getReturnTypeSignature(genericParameterType.getTypeName()) + " " + StringUtil.toLowerFirst(getSimpleClassName(genericParameterType.getTypeName())) + ", ";
+                    methodParameterSignature += getReturnTypeSignature(genericParameterType.getTypeName()) + " " + StringUtil.toLowerFirst(((ParameterizedTypeImpl) genericParameterType).getRawType().getSimpleName()) + ", ";
                 }
                 ParameterInfo returnType;
                 try {
