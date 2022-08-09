@@ -52,7 +52,7 @@ public class ApiController {
                     log.info("{}下载完成, cost: {}s", jarDownloadParams.getArtifactId(), (System.currentTimeMillis() - startTime) / 1000);
                     result.addAll(ApiDocService.getInterfaceList(fileList));
                 } catch (Exception e) {
-                    log.error("{}加载失败: {}", jarDownloadParams.getArtifactId(), e.getMessage());
+                    log.error("{}加载失败", jarDownloadParams.getArtifactId(), e);
                 }
                 cdl.countDown();
             });
