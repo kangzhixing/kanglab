@@ -77,7 +77,7 @@
                 $("#divDatas").val(jsonStr);
             } catch (e) {
                 $("#divDatas").addClass("waring");
-                var errMsg = " in JSON at position ";
+                var errMsg = " JSON at position ";
                 if (e.message.indexOf(errMsg) > -1) {
                     var position = Number(e.message.substr(e.message.indexOf(errMsg) + errMsg.length));
                     var demoBeginIndex = position > messageLength ? position - messageLength : 0;
