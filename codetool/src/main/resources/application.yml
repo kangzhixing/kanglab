@@ -35,5 +35,3 @@ springfox:
 kanglab:
   log:
     packages: com.kang.codetool.controller
-  validator:
-    packages: com.kang.codetool.controller

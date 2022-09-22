@@ -41,7 +41,7 @@ public class DbController {
 
     @RequestMapping("getDbFile")
     @ResponseBody
-    public RestResponse<List<Map<String, Object>>> getDbFile(String connection, String username, String password, String dbType) {
+    public RestResponse<List<Map<String, Object>>> getDbFile(String connection, String username, String password, String dbType, String tableName) {
         connection = URLDecoder.decode(connection);
         username = URLDecoder.decode(username.trim());
         password = URLDecoder.decode(password.trim());
@@ -49,9 +49,12 @@ public class DbController {
 
         try {
             List<Map<String, Object>> databaseTables = Common.getDatabaseTables(connection, username, password, DatabaseTypeEnum.getByName(dbType));
-            List<FieldDescriptionUtil> columnList = Common.getDatabaseColumns(connection, username, password, null, DatabaseTypeEnum.getByName(dbType));
+            List<FieldDescriptionUtil> columnList = Common.getDatabaseColumns(connection, username, password, tableName, DatabaseTypeEnum.getByName(dbType));
 
             for (Map<String, Object> dbTable : databaseTables) {
+                if (StringUtils.isNotBlank(tableName) && !tableName.equals(dbTable.get("TABLE_NAME").toString())) {
+                    continue;
+                }
                 try {
                     Map<String, Object> m = new LinkedHashMap<>();
                     m.put("dbName", dbTable.get("TABLE_NAME").toString());
