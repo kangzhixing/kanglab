@@ -77,7 +77,11 @@ public class DbController {
         String password = URLDecoder.decode(req.getPassword().trim());
         String tableName = URLDecoder.decode(req.getTableName().trim());
         if (connection.indexOf("zeroDateTimeBehavior") == -1) {
-            connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
+            if (connection.indexOf("?") > -1) {
+                connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
+            } else {
+                connection += "?zeroDateTimeBehavior=CONVERT_TO_NULL";
+            }
         }
         String sql = getSearchSql(connection, username, password, DatabaseTypeEnum.getByName(req.getDbType()), tableName, JSON.parseArray(req.getCondition(), GetDbDataConditionReq.class),
                 req.getPageNum() == null ? 0 : req.getPageNum(), req.getPageSize() == null ? 10 : req.getPageSize());
