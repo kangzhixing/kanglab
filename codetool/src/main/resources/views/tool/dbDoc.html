@@ -325,12 +325,12 @@
             }
             let html = "<ul class='ulHistory rd5'>";
             for (let i = 0; i < arr.length; i++) {
-                html += "<li id='li" + arr[i].id + "'><label onclick='chooseHistory(\"" + arr[i].id + "\")'>" + arr[i].conn + "</label><span class='ui-icon ui-icon-close fr cp' onclick='removeLi(\"" + arr[i].id + "\")'></span></li>";
+                html += "<li id='li" + arr[i].id + "'><label onclick='chooseHistory(\"" + arr[i].id + "\")'>" + (arr[i].conn.length > 90 ? arr[i].conn.substring(0, 90) + "..." : arr[i].conn) + "</label><span class='ui-icon ui-icon-close fr cp' onclick='removeLi(\"" + arr[i].id + "\")'></span></li>";
             }
             $("#tdHistory").html(html + "</ul>");
-            $(".ui-icon-close").hover(function(){
+            $(".ui-icon-close").hover(function () {
                 $(this).parent().find("label").css("text-decoration", "line-through");
-            }, function(){
+            }, function () {
                 $(this).parent().find("label").css("text-decoration", "");
             });
             return true;
