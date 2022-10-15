@@ -68,7 +68,7 @@ public class DbController {
             result.sort(Comparator.comparing(li -> li.get("dbName").toString()));
             return RestResponse.success(result);
         } catch (Exception ex) {
-            log.error("打印数据库文档失败", ex);
+            log.error("打印数据库文档失败: {}", ex.getMessage());
             return RestResponse.error("打印数据库文档失败:" + ex.getMessage());
         }
     }

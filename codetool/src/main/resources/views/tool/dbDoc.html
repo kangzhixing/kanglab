@@ -119,6 +119,32 @@
         color: lightgrey;
     }
 
+    .ulHistory {
+        max-width: 675px;
+        width: 100%;
+        margin: 5px 0;
+        padding: 5px 10px 5px 15px;
+        background-color: #eeeeee;
+    }
+
+    .ulHistory li {
+        list-style: none;
+        margin: 5px 0;
+    }
+
+    .ulHistory li label {
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .ulHistory li span {
+        top: 4px;
+    }
+
+    .ulHistory li label:hover {
+        font-weight: bolder;
+    }
+
 </style>
 
 <div id="pageMSSQL" class="divPage">
@@ -129,22 +155,27 @@
         </div>
         <table style="margin-top: 10px;width:100%">
             <tr>
-                <td width="90px">数据库类型:</td>
+                <td style="width: 90px">数据库类型:</td>
                 <td>
-                    <input type="radio" name="dbType" id="cboSqlServer" checked="checked" value="SqlServer"/>
-                    <label for="cboSqlServer">Sql Server</label>
-                    <input type="radio" name="dbType" id="cboMySql" value="MySql"/>
+                    <input type="radio" name="dbType" id="cboMySql" value="MySql" checked="checked"/>
                     <label for="cboMySql">MySql</label>
                     <input type="radio" name="dbType" id="cboPostgreSql" value="PostgreSql"/>
                     <label for="cboPostgreSql">PostgreSql</label>
+                    <input type="radio" name="dbType" id="cboSqlServer" value="SqlServer"/>
+                    <label for="cboSqlServer">Sql Server</label>
                 </td>
             </tr>
             <tr>
                 <td>连接字符串:</td>
                 <td>
                     <input type="text" id="txtConnectionString" style="max-width: 686px;width: 100%"
-                           value="jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx"/>
+                           value="jdbc:mysql://xxxxxxxxxxxx:xxxx/xxxxxxxxxx"/>
+                    <span class="ui-icon ui-icon-circle-triangle-s dn cp" style="top: 1px" id="btnHistory"/>
                 </td>
+            </tr>
+            <tr id="trHistory" class="dn">
+                <td></td>
+                <td id="tdHistory"></td>
             </tr>
             <tr>
                 <td>用户名:</td>
@@ -168,7 +199,7 @@
             </tr>
         </table>
     </div>
-    <div id="divDatas" class="divContent eleHide dn" style="overflow-x:auto">
+    <div id="divDatas" class="divContent eleHide dn mt15" style="overflow-x:auto">
     </div>
     <div id="divTableNameListTemp" class="dn">
         <div class="divTableList rd5 eleDb" db="{3}" onclick="findTable('{1}');" title="{2}">{0}</div>
@@ -249,18 +280,14 @@
 <script type="text/javascript">
 
     $(function () {
-        if (localStorage.getItem("docconn") != null) {
-            $("#txtConnectionString").val(localStorage.getItem("docconn"));
+        const connId = localStorage.getItem("connId");
+        if (connId && connId.length != 0) {
+            chooseHistory(connId);
+            $("#btnHistory").show();
+        } else {
+            $("#btnHistory").hide();
         }
-        if (localStorage.getItem("docusername") != null) {
-            $("#txtUsername").val(localStorage.getItem("docusername"));
-        }
-        if (localStorage.getItem("docpwd") != null) {
-            $("#txtPassword").val(localStorage.getItem("docpwd"));
-        }
-        if (localStorage.getItem("docdbtype") != null) {
-            $("input[value=" + localStorage.getItem("docdbtype") + "]").prop("checked", "checked");
-        }
+        initTrHistory();
 
         $("input[name=cboActType]").checkboxradio({
             icon: false
@@ -268,12 +295,104 @@
         $("#cboCondition").controlgroup();
     });
 
+    function removeLi(id) {
+        $("#li" + id).remove();
+        removeHistory(id);
+        if ($(".ulHistory li").length == 0) {
+            $("#btnHistory,#tdHistory").hide();
+        }
+    }
+
+    function getHistory(id) {
+        let connHistoryStr = localStorage.getItem("connHistory");
+        if (connHistoryStr) {
+            let arr = JSON.parse(connHistoryStr);
+            if (!arr || arr.length == 0) {
+                return null;
+            }
+            arr = arr.filter(i => i.id == id)
+            return arr != null && arr.length > 0 ? arr[0] : null;
+        }
+    }
+
+    function initTrHistory() {
+        let connHistoryStr = localStorage.getItem("connHistory");
+        if (connHistoryStr) {
+            let arr = JSON.parse(connHistoryStr);
+            if (!arr || arr.length == 0) {
+                $("#tdHistory").html("");
+                return false;
+            }
+            let html = "<ul class='ulHistory rd5'>";
+            for (let i = 0; i < arr.length; i++) {
+                html += "<li id='li" + arr[i].id + "'><label onclick='chooseHistory(\"" + arr[i].id + "\")'>" + arr[i].conn + "</label><span class='ui-icon ui-icon-close fr cp' onclick='removeLi(\"" + arr[i].id + "\")'></span></li>";
+            }
+            $("#tdHistory").html(html + "</ul>");
+            $(".ui-icon-close").hover(function(){
+                $(this).parent().find("label").css("text-decoration", "line-through");
+            }, function(){
+                $(this).parent().find("label").css("text-decoration", "");
+            });
+            return true;
+        } else {
+            $("#tdHistory").html("");
+            return false;
+        }
+    }
+
+    function chooseHistory(id) {
+        let item = getHistory(id);
+        $("#txtConnectionString").val(item.conn);
+        $("#txtUsername").val(item.user);
+        $("#txtPassword").val(item.pwd);
+        $("input[value=" + item.dbType + "]").prop("checked", "checked");
+        $("#trHistory").hide();
+    }
+
+    function addHistory(conn, user, pwd, dbType) {
+        const id = hex_md5(conn + user + pwd + dbType);
+        removeHistory(id);
+        let connHistoryStr = localStorage.getItem("connHistory");
+        let connItem = {id, conn, user, pwd, dbType};
+        let json;
+        if (connHistoryStr) {
+            json = JSON.parse(connHistoryStr);
+            json.push(connItem);
+        } else {
+            json = [connItem];
+        }
+        localStorage.setItem("connHistory", JSON.stringify(json));
+        localStorage.setItem("connId", id);
+        $("#btnHistory").show();
+        initTrHistory();
+    }
+
+    function removeHistory(id) {
+        let connHistoryStr = localStorage.getItem("connHistory");
+        if (connHistoryStr) {
+            let arr = JSON.parse(connHistoryStr);
+            if (!arr || arr.length == 0) {
+                return;
+            }
+            arr = arr.filter(i => i.id !== id);
+            localStorage.setItem("connHistory", JSON.stringify(arr));
+            let connId = localStorage.getItem("connId");
+            if (connId && connId == id) {
+                localStorage.removeItem("connId");
+            }
+        }
+    }
+
     function findTable(id) {
         //location.href = '#' + id;
         $('html, body').animate({
             scrollTop: $("#" + id).offset().top - 80
         }, 500);
     }
+
+    $("#btnHistory").click(function () {
+        $("#trHistory").toggle();
+    });
 
     $("#txtDbName").bind('keyup', function () {
         let text = $(this).val();
@@ -303,16 +422,11 @@
         if (!password) {
             return;
         }
-
         const dbType = $("input[name=dbType]:radio[checked=checked]").val();
-        localStorage.setItem("docconn", connectionString);
-        localStorage.setItem("docusername", username);
-        localStorage.setItem("docpwd", password);
-        localStorage.setItem("docdbtype", dbType);
 
         $("#divDatas").html('');
         $("#txtDbName").val('');
-        $(".eleHide").hide();
+        $(".eleHide,#trHistory").hide();
         $.ajax({
             async: true,
             type: "POST",
@@ -333,6 +447,7 @@
                     $(".eleHide").hide();
                     return;
                 }
+                addHistory(connectionString, username, password, dbType);
                 $(".eleHide").fadeIn(200);
                 $("#divDatas").scrollLeft(0);
 
@@ -549,10 +664,9 @@
     });
 
     $("input:radio").bind("change", function () {
-        const connectionString = $("#txtConnectionString").val();
         const sqlserver = "data source=xxxxxxxxxx;database=xxxxxxxxxx;";
         const mysql = "jdbc:mysql://xxxxxxxxxxxx:xxxx/xxxxxxxxxx";
-        const postgresql = "server=xxxxxxxxxx;database=xxxxxxxxxx;port=xxxx;";
+        const postgresql = "jdbc:postgresql://xxxxxxxxxxxx:xxxx/xxx";
 
         if (this.value == 'SqlServer') {
             if ($("#txtConnectionString").val() == postgresql || $("#txtConnectionString").val() == mysql || $("#txtConnectionString").val() == "") {
