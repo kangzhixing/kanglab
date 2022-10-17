@@ -80,11 +80,7 @@ public class DbController {
         String password = URLDecoder.decode(req.getPassword().trim());
         String tableName = URLDecoder.decode(req.getTableName().trim());
         if (connection.indexOf("zeroDateTimeBehavior") == -1) {
-            if (connection.indexOf("?") > -1) {
-                connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
-            } else {
-                connection += "?zeroDateTimeBehavior=CONVERT_TO_NULL";
-            }
+            connection = appendZeroDateTimeBehavior(connection);
         }
         String sql = getSearchSql(connection, username, password, DatabaseTypeEnum.getByName(req.getDbType()), tableName, JSON.parseArray(req.getCondition(), GetDbDataConditionReq.class),
                 req.getPageNum() == null ? 0 : req.getPageNum(), req.getPageSize() == null ? 10 : req.getPageSize());
@@ -107,7 +103,7 @@ public class DbController {
         String tableName = req.getTableName();
 
         if (connection.indexOf("zeroDateTimeBehavior") == -1) {
-            connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
+            connection = appendZeroDateTimeBehavior(connection);
         }
         String sql = getEditSql(connection, username, password, DatabaseTypeEnum.getByName(req.getDbType()), tableName, JSON.parseArray(req.getCondition(), GetDbDataConditionReq.class));
         log.info("修改sql为: {}", sql);
@@ -129,7 +125,7 @@ public class DbController {
         String tableName = req.getTableName();
 
         if (connection.indexOf("zeroDateTimeBehavior") == -1) {
-            connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
+            connection = appendZeroDateTimeBehavior(connection);
         }
         String sql = getAddSql(connection, username, password, DatabaseTypeEnum.getByName(req.getDbType()), tableName, JSON.parseArray(req.getCondition(), GetDbDataConditionReq.class));
         try {
@@ -140,6 +136,15 @@ public class DbController {
             log.error("添加数据失败", ex);
             return RestResponse.error("添加数据失败:" + ex.getMessage());
         }
+    }
+
+    private String appendZeroDateTimeBehavior(String connection){
+        if (connection.indexOf("?") > -1) {
+            connection += "&zeroDateTimeBehavior=CONVERT_TO_NULL";
+        } else {
+            connection += "?zeroDateTimeBehavior=CONVERT_TO_NULL";
+        }
+        return connection;
     }
 
     private String getSearchSql(String connection, String username, String password, DatabaseTypeEnum dbType, String tableName, List<GetDbDataConditionReq> condition, int pageNum, int pageSize) throws Exception {
