@@ -598,7 +598,7 @@
                 return;
             }
             alert("修改成功");
-            query(connectionString, dbType, $("#lblActTitle").text());
+            query(connectionString, username, password, dbType, tableName);
         });
     }
 
@@ -616,7 +616,7 @@
                 return;
             }
             alert("添加成功");
-            query(connectionString, dbType, $("#lblActTitle").text());
+            query(connectionString, username, password, dbType, tableName);
         });
     }
 

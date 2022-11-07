@@ -899,7 +899,7 @@ public class GenerateJavaCodeService {
             if (vo.getFieldDescriptions().size() == 0) {
                 return "";
             }
-            vo.getFieldDescriptions().stream().filter(f -> f.getColumnKey() != "PRI").forEach(f ->
+            vo.getFieldDescriptions().stream().filter(f -> !"PRI".equals(f.getColumnKey())).forEach(f ->
             {
                 field_UpdateParams.append(StringUtil.format("{2} = #{{0},jdbcType={1}}, ", StringUtil.toLowerFirst(f.getSimpleName()), MybatisTypeMapUtil.map4MybatisPostgreSql(f.getDbType()).toUpperCase(), MybatisTypeMapUtil.getSafeParam(f.getName(), vo.getDatabaseType())));
                 appendLineBreak(field_UpdateParams, 100, "    ");
@@ -930,7 +930,8 @@ public class GenerateJavaCodeService {
                     MybatisTypeMapUtil.map4MybatisPostgreSql(field.getDbType()).toUpperCase(),
                     StringUtil.format(vo.getPackagePath(), ENTITY_PACKAGE_NAME) + "." + vo.getClassName() + ENTITY_CLASS_NAME_SUFFIX,
                     field_UpdateParamsSelective,
-                    field_UpdateParams.toString().trim().substring(0, field_UpdateParams.toString().trim().length() - 1), StringUtil.toUpperFirst(field.getSimpleName())))
+                    field_UpdateParams.toString().trim().substring(0, field_UpdateParams.toString().trim().length() - 1),
+                    StringUtil.toUpperFirst(field.getSimpleName())))
             ;
             return result.toString();
         }
