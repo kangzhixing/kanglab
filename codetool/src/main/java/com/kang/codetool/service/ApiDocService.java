@@ -182,7 +182,9 @@ public class ApiDocService {
                                 .build();
                         childParameters.add(innerParam);
                     } else {
-                        childParameters.add(getParameterInfoByType(declaredField.getGenericType(), declaredField.getName(), urlClassLoader));
+                        if (!"serialVersionUID".equalsIgnoreCase(declaredField.getName())) {
+                            childParameters.add(getParameterInfoByType(declaredField.getGenericType(), declaredField.getName(), urlClassLoader));
+                        }
                     }
                 }
             }
@@ -199,7 +201,9 @@ public class ApiDocService {
             // 如果不是数组 则直接判断该类型是否为数组
             if ((rawType.isArray() && !ClassUtil.isBasic(rawType.getComponentType())) || !ClassUtil.isBasic(rawType)) {
                 for (Field declaredField : rawType.getDeclaredFields()) {
-                    childParameters.add(getParameterInfoByType(declaredField.getGenericType(), declaredField.getName(), urlClassLoader));
+                    if (!"serialVersionUID".equalsIgnoreCase(declaredField.getName())) {
+                        childParameters.add(getParameterInfoByType(declaredField.getGenericType(), declaredField.getName(), urlClassLoader));
+                    }
                 }
             }
             builder.childParamList(childParameters);
