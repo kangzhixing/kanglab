@@ -19,6 +19,6 @@ public enum ResponseCodeEnum {
     ERROR_FORBIDDEN("30000", "调用接口权限不足"),
     ERROR("40000", "业务处理失败");
 
-    private String code;
-    private String desc;
+    private final String code;
+    private final String desc;
 }

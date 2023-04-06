@@ -1,6 +1,6 @@
 package com.kang.lab.utils;
 
-import com.alibaba.druid.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class StringUtil {
 
@@ -19,7 +19,7 @@ public class StringUtil {
             return "";
         }
         try {
-            if (org.apache.commons.lang3.StringUtils.isBlank(result)) {
+            if (StringUtils.isBlank(result)) {
                 return "";
             }
             if (result.length() > limit) {
