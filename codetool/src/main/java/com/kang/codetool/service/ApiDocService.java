@@ -12,7 +12,6 @@ import com.kang.lab.utils.jar.JarUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -149,7 +148,7 @@ public class ApiDocService {
         Class<?> rawType;
         // 如果类属于泛型
         if (type instanceof ParameterizedType) {
-            rawType = ((ParameterizedTypeImpl) type).getRawType();
+            rawType = (Class<?>) ((ParameterizedType) type).getRawType();
             List<ParameterInfo> childParameters = new ArrayList<>();
             // 如果是数组或者集合，直接进入下一层级，并解析其泛型对象
             if (isSignByCollection(rawType)) {
