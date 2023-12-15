@@ -14,7 +14,7 @@ import java.net.URLDecoder;
 import java.util.*;
 
 @RestController
-public class indexController {
+public class IndexController {
 
     @RequestMapping("/")
     public ModelAndView testPage() {
@@ -28,7 +28,7 @@ public class indexController {
         if (content.isEmpty() || "all".equals(content)) {
             return "/searchPage?isall=1";
         }
-        List<String> list = new ArrayList();
+        List<String> list = new ArrayList<>();
         for (Map.Entry entry : pages.entrySet()) {
             if (entry.getKey().toString().toLowerCase().contains(content.toLowerCase())) {
                 list.add(entry.getKey().toString());
