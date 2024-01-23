@@ -29,12 +29,12 @@ public class IndexController {
             return "/searchPage?isall=1";
         }
         List<String> list = new ArrayList<>();
-        for (Map.Entry entry : pages.entrySet()) {
-            if (entry.getKey().toString().toLowerCase().contains(content.toLowerCase())) {
-                list.add(entry.getKey().toString());
+        for (Map.Entry<String, Method> entry : pages.entrySet()) {
+            if (entry.getKey().toLowerCase().contains(content.toLowerCase())) {
+                list.add(entry.getKey());
             }
         }
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             return "empty";
         } else if (list.size() == 1) {
             return Common.getUrlByControllerMethod(pages.get(list.get(0)));
