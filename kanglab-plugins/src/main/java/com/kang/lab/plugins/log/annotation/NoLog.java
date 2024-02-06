@@ -1,4 +1,4 @@
-package com.kang.lab.plugins.log.annotations;
+package com.kang.lab.plugins.log.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

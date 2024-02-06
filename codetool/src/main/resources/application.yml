@@ -32,6 +32,7 @@ springfox:
     swagger-ui:
       enabled: true
 
-kanglab:
+open:
   log:
+    enable: true
     packages: com.kang.codetool.controller

@@ -1,12 +1,15 @@
 package com.kang.lab.plugins.validator;
 
-import com.kang.lab.plugins.utils.PointCutUtil;
-import com.kang.lab.utils.enums.ResponseCodeEnum;
-import com.kang.lab.utils.vo.RestResponse;
+
+import com.jdt.open.capability.util.PointCutUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.HibernateValidatorConfiguration;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -16,18 +19,42 @@ import org.springframework.context.annotation.Bean;
  * @date 2021-03-19 20:58
  */
 @Slf4j
-@ConditionalOnExpression("!''.equals('${kanglab.validator.packages:}')")
+@ConditionalOnProperty(prefix = "open.validator", name = "enable", havingValue = "true")
 public class ValidatorAdvisorConfig {
 
-    @Value("${kanglab.validator.packages:}")
+    @Value("${open.validator.packages:}")
     private String validatorPackages;
 
     @Bean
-    public AspectJExpressionPointcutAdvisor controllerValidatorAdvisor() {
-        log.info("[KangLabValidator] 参数校验切面已开启");
+    @ConditionalOnMissingBean
+    public HibernateValidatorConfiguration hibernateValidatorConfiguration() {
+        return ValidatorUtil.getDefaultValidatorConfiguration();
+    }
+
+    @Bean
+    public ValidatorUtil validatorUtil(HibernateValidatorConfiguration hibernateValidatorConfiguration) {
+        return ValidatorUtil.getInstance(hibernateValidatorConfiguration);
+    }
+
+    @Bean
+    public AspectJExpressionPointcutAdvisor annoValidatorAdviser(ValidatorUtil validatorUtil) {
         AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
-        advisor.setExpression(PointCutUtil.buildPointCutPath(validatorPackages));
-        advisor.setAdvice(new ValidatorAdvice((msg) -> RestResponse.error(ResponseCodeEnum.ERROR_INVALID_PARAM, msg)));
+        if (StringUtils.isBlank(validatorPackages)) {
+            advisor.setExpression(PointCutUtil.getExpression(OpenValid.class));
+        } else {
+            advisor.setExpression(PointCutUtil.getExpression(OpenValid.class, validatorPackages.split(",")));
+        }
+        advisor.setAdvice((MethodInterceptor) invocation -> {
+            if (invocation.getArguments() != null) {
+                for (Object arg : invocation.getArguments()) {
+                    if (arg != null) {
+                        validatorUtil.check(arg);
+                    }
+                }
+            }
+            return invocation.proceed();
+        });
+        advisor.setOrder(10);
         return advisor;
     }
 }

@@ -1,20 +1,17 @@
 package com.kang.lab.plugins.log;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.kang.lab.plugins.log.annotations.KlLog;
+import com.kang.lab.plugins.log.annotation.OpenLog;
+import com.kang.lab.plugins.utils.json.JsonUtil;
 import com.kang.lab.utils.StringUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.ui.Model;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 日志工具类
@@ -33,44 +30,20 @@ public class LogUtil {
     /**
      * 打印请求
      */
-    public static LogInfo logRequest(JoinPoint joinPoint) {
-        LogInfo logInfo = LogInfo.getInstance(joinPoint);
+    public static LogInfo logRequest(Method method, Object[] args) {
+        LogInfo logInfo = LogInfo.getInstance(method);
         if (logInfo.isLog()) {
             try {
-                if (!logInfo.isLogRequestParam()) {
-                    log.info("[REQUEST]{}", logInfo.getLogTitle());
+                if (logInfo.isSkipPrintParams()) {
+                    log.info("[IN]{}", logInfo.getLogTitle());
                 } else {
-                    log.info("[REQUEST]{} param: {}", logInfo.getLogTitle(),
-                            StringUtil.trySubstring(JSON.toJSONString(removeObjectCannotBeFormat(joinPoint.getArgs()), SerializerFeature.WriteMapNullValue), LOG_MAX_LENGTH));
+                    log.info("[IN]{} param: {}", logInfo.getLogTitle(), StringUtil.trySubstring(JsonUtil.desensitize(removeObjectCannotBeFormat(args)), LOG_MAX_LENGTH));
                 }
 
             } catch (Exception ex) {
                 log.error("日志打印失败", ex);
             }
         }
-
-        return logInfo;
-    }
-
-    /**
-     * 打印请求
-     */
-    public static LogInfo logRequest(MethodInvocation methodInvocation) {
-        LogInfo logInfo = LogInfo.getInstance(methodInvocation.getMethod());
-        if (logInfo.isLog()) {
-            try {
-                if (!logInfo.isLogRequestParam()) {
-                    log.info("[REQUEST]{}", logInfo.getLogTitle());
-                } else {
-                    log.info("[REQUEST]{} param: {}", logInfo.getLogTitle(),
-                            StringUtil.trySubstring(JSON.toJSONString(removeObjectCannotBeFormat(methodInvocation.getArguments()), SerializerFeature.WriteMapNullValue), LOG_MAX_LENGTH));
-                }
-
-            } catch (Exception ex) {
-                log.error("日志打印失败", ex);
-            }
-        }
-
         return logInfo;
     }
 
@@ -80,20 +53,39 @@ public class LogUtil {
      * @param args
      * @return
      */
-    public static Object[] removeObjectCannotBeFormat(Object[] args) {
+    public static Object[] removeObjectCannotBeFormat(Object... args) {
         if (args == null) {
             return null;
         }
-        List<Object> list = new ArrayList<>();
-
+        // 先遍历一遍，看是否存在不能序列化的对象，避免每次都创建新数组
+        int countBadObject = 0;
         for (Object obj : args) {
-            if (obj instanceof HttpServletRequest || obj instanceof HttpServletResponse) {
+            if (checkObjectCannotBeFormat(obj)) {
+                countBadObject++;
+            }
+        }
+        if (countBadObject == 0) {
+            return args;
+        }
+        if (countBadObject == args.length) {
+            return new Object[0];
+        }
+        Object[] newArr = new Object[args.length - countBadObject];
+        int newArrIndex = 0;
+        for (Object obj : args) {
+            if (checkObjectCannotBeFormat(obj)) {
                 continue;
             }
-            list.add(obj);
+            newArr[newArrIndex++] = obj;
         }
+        return newArr;
+    }
 
-        return list.toArray();
+    /**
+     * 是否是不能格式化的对象
+     */
+    private static boolean checkObjectCannotBeFormat(Object obj) {
+        return obj instanceof HttpServletRequest || obj instanceof HttpServletResponse || obj instanceof Model;
     }
 
     /**
@@ -108,68 +100,48 @@ public class LogUtil {
         }
         long costTime = System.currentTimeMillis() - logInfo.getStartTime();
         try {
-            if (!logInfo.isLogResponseParam()) {
-                log.info("[RESPONSE]{}[{}ms]", logInfo.getLogTitle(), costTime);
+            if (logInfo.isSkipPrintResult() || checkObjectCannotBeFormat(result)) {
+                log.info("[OUT]{}[{}ms]", logInfo.getLogTitle(), costTime);
             } else {
-                log.info("[RESPONSE]{}[{}ms] return: {}", logInfo.getLogTitle(), costTime,
-                        StringUtil.trySubstring(JSON.toJSONString(result, SerializerFeature.WriteMapNullValue), LOG_MAX_LENGTH));
+                log.info("[OUT]{}[{}ms] return: {}", logInfo.getLogTitle(), costTime,
+                        StringUtil.trySubstring(JsonUtil.desensitize(result), LOG_MAX_LENGTH));
             }
         } catch (Exception ex) {
-            log.warn("日志打印失败", ex);
+            log.error("日志打印失败", ex);
         }
     }
 
-    /**
-     * 通过ProceedingJoinPoint生成日志标题
-     */
-    public static String getLogTitle(JoinPoint joinPoint) {
-        try {
-            // 获取方法
-            return getLogTitleByMethod(getMethodByJoinPoint(joinPoint));
-
-        } catch (Exception ex) {
-            return "";
-        }
-    }
-
-    public static String getClassDescByMethod(Method method){
-        // 优先输出swagger注释
-        ApiOperation annotationApi = method.getAnnotation(ApiOperation.class);
-        if (annotationApi != null && annotationApi.value().length() > 0) {
-            return annotationApi.value();
+    public static String getMethodDescByMethod(Method method) {
+        // 优先输出OpenLog的方法描述
+        OpenLog openLogAnno = method.getAnnotation(OpenLog.class);
+        if (openLogAnno != null && !openLogAnno.value().isEmpty()) {
+            return openLogAnno.value();
         } else {
-            KlLog annotationOpenLog = method.getAnnotation(KlLog.class);
-            if (annotationOpenLog != null && annotationOpenLog.value().length() > 0) {
-                return annotationOpenLog.value();
+            ApiOperation apiOperationAnno = method.getAnnotation(ApiOperation.class);
+            if (apiOperationAnno != null && !apiOperationAnno.value().isEmpty()) {
+                return apiOperationAnno.value();
             }
         }
         return "";
     }
 
-    /**
-     * 通过方法获取日志标题
-     * @param method
-     * @return
-     */
     public static String getLogTitleByMethod(Method method) {
         if (method == null) {
             return "";
         }
-        String apiInformation = getClassDescByMethod(method);
-        return String.format("%s[%s.%s]",
-                apiInformation,
-                method.getDeclaringClass().getSimpleName(),
-                method.getName());
+        String apiInformation = getMethodDescByMethod(method);
+        return String.format("%s[%s.%s]", apiInformation, method.getDeclaringClass().getSimpleName(), method.getName());
     }
 
     /**
-     * 通过ProceedingJoinPoint获取方法
+     * 通过JoinPoint获取方法
      */
     public static Method getMethodByJoinPoint(JoinPoint joinPoint) {
         try {
             MethodSignature ms = (MethodSignature) joinPoint.getSignature();
             return joinPoint.getTarget().getClass().getDeclaredMethod(ms.getName(), ms.getParameterTypes());
         } catch (NoSuchMethodException e) {
+            log.error("通过JoinPoint获取方法失败");
             return null;
         }
     }

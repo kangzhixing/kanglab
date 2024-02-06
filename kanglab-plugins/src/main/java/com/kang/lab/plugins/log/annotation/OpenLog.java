@@ -1,4 +1,4 @@
-package com.kang.lab.plugins.log.annotations;
+package com.kang.lab.plugins.log.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,10 +12,20 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface KlLog {
+public @interface OpenLog {
 
     /**
      * 方法说明
      */
     String value() default "";
+
+    /**
+     * 是否打印入参
+     */
+    boolean printParams() default true;
+
+    /**
+     * 是否打印出参
+     */
+    boolean printResult() default true;
 }

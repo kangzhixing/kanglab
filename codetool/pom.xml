@@ -106,6 +106,7 @@
         <dependency>
             <artifactId>fastjson</artifactId>
             <groupId>com.alibaba</groupId>
+            <version>1.2.83</version>
         </dependency>
         <dependency>
             <groupId>com.kang</groupId>
@@ -119,6 +120,12 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

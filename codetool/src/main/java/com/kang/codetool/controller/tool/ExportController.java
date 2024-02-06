@@ -7,7 +7,7 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kang.codetool.common.Common;
 import com.kang.codetool.common.Constants;
 import com.kang.codetool.model.CodeMakerGeneratCodeVO;
-import com.kang.lab.plugins.log.annotations.NoLog;
+import com.kang.lab.plugins.log.annotation.NoLog;
 import com.kang.lab.utils.FileUtil;
 import com.kang.lab.utils.StringUtil;
 import com.kang.lab.utils.UUIDUtil;

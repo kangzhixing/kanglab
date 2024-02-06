@@ -1,11 +1,7 @@
 package com.kang.lab.plugins.log;
 
-import com.kang.lab.plugins.log.annotations.NoLog;
-import com.kang.lab.plugins.log.annotations.NoLogRequest;
-import com.kang.lab.plugins.log.annotations.NoLogResponse;
+import com.kang.lab.plugins.log.annotation.*;
 import lombok.Getter;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
 
 import java.lang.reflect.Method;
 
@@ -23,14 +19,14 @@ public class LogInfo {
     private boolean isLog;
 
     /**
-     * 是否打印入参
+     * 是否不打印入参
      */
-    private boolean isLogRequestParam;
+    private boolean skipPrintParams;
 
     /**
-     * 是否打印出参
+     * 是否不打印出参
      */
-    private boolean isLogResponseParam;
+    private boolean skipPrintResult;
 
     /**
      * 开始时间戳
@@ -39,33 +35,26 @@ public class LogInfo {
 
     /**
      * 私有构造
+     *
      * @param method
      */
     private LogInfo(Method method) {
         this.startTime = System.currentTimeMillis();
         this.logTitle = LogUtil.getLogTitleByMethod(method);
 
-        NoLog annotationNoLog = method.getDeclaredAnnotation(NoLog.class);
-        this.isLog = annotationNoLog == null;
+        this.isLog = method.getDeclaredAnnotation(NoLog.class) == null;
 
-        NoLogRequest annotationNoReq = method.getDeclaredAnnotation(NoLogRequest.class);
-        this.isLogRequestParam = annotationNoReq == null;
-
-        NoLogResponse annotationNoResp = method.getDeclaredAnnotation(NoLogResponse.class);
-        this.isLogResponseParam = annotationNoResp == null && !"void".equals(method.getReturnType().getName());
+        OpenLog annotationOpenLog = method.getDeclaredAnnotation(OpenLog.class);
+        this.skipPrintParams = method.getDeclaredAnnotation(NoLogRequest.class) != null
+                || (annotationOpenLog != null && !annotationOpenLog.printParams());
+        this.skipPrintResult = "void".equals(method.getReturnType().getName())
+                || method.getDeclaredAnnotation(NoLogResponse.class) != null
+                || (annotationOpenLog != null && !annotationOpenLog.printResult());
     }
 
     /**
      * 获取实例
-     * @param joinPoint
-     * @return LogInfo
-     */
-    public static LogInfo getInstance(JoinPoint joinPoint) {
-        return new LogInfo(LogUtil.getMethodByJoinPoint(joinPoint));
-    }
-
-    /**
-     * 获取实例
+     *
      * @param method
      * @return
      */
